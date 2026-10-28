@@ -90,8 +90,24 @@ About 490 to 550 KB of JavaScript transfer is reported by Lighthouse, of which ~
 - `verify-export.mjs` scans the output for GitHub, Anthropic and AWS token patterns on every build.
 - Dependencies: `npm audit` reported 0 vulnerabilities at install time.
 
+## Live deployment check (2026-10-28, https://bonfireos.pages.dev)
+
+After the owner connected the repository to Cloudflare Pages, the same checks ran against the production URL (`BASE_URL=https://bonfireos.pages.dev npm run test:e2e`).
+
+| Check | Result |
+| --- | --- |
+| Playwright, Chromium + Pixel 7 projects | 97 passed, 0 failed |
+| Security headers applied by Cloudflare from `_headers` | CSP, `X-Frame-Options: DENY`, `nosniff`, referrer and permissions policies all present on `/` |
+| Segment prefetch files | served correctly (Linux build; the Windows normalisation step is not needed there) |
+
+| Route | Form factor | Perf | A11y | Best practices | SEO | LCP | TBT | TTFB |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/` | mobile | 99 | 100 | 100 | 100 | 0.9 s | 120 ms | 30 ms |
+| `/projects` | mobile | 99 | 100 | 100 | 100 | 0.9 s | 120 ms | 20 ms |
+| `/skills` | mobile | 100 | 100 | 100 | 100 | 0.9 s | 70 ms | 40 ms |
+| `/` | desktop | 99 | 100 | 100 | 100 | 0.3 s | 10 ms | |
+
 ## Not verified / limitations
 
 - Real-device testing (actual phones, Safari on iOS) was not possible from this machine; WebKit coverage is Playwright's desktop WebKit build.
-- Lighthouse ran against localhost, so CDN latency and HTTPS costs are not included.
-- Cloudflare Pages deployment itself was not executed (requires account authorisation). The static output, headers file and build command are prepared per DEPLOYMENT.md.
+- Firefox and WebKit projects ran against the local export only; the live run covered Chromium and mobile Chromium.

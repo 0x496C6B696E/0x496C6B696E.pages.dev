@@ -2,6 +2,8 @@
 
 > Rest at the Bonfire. Build. Deploy. Repeat.
 
+**Live:** [bonfireos.pages.dev](https://bonfireos.pages.dev) · Cloudflare Pages Free, deployed from this repository.
+
 An immersive dark-fantasy developer portfolio for **[0x496C6B696E](https://github.com/0x496C6B696E)**, backend & systems engineer. A camp in the fog, a bonfire, six destinations: About, Skills, Projects, Tech Stack, GitHub Activity and Contact. Every project, number and technology on the site is real and taken from the public GitHub profile.
 
 Two ways in:

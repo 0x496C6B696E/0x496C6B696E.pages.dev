@@ -92,13 +92,20 @@ test.describe("accessibility basics", () => {
   });
 });
 
-test("sitemap, robots and headers are exported", async ({ request }) => {
+test("sitemap, robots and security headers are in place", async ({ request }) => {
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.status()).toBe(200);
   const xml = await sitemap.text();
   for (const route of ROUTES) expect(xml).toContain(route === "/" ? "<loc>http" : route);
   const robots = await request.get("/robots.txt");
   expect(await robots.text()).toContain("sitemap.xml");
-  const headers = await request.get("/_headers");
-  expect(await headers.text()).toContain("Content-Security-Policy");
+  if (process.env.BASE_URL) {
+    // Against a deployment, Cloudflare consumes _headers and applies it as real response headers.
+    const home = await request.get("/");
+    expect(home.headers()["content-security-policy"]).toContain("default-src 'self'");
+    expect(home.headers()["x-frame-options"]).toBe("DENY");
+  } else {
+    const headers = await request.get("/_headers");
+    expect(await headers.text()).toContain("Content-Security-Policy");
+  }
 });
