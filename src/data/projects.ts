@@ -1,5 +1,5 @@
 /**
- * Quest Archive: the developer's real public repositories.
+ * Projects: the developer's real public repositories.
  * Every fact here was read from github.com/0x496C6B696E on 2026-10-28.
  * Last-activity and archived state are joined at build time from github.snapshot.json.
  */
@@ -16,7 +16,7 @@ export interface QuestImage {
 export interface Quest {
   /** URL slug and GitHub repository name (identical on purpose). */
   slug: string;
-  /** Quest title shown in the archive. */
+  /** Plain, descriptive title. */
   title: string;
   /** Repository name shown as the record name. */
   repo: string;
@@ -36,7 +36,7 @@ const GH = "https://github.com/0x496C6B696E";
 export const quests: readonly Quest[] = [
   {
     slug: "ai-agent-gunluk-teknoloji-bulteni",
-    title: "The Herald of Hacker News",
+    title: "Daily Hacker News digest agent",
     repo: "ai-agent-gunluk-teknoloji-bulteni",
     type: "Automation",
     language: "JavaScript",
@@ -54,7 +54,7 @@ export const quests: readonly Quest[] = [
   },
   {
     slug: "AI-Driven-Crawling-Ingestion",
-    title: "The Thousand Tomes",
+    title: "Books scraper and analysis",
     repo: "AI-Driven-Crawling-Ingestion",
     type: "Data Pipeline",
     language: "Python",
@@ -94,7 +94,7 @@ export const quests: readonly Quest[] = [
   },
   {
     slug: "Restaurant-Management-System",
-    title: "The Great Hall Ledger",
+    title: "Restaurant management backend",
     repo: "Restaurant-Management-System",
     type: "Backend Service",
     language: "Python",
@@ -112,7 +112,7 @@ export const quests: readonly Quest[] = [
   },
   {
     slug: "CreateOS",
-    title: "The First Spark",
+    title: "CreateOS: a from-scratch x86 kernel",
     repo: "CreateOS",
     type: "Systems",
     language: "Assembly / C",
@@ -128,7 +128,7 @@ export const quests: readonly Quest[] = [
   },
   {
     slug: "portscanner",
-    title: "The Gatewarden",
+    title: "TCP port scanner",
     repo: "portscanner",
     type: "Tooling",
     language: "C",
@@ -144,14 +144,14 @@ export const quests: readonly Quest[] = [
   },
   {
     slug: "0x496C6B696E",
-    title: "The Sigil",
+    title: "Profile README",
     repo: "0x496C6B696E",
     type: "Creative",
     language: "HTML / SVG",
     summary:
-      "The GitHub profile README that seeded BonfireOS: a hand-drawn SVG masthead, bonfire and character-sheet HUD, with generated contribution art published to an output branch.",
+      "The GitHub profile README: a hand-drawn SVG masthead, divider and attribute HUD, with generated contribution art published to an output branch. Since replaced by a plain-text profile that points here.",
     description:
-      "The profile repository renders the developer's identity as a dark-fantasy HUD. Masthead, section headings and the attribute sheet are original SVG assets, while contribution snakes and a 3D contribution map are generated on a schedule into a separate output branch so the main branch stays clean. BonfireOS takes that identity off the README and builds a navigable world around it.",
+      "The profile repository rendered the developer's identity as an illustrated HUD. Masthead, section headings and the attribute sheet were original SVG assets, while contribution snakes and a 3D contribution map were generated on a schedule into a separate output branch so the main branch stayed clean. The assets remain in the repository history; this site now carries the full picture.",
     tech: ["SVG", "HTML", "GitHub Actions"],
     highlights: [
       "Original SVG assets rather than generated badges for the parts that matter.",

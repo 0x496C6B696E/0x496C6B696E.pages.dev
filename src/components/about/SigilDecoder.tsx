@@ -17,7 +17,7 @@ export function SigilDecoder({ handle }: { handle: string }) {
   return (
     <section aria-labelledby="sigil" className="card p-5">
       <h2 id="sigil" className="eyebrow mb-3">
-        The sigil
+        The handle
       </h2>
       <p className="text-sm text-ash">The handle is not random. It is a name, written as hexadecimal ASCII bytes.</p>
       <div className="mt-4 flex flex-wrap items-end gap-2 font-mono" aria-live="polite">
@@ -34,12 +34,12 @@ export function SigilDecoder({ handle }: { handle: string }) {
             >
               {b.char}
             </span>
-            <span className="border border-gold/30 bg-abyss/60 px-2 py-1 text-sm text-ink">{b.hex}</span>
+            <span className="rounded-sm border border-edge bg-abyss/60 px-2 py-1 text-sm text-ink">{b.hex}</span>
           </span>
         ))}
       </div>
       <button type="button" className="btn btn-ghost btn-sm mt-4" onClick={() => setRevealed((v) => !v)} aria-expanded={revealed}>
-        {revealed ? "Hide the reading" : "Decode the sigil"}
+        {revealed ? "Hide" : "Decode the handle"}
       </button>
     </section>
   );

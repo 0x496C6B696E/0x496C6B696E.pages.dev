@@ -2,6 +2,32 @@
 
 Date: 2026-10-28 · Build: Next.js 16.4.3 static export (`out/`) · Machine: Windows 11, Node 24.21
 
+## Round 3: re-theme to the workstation (2026-10-28, evening)
+
+The owner asked for the dark-fantasy camp to become a computer-themed experience. Routes, data files, the static pipeline and the test harness stayed; the presentation layer and all copy were replaced: a 3D room (desk, CRT with a canvas-drawn screen, keyboard, tower, racks, lamp, dust), a standby screen with POWER ON, a BIOS-style boot log, a desktop with six files, window chrome with a title bar and status line, a bottom taskbar with path and clock, and a shell prompt `0x496c6b696e@workstation:~$`.
+
+| Check | Result |
+| --- | --- |
+| TypeScript, ESLint (React Compiler rules) | pass |
+| Vitest | 24 passed in 3 files (terminal parser, boot log, data, formatting) |
+| Playwright, 4 projects | **183 passed**, 0 failed, 30 skipped by design |
+| Lighthouse mobile `/`, `/about`, `/skills`, `/projects`, `/stack`, `/stats` | 100 / 100 / 100 / 100 each (TBT 40 to 80 ms, CLS 0) |
+| Lighthouse mobile `/contact` | 96 / 100 / 100 / 100 (LCP 2.2 s: the mono summary block is the largest paint) |
+| Lighthouse desktop `/` | 98 / 100 / 100 / 100 |
+
+Visual QA findings in this round and their fixes:
+
+| Finding | Fix |
+| --- | --- |
+| The whole monitor rendered as a bright orange block: the bezel box's front face sat 5 mm in front of the glass plane, hiding the screen texture, and the amber glow light overexposed the beige plastic. | Glass moved to the frontmost z, bezel and body pushed back, light intensity 2.2 -> 0.7, darker plastics. |
+| Behind the desktop and windows the typed shell log on the 3D screen competed with the real UI. | The screen painter has two modes: typed log at standby, dim phosphor grid once the machine is on. |
+| Dust particles close to the camera rendered as grey squares over the UI. | Round sprite texture and the dust kept to the lamp side of the desk, away from the camera path. |
+| The fixed taskbar covered a window's status line when scrolled to the bottom (clicks landed on the taskbar). | Padding below the window instead of a collapsible margin, plus `scroll-padding-bottom`. |
+| On phones in Explorer mode the CSS monitor was a small box behind the icons. | Under 768 px the CSS glass fills the viewport and the desk/racks are hidden. |
+| Icon-only links (window close, taskbar close) failed the link-name check. | The check reads the accessible name (`aria-label` or text). |
+
+Reviewed at 390x844, 768x1024, 1280x720 and 1440x900: standby, boot, desktop (Immersive and Explorer), Profile, Projects, a project window, Toolchain, Telemetry, Mail. Screenshots in `qa/screenshots/`.
+
 Everything below was executed against the **exported** site served by `scripts/serve-out.mjs` (Cloudflare-like static serving), not the dev server.
 
 ## Automated checks

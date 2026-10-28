@@ -1,22 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { site } from "@/config/site";
 import { ExperienceProvider } from "@/components/experience/ExperienceProvider";
 import { Backdrop } from "@/components/experience/Backdrop";
-import { Hud } from "@/components/hud/Hud";
-import { BonfireTerminal } from "@/components/terminal/BonfireTerminal";
+import { Taskbar } from "@/components/hud/Taskbar";
+import { Terminal } from "@/components/terminal/Terminal";
 
-const cinzel = Cinzel({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-  variable: "--font-cinzel",
-  display: "swap",
-});
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["400", "600", "700"],
   variable: "--font-jetbrains",
   display: "swap",
 });
@@ -39,7 +33,7 @@ export const metadata: Metadata = {
     title,
     description: site.description,
     locale: "en_US",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: `${site.name}: ${site.tagline}` }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: `${site.name} ${site.system}: ${site.tagline}` }],
   },
   twitter: {
     card: "summary_large_image",
@@ -58,7 +52,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#080a0d",
+  themeColor: "#0a0c0f",
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
@@ -79,20 +73,20 @@ const personJsonLd = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang={site.locale} className={`${cinzel.variable} ${inter.variable} ${jetbrains.variable} h-full`}>
+    <html lang={site.locale} className={`${inter.variable} ${jetbrains.variable} h-full`}>
       <body className="min-h-full">
         <a href="#main" className="skip-link">
           Skip to content
         </a>
         <ExperienceProvider>
           <Backdrop />
-          <Hud />
           <main id="main" className="relative z-10">
             {children}
           </main>
-          <BonfireTerminal />
+          <Taskbar />
+          <Terminal />
         </ExperienceProvider>
-        <div className="grain" aria-hidden="true" />
+        <div className="crt" aria-hidden="true" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
       </body>
     </html>

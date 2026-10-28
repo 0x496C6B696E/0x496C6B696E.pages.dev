@@ -18,24 +18,24 @@ export function AttributeRadar() {
 
   return (
     <figure className="card flex flex-col items-center gap-2 p-4">
-      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full max-w-[20rem]" role="img" aria-label={`Attribute radar: ${summary}. Thematic self-assessment out of 100.`}>
+      <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full max-w-[20rem]" role="img" aria-label={`Capability radar: ${summary}. Self-assessment out of 100.`}>
         <defs>
           <radialGradient id="radar-fill" cx="50%" cy="50%" r="50%">
-            <stop offset="0" stopColor="#f3d99b" stopOpacity="0.55" />
-            <stop offset="1" stopColor="#e56c35" stopOpacity="0.18" />
+            <stop offset="0" stopColor="#ffd79a" stopOpacity="0.55" />
+            <stop offset="1" stopColor="#ffb454" stopOpacity="0.12" />
           </radialGradient>
         </defs>
         {rings.map((r) => (
-          <polygon key={r} points={attributes.map((_, i) => point(i, r).join(",")).join(" ")} fill="none" stroke="#d4af61" strokeOpacity={r === 100 ? 0.45 : 0.16} strokeWidth="1" />
+          <polygon key={r} points={attributes.map((_, i) => point(i, r).join(",")).join(" ")} fill="none" stroke="#ffb454" strokeOpacity={r === 100 ? 0.45 : 0.16} strokeWidth="1" />
         ))}
         {attributes.map((_, i) => {
           const [x, y] = point(i, 100);
-          return <line key={i} x1={CENTER} y1={CENTER} x2={x} y2={y} stroke="#d4af61" strokeOpacity="0.14" />;
+          return <line key={i} x1={CENTER} y1={CENTER} x2={x} y2={y} stroke="#ffb454" strokeOpacity="0.14" />;
         })}
-        <polygon points={shape} fill="url(#radar-fill)" stroke="#f3d99b" strokeWidth="1.5" strokeLinejoin="round" />
+        <polygon points={shape} fill="url(#radar-fill)" stroke="#ffd79a" strokeWidth="1.5" strokeLinejoin="round" />
         {attributes.map((a, i) => {
           const [x, y] = point(i, a.level);
-          return <circle key={a.key} cx={x} cy={y} r="3" fill="#f3d99b" />;
+          return <circle key={a.key} cx={x} cy={y} r="3" fill="#ffd79a" />;
         })}
         {attributes.map((a, i) => {
           const [x, y] = point(i, 124);
@@ -47,7 +47,7 @@ export function AttributeRadar() {
           );
         })}
       </svg>
-      <figcaption className="text-center text-xs text-dust">Attribute radar · thematic levels, not certifications</figcaption>
+      <figcaption className="text-center text-xs text-dust">Capability radar · self-assessed levels, not certifications</figcaption>
     </figure>
   );
 }

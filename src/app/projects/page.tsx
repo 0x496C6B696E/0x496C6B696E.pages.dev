@@ -7,7 +7,7 @@ import { github, repoByName } from "@/data/github";
 import { formatDate } from "@/lib/format";
 
 export const metadata: Metadata = {
-  title: "Quest Archive · Projects",
+  title: "Projects",
   description: "Real public projects by 0x496C6B696E: n8n automation with Claude and Telegram, a tested Python scraper and analysis, a Django REST backend, an x86 kernel experiment and a C port scanner.",
   alternates: { canonical: "/projects" },
 };
@@ -15,9 +15,9 @@ export const metadata: Metadata = {
 export default function ProjectsPage() {
   const snapshotDate = formatDate(github.fetchedAt);
   return (
-    <Panel slug="projects" title="Quest Archive" lede="Every record here is a real public repository. Open one to inspect the dossier." wide>
-      <p className="mb-6 text-xs text-dust">
-        {quests.length} records{snapshotDate ? ` · activity dates from the GitHub snapshot of ${snapshotDate}` : ""}
+    <Panel slug="projects" title="Projects" lede="Six public repositories. Open one for the full write-up." wide>
+      <p className="mb-6 font-mono text-xs text-dust">
+        {quests.length} entries{snapshotDate ? ` · push dates from github.log, snapshot ${snapshotDate}` : ""}
       </p>
       <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {quests.map((q) => {
@@ -25,7 +25,7 @@ export default function ProjectsPage() {
           return (
             <li key={q.slug} className="card card-interactive flex">
               <Link href={`/projects/${q.slug}`} className="flex h-full w-full flex-col gap-3 p-5">
-                <div className="flex items-center justify-between gap-3 text-[0.68rem] tracking-[0.18em] text-gold uppercase">
+                <div className="flex items-center justify-between gap-3 font-mono text-[0.68rem] tracking-[0.12em] text-gold uppercase">
                   <span>{q.type}</span>
                   <span className="text-ash normal-case tracking-normal">{q.language}</span>
                 </div>
@@ -41,8 +41,8 @@ export default function ProjectsPage() {
                   {q.tech.length > 4 && <li className="tag">+{q.tech.length - 4}</li>}
                 </ul>
                 {repo && (
-                  <p className="flex items-center justify-between gap-3 border-t border-gold/10 pt-3 text-xs text-dust">
-                    <span>Last ember {formatDate(repo.pushedAt)}</span>
+                  <p className="flex items-center justify-between gap-3 border-t border-edge pt-3 font-mono text-xs text-dust">
+                    <span>last push {formatDate(repo.pushedAt)}</span>
                     {repo.stars > 0 && (
                       <span className="inline-flex items-center gap-1 text-flare">
                         <Star className="size-3" aria-hidden="true" />

@@ -1,7 +1,7 @@
 /**
- * Armament: technologies genuinely present in the developer's public profile or repositories.
+ * Toolchain: technologies genuinely present in the developer's public profile or repositories.
  * `source` says where each item was observed. Icons are Simple Icons export names (CC0);
- * items without a matching icon fall back to a rune monogram in the UI.
+ * items without a matching icon fall back to a two-letter monogram in the UI.
  */
 export type ArmamentCategory = "weapons" | "spells" | "armor" | "runes";
 
@@ -27,9 +27,9 @@ const R = (name: string) => `repo: ${name}`;
 export const armament: readonly ArmamentGroup[] = [
   {
     key: "weapons",
-    title: "Weapons",
+    title: "Languages",
     subtitle: "Programming languages",
-    flavor: "What gets drawn first.",
+    flavor: "What the code is written in.",
     items: [
       { name: "Python", icon: "siPython", note: "Primary language for backends, scrapers and analysis scripts.", source: [P, R("AI-Driven-Crawling-Ingestion"), R("Restaurant-Management-System")] },
       { name: "TypeScript", icon: "siTypescript", note: "Typed JavaScript for tooling and web work, this site included.", source: [P] },
@@ -44,9 +44,9 @@ export const armament: readonly ArmamentGroup[] = [
   },
   {
     key: "spells",
-    title: "Spells",
+    title: "Frameworks",
     subtitle: "Frameworks & libraries",
-    flavor: "Incantations that do a lot with a few words.",
+    flavor: "What the code stands on.",
     items: [
       { name: "FastAPI", icon: "siFastapi", note: "Typed, async Python APIs with generated docs.", source: [P] },
       { name: "Django", icon: "siDjango", note: "Batteries-included web framework behind the restaurant backend.", source: [R("Restaurant-Management-System")] },
@@ -63,9 +63,9 @@ export const armament: readonly ArmamentGroup[] = [
   },
   {
     key: "armor",
-    title: "Armour",
+    title: "Infrastructure",
     subtitle: "Infrastructure & DevOps",
-    flavor: "What keeps the lights on through the night.",
+    flavor: "What keeps it running at 3am.",
     items: [
       { name: "Linux", icon: "siLinux", note: "Home ground. Servers, shells and permissions.", source: [P] },
       { name: "Docker", icon: "siDocker", note: "Containers and Compose for reproducible environments.", source: [P, R("Restaurant-Management-System")] },
@@ -83,9 +83,9 @@ export const armament: readonly ArmamentGroup[] = [
   },
   {
     key: "runes",
-    title: "Runes",
+    title: "Data & tools",
     subtitle: "Databases & developer tools",
-    flavor: "Small marks with large effects.",
+    flavor: "Where state lives and how it gets edited.",
     items: [
       { name: "PostgreSQL", icon: "siPostgresql", note: "Relational store of choice for services.", source: [P, R("Restaurant-Management-System")] },
       { name: "Redis", icon: "siRedis", note: "Cache and message broker.", source: [P, R("Restaurant-Management-System")] },

@@ -1,6 +1,6 @@
 # Deployment: Cloudflare Pages (free)
 
-BonfireOS is a static export. Hosting costs nothing: Cloudflare Pages Free, a GitHub repository and the `*.pages.dev` hostname are all $0. No server, no database, no paid API.
+The site is a static export. Hosting costs nothing: Cloudflare Pages Free, a GitHub repository and the `*.pages.dev` hostname are all $0. No server, no database, no paid API.
 
 ## What the build produces
 
@@ -19,7 +19,7 @@ npm run build
 ```bash
 git init -b main
 git add -A
-git commit -m "BonfireOS"
+git commit -m "Workstation portfolio"
 # the repository is named after the site it publishes
 gh repo create 0x496C6B696E.pages.dev --public --source=. --push     # or create the repo on github.com and `git remote add origin ...`
 ```
@@ -34,6 +34,7 @@ Nothing in the repository is secret. `src/data/github.snapshot.json` is committe
 
    | Setting | Value |
    | --- | --- |
+   | Project name | `0x496c6b696e` (becomes the `0x496c6b696e.pages.dev` hostname; lowercase only) |
    | Framework preset | **Next.js (Static HTML Export)** |
    | Build command | `npm run build` (this runs prebuild/postbuild; `npx next build` alone skips the GitHub snapshot refresh and the export checks) |
    | Build output directory | `out` |

@@ -1,17 +1,17 @@
-# BONFIREOS
+# 0x496C6B696E · WORKSTATION
 
-> Rest at the Bonfire. Build. Deploy. Repeat.
+> Boot. Build. Deploy. Repeat.
 
-**Live:** [bonfireos.pages.dev](https://bonfireos.pages.dev) · Cloudflare Pages Free, deployed from this repository.
+**Live:** [0x496c6b696e.pages.dev](https://0x496c6b696e.pages.dev) · Cloudflare Pages Free, deployed from this repository.
 
-An immersive dark-fantasy developer portfolio for **[0x496C6B696E](https://github.com/0x496C6B696E)**, backend & systems engineer. A camp in the fog, a bonfire, six destinations: About, Skills, Projects, Tech Stack, GitHub Activity and Contact. Every project, number and technology on the site is real and taken from the public GitHub profile.
+A developer portfolio that behaves like a machine. A dark room with one phosphor-amber CRT; power it on, watch the BIOS post with real numbers, and open the files on the desktop: **Profile**, **Capabilities**, **Projects**, **Toolchain**, **Telemetry** and **Mail**. Every project, number and technology on the site is real and taken from the public GitHub profile of **[0x496C6B696E](https://github.com/0x496C6B696E)**, backend & systems engineer.
 
 Two ways in:
 
-- **Immersive mode**: a procedural 3D camp (React Three Fiber) with six standing stones that carry the real navigation links, a cinematic camera that dollies toward the stone you choose, embers, falling ash, mist, moon and ruins. Lazy-loaded, slowed to a crawl behind panels, capped pixel ratio.
-- **Explorer mode**: the same content over a CSS-only scene. Default on phones, devices without WebGL, reduced motion, data saver or few cores. One click switches between the two at any time.
+- **Immersive mode**: a procedural 3D room (React Three Fiber): desk, CRT terminal with a canvas-drawn screen, keyboard, tower and server racks with blinking LEDs, a lamp, dust in the air. Powering on dollies the camera into the screen; the HTML desktop then sits on it. Lazy-loaded, slowed to a crawl behind windows, capped pixel ratio.
+- **Explorer mode**: the same content over a CSS-only room. Default on phones, devices without WebGL, reduced motion, data saver or few cores. One click switches between the two at any time.
 
-Also in the camp: a boot-log **kindling sequence** whose numbers come from the data files, a **Bonfire Terminal** (press backtick: `ls`, `warp projects`, `open gatewarden`, `stats`), and an optional **procedural fire ambience** synthesised with the Web Audio API (no audio files, off until you ask).
+Also on the machine: a **terminal** (press backtick: `ls`, `cd projects`, `open scanner`, `stats`), and an optional **room tone** (fan hum and disk seeks) synthesised with the Web Audio API, off until you ask.
 
 Fully static (`next build` -> `out/`), designed for **Cloudflare Pages Free**. No server, no database, no paid service, no tracking.
 
@@ -19,7 +19,7 @@ Fully static (`next build` -> `out/`), designed for **Cloudflare Pages Free**. N
 
 Next.js 16 (App Router, static export) · React 19 · TypeScript strict · Tailwind CSS 4 · three + @react-three/fiber · lucide-react · simple-icons · Vitest · Playwright
 
-All UI motion is CSS (keyframes + transitions); the only animation runtime is the lazily loaded 3D scene.
+All UI motion is CSS (keyframes + transitions); the only animation runtime is the lazily loaded 3D room.
 
 ## Getting started
 
@@ -34,8 +34,8 @@ npm run dev            # http://localhost:3000
 | `npm start` | serve `out/` the way Cloudflare Pages would (clean URLs, 404.html) at :4173 |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint (next/core-web-vitals + typescript + React Compiler rules) |
-| `npm test` | Vitest unit tests (data integrity, formatting, sigil decoding) |
-| `npm run test:e2e` | Playwright against the static export: Chromium, Firefox, WebKit, Pixel 7 |
+| `npm test` | Vitest unit tests (data integrity, formatting, terminal parser, boot log) |
+| `npm run test:e2e` | Playwright against the static export: Chromium, Firefox, WebKit, Pixel 7 (set `BASE_URL` to test a deployment instead) |
 | `npm run qa:shots` | responsive sweep + screenshots into `qa/screenshots` |
 | `npm run verify` | everything above, in order (the local replacement for CI) |
 
@@ -47,13 +47,13 @@ Everything personal lives in typed files, so changing the site never means touch
 
 | File | Contents |
 | --- | --- |
-| `src/config/site.ts` | name, tagline, hostname, developer identity, links, the six destinations |
-| `src/data/projects.ts` | Quest Archive entries (one per repository) |
-| `src/data/skills.ts` | Character Sheet attributes, evidence links, creed |
-| `src/data/stack.ts` | Armament items grouped as weapons / spells / armour / runes |
+| `src/config/site.ts` | wordmark, system name, tagline, hostname, developer identity, links, the six files on the desktop |
+| `src/data/projects.ts` | project entries (one per repository) |
+| `src/data/skills.ts` | capabilities, evidence links, creed |
+| `src/data/stack.ts` | toolchain entries grouped as languages / frameworks / infrastructure / data & tools |
 | `src/data/github.snapshot.json` | generated by `scripts/fetch-github.mjs` at build; commit it |
 
-Set `NEXT_PUBLIC_SITE_URL` to change the canonical hostname (defaults to `https://bonfireos.pages.dev`).
+Set `NEXT_PUBLIC_SITE_URL` to change the canonical hostname (defaults to `https://0x496c6b696e.pages.dev`).
 
 ## Documentation
 
@@ -62,12 +62,12 @@ Set `NEXT_PUBLIC_SITE_URL` to change the canonical hostname (defaults to `https:
 - [DEPLOYMENT.md](DEPLOYMENT.md): Cloudflare Pages setup, environment, rollback, custom domain
 - [QA_REPORT.md](QA_REPORT.md): tests, screenshots, performance and accessibility findings
 - [TODO.md](TODO.md): implementation state and remaining work
-- [docs/BonfireOS.md](docs/BonfireOS.md): the original brief
+- [docs/BonfireOS.md](docs/BonfireOS.md): the original brief (the site started as a dark-fantasy camp and was re-themed to a workstation on 2026-10-28)
 
 ## Credits and licences
 
 - Code: MIT (see [LICENSE](LICENSE)).
 - UI icons: [lucide](https://lucide.dev) (ISC). Brand icons: [Simple Icons](https://simpleicons.org) (CC0 1.0).
-- Fonts: Cinzel, Inter, JetBrains Mono via `next/font` (SIL Open Font License), self-hosted at build time.
-- Everything visual in the camp (3D geometry, textures, favicon, OG image, sigils, ruin silhouettes) is generated in this repository. No game assets are used.
+- Fonts: JetBrains Mono and Inter via `next/font` (SIL Open Font License), self-hosted at build time.
+- Everything visual in the room (3D geometry, the drawn screen, favicon, OG image) is generated in this repository. No downloaded models or textures.
 - Project charts in `public/projects` are the developer's own output from the `AI-Driven-Crawling-Ingestion` repository.

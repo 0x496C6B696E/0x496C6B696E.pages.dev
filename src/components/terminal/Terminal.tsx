@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { X } from "lucide-react";
 import { useExperience } from "@/components/experience/ExperienceProvider";
-import { runCommand } from "@/lib/terminal";
+import { runCommand, PROMPT } from "@/lib/terminal";
 import { site } from "@/config/site";
 
 interface Line {
@@ -12,14 +12,13 @@ interface Line {
   text: string;
 }
 
-const PROMPT = "tarnished@bonfire:~$";
-const WELCOME: Line[] = [{ kind: "out", text: `${site.name} terminal. type "help" to see what the fire knows.` }];
+const WELCOME: Line[] = [{ kind: "out", text: `${site.name} ${site.system.toLowerCase()} shell. type "help" to list commands.` }];
 
 /**
- * A command console over the same typed data the panels use. Opens with the backtick key
- * or the HUD button; Escape closes it (and does not bubble to the panel's Escape handler).
+ * A shell over the same typed data the windows use. Opens with the backtick key or the
+ * taskbar button; Escape closes it (and does not bubble to the window's Escape handler).
  */
-export function BonfireTerminal() {
+export function Terminal() {
   const { terminalOpen, setTerminalOpen, mode, setMode } = useExperience();
   const router = useRouter();
   const pathname = usePathname();
@@ -83,12 +82,14 @@ export function BonfireTerminal() {
 
   return (
     <section
-      aria-label="Bonfire terminal"
+      aria-label="Terminal"
       data-keeps-escape
-      className="panel safe-x fixed inset-x-2 bottom-2 z-30 mx-auto flex max-h-[min(60dvh,28rem)] w-[min(100%-1rem,56rem)] flex-col font-mono text-[0.8rem] text-ink shadow-ember sm:inset-x-4 sm:bottom-4"
+      className="panel fixed inset-x-2 bottom-14 z-30 mx-auto flex max-h-[min(60dvh,28rem)] w-[min(100%-1rem,56rem)] flex-col font-mono text-[0.8rem] text-ink shadow-ember sm:inset-x-4 sm:bottom-16"
     >
-      <header className="flex items-center justify-between gap-3 border-b border-gold/15 px-4 py-2">
-        <p className="eyebrow text-[0.6rem]">Bonfire terminal</p>
+      <header className="titlebar">
+        <span>
+          <span className="text-flare">sh</span> <span className="text-dust">—</span> {PROMPT}
+        </span>
         <button type="button" className="btn btn-ghost btn-sm" onClick={() => setTerminalOpen(false)} aria-label="Close terminal">
           <X className="size-3.5" aria-hidden="true" />
         </button>
@@ -100,7 +101,7 @@ export function BonfireTerminal() {
           </div>
         ))}
       </div>
-      <form onSubmit={submit} className="flex items-center gap-2 border-t border-gold/15 px-4 py-2">
+      <form onSubmit={submit} className="flex items-center gap-2 border-t border-edge px-4 py-2">
         <label htmlFor="terminal-input" className="shrink-0 text-gold">
           {PROMPT}
         </label>

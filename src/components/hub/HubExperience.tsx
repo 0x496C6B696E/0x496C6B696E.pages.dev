@@ -4,16 +4,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useExperience, type Mode } from "@/components/experience/ExperienceProvider";
 import { EntryScreen } from "./EntryScreen";
 import { Hub } from "./Hub";
-import { KindlingSequence } from "./KindlingSequence";
+import { BootSequence } from "./BootSequence";
 
-const LEAVE_MS = 600;
+const LEAVE_MS = 500;
 
-type Phase = "leaving" | "kindling" | null;
+type Phase = "leaving" | "booting" | null;
 
 /**
- * Entry camp -> (fade out) -> kindling boot log -> hub.
- * All motion is CSS; this component only sequences mount/unmount. The cinematic path is
- * skipped entirely in Explorer mode or with reduced motion, and can be cut short at any time.
+ * Standby screen -> (fade) -> BIOS boot log -> desktop.
+ * All motion is CSS; this component only sequences mount/unmount. The boot is skipped
+ * entirely in Explorer mode or with reduced motion, and can be cut short at any time.
  */
 export function HubExperience() {
   const { entered, enter, mounted, reducedMotion, setMode, mode } = useExperience();
@@ -36,7 +36,7 @@ export function HubExperience() {
     setPhase("leaving");
     timer.current = window.setTimeout(() => {
       enter();
-      setPhase("kindling");
+      setPhase("booting");
     }, LEAVE_MS);
   };
 
@@ -52,6 +52,6 @@ export function HubExperience() {
   }, [phase, finish]);
 
   if (!entered) return <EntryScreen onEnter={begin} ready={mounted} leaving={phase === "leaving"} />;
-  if (phase === "kindling") return <KindlingSequence onDone={finish} />;
+  if (phase === "booting") return <BootSequence onDone={finish} />;
   return <Hub />;
 }

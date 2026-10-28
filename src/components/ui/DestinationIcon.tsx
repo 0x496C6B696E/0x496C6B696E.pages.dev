@@ -1,14 +1,14 @@
-import { BookMarked, Gem, Scroll, Shield, Signpost, Swords, type LucideProps } from "lucide-react";
+import { Activity, Cpu, FileText, FolderGit2, Mail, Wrench, type LucideProps } from "lucide-react";
 import type { ComponentType } from "react";
 import type { Destination } from "@/config/site";
 
 const ICONS: Record<Destination["icon"], ComponentType<LucideProps>> = {
-  scroll: Scroll,
-  swords: Swords,
-  book: BookMarked,
-  shield: Shield,
-  gem: Gem,
-  signpost: Signpost,
+  profile: FileText,
+  skills: Cpu,
+  projects: FolderGit2,
+  stack: Wrench,
+  stats: Activity,
+  mail: Mail,
 };
 
 export function DestinationIcon({ icon, ...props }: { icon: Destination["icon"] } & LucideProps) {

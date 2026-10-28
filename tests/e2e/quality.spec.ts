@@ -27,7 +27,8 @@ async function collectLinks(page: Page) {
       href: a.getAttribute("href") ?? "",
       target: a.getAttribute("target"),
       rel: a.getAttribute("rel"),
-      text: (a.textContent ?? "").trim(),
+      // accessible name: aria-label or text content (icon-only links carry an aria-label)
+      text: (a.getAttribute("aria-label") ?? a.textContent ?? "").trim(),
     })),
   );
 }

@@ -37,6 +37,6 @@
     "typescript": "^5",
     "vitest": "^5.0.5"
   },
-  "description": "BONFIREOS: an immersive dark-fantasy developer portfolio for 0x496C6B696E, built as a static Next.js site.",
+  "description": "0x496C6B696E WORKSTATION: a developer portfolio that behaves like a machine, built as a static Next.js site.",
   "license": "MIT"
 }

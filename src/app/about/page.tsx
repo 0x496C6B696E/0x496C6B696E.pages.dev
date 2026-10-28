@@ -10,7 +10,7 @@ import { quests } from "@/data/projects";
 import { formatMonth, yearsBetween } from "@/lib/format";
 
 export const metadata: Metadata = {
-  title: "The Tarnished · About",
+  title: "Profile · About",
   description: `${site.developer.handle}, ${site.developer.title.toLowerCase()}: backend systems, APIs, automation, Linux and infrastructure, reliability and security-minded engineering.`,
   alternates: { canonical: "/about" },
 };
@@ -29,24 +29,24 @@ const method = [
   { step: "01", title: "Read first", text: "Understand the system end to end before touching it. Most bugs are a misunderstanding wearing a stack trace." },
   { step: "02", title: "Small diffs", text: "Change one thing, make it reviewable, ship it. Big rewrites hide big regressions." },
   { step: "03", title: "Boring over clever", text: "Standard library before dependency, platform before framework. Clever is what someone decodes at 3am." },
-  { step: "04", title: "Keep it lit", text: "Timeouts, retries, logs that say what happened, and an error channel that reaches a human." },
+  { step: "04", title: "Keep it running", text: "Timeouts, retries, logs that say what happened, and an error channel that reaches a human." },
 ];
 
 export default function AboutPage() {
   const since = github.user?.createdAt ?? site.developer.since;
   const years = yearsBetween(since);
   const numbers: Array<{ value: string; label: string }> = [
-    { value: String(quests.length), label: "public quests" },
-    { value: String(languageShares(50).length), label: "languages in the archive" },
+    { value: String(quests.length), label: "public projects" },
+    { value: String(languageShares(50).length), label: "languages across repos" },
     { value: years === 0 ? "<1" : String(years), label: years === 1 ? "year on GitHub" : "years on GitHub" },
     { value: String(totals.stars), label: totals.stars === 1 ? "star received" : "stars received" },
   ];
   return (
-    <Panel slug="about" title="The Tarnished" lede="Every world has someone who keeps the fire lit. This one is a backend and systems engineer.">
+    <Panel slug="about" title="Profile" lede="The operator of this machine: a backend and systems engineer who likes services that outlive their on-call shift.">
       <div className="grid gap-10 md:grid-cols-[15rem_1fr] md:gap-12">
         <aside className="flex flex-col items-start gap-5">
-          <div className="relative size-36 rounded-full border border-gold/40 p-1 shadow-ember">
-            <Image src="/avatar.jpg" alt={`GitHub avatar of ${site.developer.handle}`} width={256} height={256} className="size-full rounded-full object-cover" priority />
+          <div className="relative size-36 rounded-md border border-gold/40 p-1 shadow-ember">
+            <Image src="/avatar.jpg" alt={`GitHub avatar of ${site.developer.handle}`} width={256} height={256} className="size-full rounded-sm object-cover" priority />
           </div>
           <div>
             <p className="font-mono text-sm tracking-wider text-flare">{site.developer.handle}</p>
@@ -80,14 +80,14 @@ export default function AboutPage() {
             </ul>
           </section>
 
-          <section aria-labelledby="chronicle">
-            <h2 id="chronicle" className="eyebrow mb-4">
-              Chronicle · in the developer&apos;s own words
+          <section aria-labelledby="readme">
+            <h2 id="readme" className="eyebrow mb-4">
+              readme · in the developer&apos;s own words
             </h2>
             <ul className="prose-bonfire grid gap-3">
               {site.developer.creed.map((line) => (
                 <li key={line} className="flex gap-3">
-                  <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-ember shadow-[0_0_8px_rgb(229_108_53/0.9)]" aria-hidden="true" />
+                  <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-gold shadow-[0_0_8px_rgb(255_180_84/0.9)]" aria-hidden="true" />
                   <span>{line}</span>
                 </li>
               ))}
@@ -96,7 +96,7 @@ export default function AboutPage() {
 
           <section aria-labelledby="interests">
             <h2 id="interests" className="eyebrow mb-4">
-              Fields of study
+              Interests
             </h2>
             <ul className="grid gap-3 sm:grid-cols-2">
               {interests.map((item) => (

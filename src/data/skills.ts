@@ -1,13 +1,13 @@
 /**
- * Character Sheet: engineering abilities as RPG attributes.
- * Levels are a thematic self-assessment adapted from the developer's own profile HUD,
- * NOT certifications or benchmarks. The UI says so explicitly.
+ * Capabilities: engineering disciplines with a thematic self-assessed level.
+ * Levels are adapted from the developer's own former profile HUD, NOT certifications or
+ * benchmarks. The UI says so explicitly.
  */
 export interface Attribute {
   key: string;
-  /** RPG attribute name. */
+  /** Discipline name. */
   name: string;
-  /** What it really means. */
+  /** One-line definition of what the discipline covers here. */
   meaning: string;
   description: string;
   level: number;
@@ -20,10 +20,10 @@ const GH = "https://github.com/0x496C6B696E";
 
 export const attributes: readonly Attribute[] = [
   {
-    key: "vigor",
-    name: "Vigor",
-    meaning: "Reliability",
-    description: "Services that keep running after the fire goes out: retries with backoff, timeouts, idempotent writes, error channels that reach a human.",
+    key: "reliability",
+    name: "Reliability",
+    meaning: "keeping services up",
+    description: "Retries with backoff, timeouts, idempotent writes and error channels that reach a human. Services that keep running after everyone has gone home.",
     level: 88,
     tech: ["Linux", "Docker", "Retry and timeout design", "Structured logging"],
     evidence: [
@@ -32,28 +32,28 @@ export const attributes: readonly Attribute[] = [
     ],
   },
   {
-    key: "mind",
-    name: "Mind",
-    meaning: "Backend Engineering",
+    key: "backend",
+    name: "Backend",
+    meaning: "APIs and services",
     description: "APIs and services written to be read, not just run. Typed boundaries, clear modules, documented endpoints.",
     level: 90,
     tech: ["Python", "Django / DRF", "FastAPI", "Node.js", "REST", "JWT"],
     evidence: [{ label: "Eight-app Django REST backend", href: `${GH}/Restaurant-Management-System` }],
   },
   {
-    key: "endurance",
-    name: "Endurance",
-    meaning: "Infrastructure",
+    key: "infrastructure",
+    name: "Infrastructure",
+    meaning: "containers, proxies, manifests",
     description: "Linux, containers, reverse proxies and the manifests that keep them standing through long nights.",
     level: 85,
     tech: ["Linux", "Docker", "Nginx", "Kubernetes", "Terraform", "Git"],
     evidence: [{ label: "Docker, nginx, Kubernetes, Prometheus and Terraform files", href: `${GH}/Restaurant-Management-System/tree/main/infrastructure` }],
   },
   {
-    key: "strength",
-    name: "Strength",
-    meaning: "Systems Programming",
-    description: "Close to the metal: C, assembly, sockets, linker scripts, and the discipline of no undefined behaviour.",
+    key: "systems",
+    name: "Systems",
+    meaning: "close to the metal",
+    description: "C, assembly, sockets, linker scripts, and the discipline of no undefined behaviour.",
     level: 70,
     tech: ["C", "Rust", "Assembly", "Make", "QEMU"],
     evidence: [
@@ -62,18 +62,18 @@ export const attributes: readonly Attribute[] = [
     ],
   },
   {
-    key: "dexterity",
-    name: "Dexterity",
-    meaning: "Automation",
+    key: "automation",
+    name: "Automation",
+    meaning: "scheduled work that reports back",
     description: "Scheduled jobs, bots and pipelines that remove the boring parts, and tell you when they fail.",
     level: 82,
     tech: ["n8n", "Bash", "Python scripting", "Celery Beat", "Telegram bots"],
     evidence: [{ label: "Daily Hacker News to Claude to Telegram automation", href: `${GH}/ai-agent-gunluk-teknoloji-bulteni` }],
   },
   {
-    key: "intelligence",
-    name: "Intelligence",
-    meaning: "Architecture",
+    key: "architecture",
+    name: "Architecture",
+    meaning: "boundaries and decisions",
     description: "Clean architecture, small diffs, boundaries that match the problem. Decisions written down next to the code.",
     level: 92,
     tech: ["Clean architecture", "Modular design", "Typed configuration", "Documentation"],
@@ -83,9 +83,9 @@ export const attributes: readonly Attribute[] = [
     ],
   },
   {
-    key: "arcane",
-    name: "Arcane",
-    meaning: "Security",
+    key: "security",
+    name: "Security",
+    meaning: "secrets, auth, exposure",
     description: "Security-minded by default: credential-free exports, secret scanning, token auth, and knowing which ports are open.",
     level: 74,
     tech: ["JWT auth", "Secret hygiene", "Port scanning", "Least privilege"],
@@ -96,10 +96,10 @@ export const attributes: readonly Attribute[] = [
   },
 ] as const;
 
-/** The developer's stated principles, from the profile README. */
+/** The developer's stated principles. */
 export const creed: readonly { title: string; text: string }[] = [
   { title: "Written to be read", text: "APIs, tooling and automation, written to be read, not just run." },
   { title: "Small diffs", text: "Clean architecture, small diffs, no undefined behaviour." },
-  { title: "Outlast the fire", text: "Build services that keep running long after the bonfire has gone out." },
-  { title: "Levelling", text: "Distributed systems, security and performance." },
+  { title: "Outlast the shift", text: "Build services that keep running long after everyone has gone home." },
+  { title: "Levelling up", text: "Distributed systems, security and performance." },
 ] as const;

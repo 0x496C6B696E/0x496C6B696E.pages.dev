@@ -12,40 +12,35 @@ import { chromium } from "@playwright/test";
 const PUBLIC = fileURLToPath(new URL("../public/", import.meta.url));
 
 const OG_HTML = `<!doctype html><html><head><meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#080a0d;color:#e9e4d8;font-family:Inter,system-ui,sans-serif}
+  html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#0a0c0f;color:#e4e8ec;font-family:Inter,system-ui,sans-serif}
   .bg{position:absolute;inset:0;background:
-    radial-gradient(55% 45% at 50% 108%, rgba(229,108,53,.55), transparent 70%),
-    radial-gradient(35% 28% at 50% 108%, rgba(243,217,155,.5), transparent 70%),
-    radial-gradient(120% 80% at 50% 0%, rgba(212,175,97,.08), transparent 60%),
-    linear-gradient(180deg,#05070a 0%,#080a0d 55%,#0b0d11 100%)}
-  .frame{position:absolute;inset:28px;border:1px solid rgba(212,175,97,.22)}
-  .frame:before,.frame:after{content:"";position:absolute;width:34px;height:34px;border:2px solid #d4af61}
-  .frame:before{left:-2px;top:-2px;border-right:0;border-bottom:0}
-  .frame:after{right:-2px;bottom:-2px;border-left:0;border-top:0}
-  .ruins{position:absolute;left:0;right:0;bottom:0;height:260px;fill:#0b0e13}
-  .wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:40px}
-  .eyebrow{font-family:Cinzel,serif;font-size:16px;letter-spacing:.42em;color:#d4af61;text-transform:uppercase}
-  h1{font-family:Cinzel,serif;font-weight:600;font-size:112px;letter-spacing:.2em;margin:18px 0 0 .2em;text-shadow:0 0 40px rgba(212,175,97,.35),0 3px 0 rgba(0,0,0,.6)}
-  .sub{font-family:Cinzel,serif;font-size:22px;letter-spacing:.36em;color:#d4af61;text-transform:uppercase;margin-top:22px}
-  .tag{font-size:26px;color:#989a9f;font-style:italic;margin-top:38px}
-  .handle{position:absolute;left:64px;bottom:56px;font-family:ui-monospace,Menlo,monospace;font-size:20px;color:#f3d99b;letter-spacing:.08em}
-  .hl{position:absolute;right:64px;bottom:56px;font-size:18px;color:#989a9f}
-  .glow{position:absolute;left:50%;bottom:-40px;width:420px;height:200px;transform:translateX(-50%);background:radial-gradient(50% 60% at 50% 100%,rgba(243,217,155,.9),rgba(229,108,53,.5) 35%,transparent 70%);filter:blur(10px)}
+    radial-gradient(60% 50% at 50% 52%, rgba(255,180,84,.16), transparent 70%),
+    linear-gradient(180deg,#06080a 0%,#0a0c0f 60%,#0c0f13 100%)}
+  .scan{position:absolute;inset:0;background:repeating-linear-gradient(180deg, rgba(0,0,0,.18) 0 2px, transparent 2px 5px);opacity:.6}
+  .monitor{position:absolute;left:50%;top:50%;width:980px;height:520px;transform:translate(-50%,-50%);border:14px solid #1b2028;border-radius:26px;background:radial-gradient(90% 80% at 50% 50%, #241a0b, #140f08 80%);box-shadow:0 0 0 2px #0a0c0f, 0 0 90px rgba(255,180,84,.22), 0 40px 80px -30px rgba(0,0,0,.9)}
+  .screen{position:absolute;inset:34px 44px;font-family:'JetBrains Mono',monospace;color:#ffb454}
+  .line{font-size:22px;line-height:40px;white-space:pre}
+  .dim{color:#b8782a}
+  .bright{color:#ffd79a}
+  h1{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:84px;letter-spacing:.06em;margin:18px 0 6px;color:#e4e8ec;text-shadow:0 0 30px rgba(255,180,84,.35)}
+  .sub{font-size:22px;letter-spacing:.3em;text-transform:uppercase;color:#ffb454;font-weight:600}
+  .foot{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;font-size:18px;color:#98a2ad}
+  .cursor{display:inline-block;width:14px;height:26px;background:#ffb454;vertical-align:-4px;margin-left:6px}
 </style></head><body>
 <div class="bg"></div>
-<svg class="ruins" viewBox="0 0 1200 260" preserveAspectRatio="none"><path d="M0 260V200l40-6 10-60 24 4 6 54 50 2V160l20-40 22 40v40l60 4V110l18-8 16 12v96l70 2v-50l14-14 12 14v52l80 2V60l26-16 24 16v110l50 2V120l30-30 30 30v54l60 2V80l20-20 22 20v96l70 2v-60l16-16 18 16v62l64 4V90l22-26 24 26v94l60 4V130l18-20 20 20v54l70 2V140l16-8 16 8v56l44 2v62z"/></svg>
-<div class="glow"></div>
-<div class="frame"></div>
-<div class="wrap">
-  <div class="eyebrow">An immersive developer portfolio</div>
-  <h1>BONFIREOS</h1>
+<div class="monitor"><div class="screen">
+  <div class="line dim">0x496C6B696E BIOS v1.0 · WORKSTATION</div>
+  <div class="line">&gt; memory test ............ OK</div>
+  <div class="line">&gt; detecting drives ....... 6 projects</div>
+  <div class="line bright">&gt; boot complete. welcome back, operator.</div>
+  <h1>0x496C6B696E</h1>
   <div class="sub">Backend · Systems · Automation</div>
-  <div class="tag">“Rest at the Bonfire. Build. Deploy. Repeat.”</div>
-</div>
-<div class="handle">0x496C6B696E</div>
-<div class="hl">Projects · Skills · Stack · GitHub activity</div>
+  <div class="line" style="margin-top:22px">$ open portfolio<span class="cursor"></span></div>
+  <div class="foot"><span>Boot. Build. Deploy. Repeat.</span><span>projects · capabilities · toolchain · telemetry · mail</span></div>
+</div></div>
+<div class="scan"></div>
 </body></html>`;
 
 const browser = await chromium.launch();

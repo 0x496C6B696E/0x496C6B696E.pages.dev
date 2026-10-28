@@ -35,14 +35,14 @@ test.describe("no horizontal overflow at any viewport", () => {
         await page.waitForLoadState("networkidle");
         expect(await horizontalOverflow(page), `${route} overflows at ${size}`).toBeLessThanOrEqual(0);
         if (SHOT_VIEWPORTS.has(size) && SHOT_ROUTES.has(route)) {
-          const name = route === "/" ? "hub" : route.slice(1).replace(/\//g, "-");
+          const name = route === "/" ? "desktop" : route.slice(1).replace(/\//g, "-");
           await page.screenshot({ path: `qa/screenshots/${name}-${size}.jpg`, type: "jpeg", quality: 82, fullPage: route !== "/" });
         }
       }
     });
   }
 
-  test("entry screen @shots", async ({ page }) => {
+  test("standby screen @shots", async ({ page }) => {
     for (const vp of [
       { w: 390, h: 844 },
       { w: 1440, h: 900 },
@@ -51,12 +51,12 @@ test.describe("no horizontal overflow at any viewport", () => {
       await page.goto("/");
       await expect(page.getByTestId("enter")).toBeVisible();
       expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
-      await page.screenshot({ path: `qa/screenshots/entry-${vp.w}x${vp.h}.jpg`, type: "jpeg", quality: 82 });
+      await page.screenshot({ path: `qa/screenshots/standby-${vp.w}x${vp.h}.jpg`, type: "jpeg", quality: 82 });
     }
   });
 });
 
-test("touch targets on the hub are at least 44px tall on mobile", async ({ page, browserName }) => {
+test("touch targets on the desktop are at least 44px tall on mobile", async ({ page, browserName }) => {
   test.skip(browserName !== "chromium", "layout check, one engine is enough");
   await page.setViewportSize({ width: 375, height: 667 });
   await explorerVisitor(page);

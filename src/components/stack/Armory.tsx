@@ -24,7 +24,7 @@ export function Armory() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <Tabs tabs={TABS} value={category} onChange={changeCategory} label="Armament categories" />
+        <Tabs tabs={TABS} value={category} onChange={changeCategory} label="Toolchain categories" />
         <p className="text-sm text-ash">
           <span className="text-gold">{group.subtitle}.</span> {group.flavor}
         </p>
@@ -32,7 +32,7 @@ export function Armory() {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div role="tabpanel" id={`panel-${group.key}`} aria-labelledby={`tab-${group.key}`}>
-          <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5" aria-label={`${group.title} inventory`}>
+          <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5" aria-label={`${group.title} entries`}>
           {group.items.map((it) => {
             const active = it.name === item.name;
             return (
@@ -61,7 +61,7 @@ export function Armory() {
         <aside id="armory-inspect" key={item.name} className="card rise-in flex flex-col gap-3 p-5 [animation-duration:0.3s] lg:sticky lg:top-24 lg:self-start" aria-live="polite">
           <p className="eyebrow">Inspect</p>
           <div className="flex items-center gap-3">
-            <span className="grid size-11 place-items-center border border-gold/30 bg-abyss/60 text-flare">
+            <span className="grid size-11 place-items-center rounded-sm border border-edge bg-abyss/60 text-flare">
               <TechIcon icon={item.icon} name={item.name} className="size-6" />
             </span>
             <div>
