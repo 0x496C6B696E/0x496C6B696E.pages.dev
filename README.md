@@ -8,8 +8,10 @@ An immersive dark-fantasy developer portfolio for **[0x496C6B696E](https://githu
 
 Two ways in:
 
-- **Immersive mode**: a procedural 3D camp (React Three Fiber) with a damped cinematic camera, embers, mist and ruins. Lazy-loaded, paused behind panels, capped pixel ratio.
-- **Explorer mode**: the same content over a CSS-only scene. Default on devices without WebGL, with reduced motion, data saver or few cores. One click switches between the two at any time.
+- **Immersive mode**: a procedural 3D camp (React Three Fiber) with six standing stones that carry the real navigation links, a cinematic camera that dollies toward the stone you choose, embers, falling ash, mist, moon and ruins. Lazy-loaded, slowed to a crawl behind panels, capped pixel ratio.
+- **Explorer mode**: the same content over a CSS-only scene. Default on phones, devices without WebGL, reduced motion, data saver or few cores. One click switches between the two at any time.
+
+Also in the camp: a boot-log **kindling sequence** whose numbers come from the data files, a **Bonfire Terminal** (press backtick: `ls`, `warp projects`, `open gatewarden`, `stats`), and an optional **procedural fire ambience** synthesised with the Web Audio API (no audio files, off until you ask).
 
 Fully static (`next build` -> `out/`), designed for **Cloudflare Pages Free**. No server, no database, no paid service, no tracking.
 

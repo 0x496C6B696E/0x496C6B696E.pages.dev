@@ -19,6 +19,11 @@ interface Experience {
   disableWebgl: () => void;
   lowPower: boolean;
   mounted: boolean;
+  terminalOpen: boolean;
+  setTerminalOpen: (open: boolean) => void;
+  /** Procedural fire ambience; always starts off and is only enabled by a user gesture. */
+  sound: boolean;
+  setSound: (on: boolean) => void;
 }
 
 const ExperienceContext = createContext<Experience | null>(null);
@@ -50,6 +55,8 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [webgl, setWebgl] = useState(true);
   const [lowPower, setLowPower] = useState(false);
+  const [terminalOpen, setTerminalOpen] = useState(false);
+  const [sound, setSound] = useState(false);
 
   // Capability detection must happen after hydration (window is needed and the server
   // cannot know the answer), so a one-time setState in an effect is the correct tool here.
@@ -111,8 +118,12 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
       disableWebgl,
       lowPower,
       mounted,
+      terminalOpen,
+      setTerminalOpen,
+      sound,
+      setSound,
     }),
-    [mode, webgl, setMode, effectiveEntered, enter, stage, reducedMotion, disableWebgl, lowPower, mounted],
+    [mode, webgl, setMode, effectiveEntered, enter, stage, reducedMotion, disableWebgl, lowPower, mounted, terminalOpen, sound],
   );
 
   return <ExperienceContext.Provider value={value}>{children}</ExperienceContext.Provider>;

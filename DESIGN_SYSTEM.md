@@ -34,7 +34,10 @@ Fonts are self-hosted through `next/font/google` (downloaded at build, served fr
 
 - **Panel** (`.panel`): gradient surface, 1px gold border at 16% alpha, inner hairline frame, corner ticks drawn with background gradients, deep soft shadow. Max width 64rem (78rem for wide content). Entrance: 18px rise + fade over 550 ms.
 - **Card** (`.card`, `.card-interactive`): lighter version for list items; hover lifts 2px and warms the border. Hover lift is disabled on touch devices (`@media (hover: hover)`).
-- **Waystone** (`.waystone`): hub hotspot; rune disc with lucide icon, Cinzel name, plain label underneath so the destination is never ambiguous.
+- **Waystone** (`.waystone`): hub hotspot; rune disc with lucide icon, Cinzel name, plain label underneath so the destination is never ambiguous. In Immersive mode each one is pinned to a standing stone in the 3D camp (far stones carry the plaque above, near stones at the foot) and the stone's rune glows on hover or focus.
+- **Terminal** (`BonfireTerminal`): a panel-styled bottom drawer in JetBrains Mono; gold prompt, flare for input echoes, ash for output.
+- **Kindling log**: mono boot sequence in gold with a blinking block cursor; the first line in flare.
+- **Attribute radar**: seven-axis SVG polygon filled with a flare-to-ember gradient over gold grid rings.
 
 ## Controls
 
@@ -48,8 +51,9 @@ Fonts are self-hosted through `next/font/google` (downloaded at build, served fr
 
 | Element | Motion | Reduced motion |
 | --- | --- | --- |
-| Entry -> hub | camp fades out 0.6 s, kindling line 1.3 s, skippable with Esc/Enter/Space/click | skipped entirely |
-| Camera | damped move to the stage target, pointer parallax on fine pointers | snaps, no parallax |
+| Entry -> hub | camp fades out 0.6 s, kindling boot log (10 lines at 210 ms) then 0.65 s hold, skippable with Esc/Enter/Space/click | skipped entirely |
+| Camera | damped move to the stage target; slow breathing drift at the entry camp only; pointer parallax on fine pointers (smaller at the hub so pinned links stay put); dolly toward the focused stone when a panel opens | snaps, no drift, no parallax |
+| Ash | 120 grey points falling slowly over the camp (not on low power) | scene not used by default |
 | Embers (3D) | 170 additive points (60 on low power) | scene not used by default |
 | Embers (CSS) | 26 spans, 7 to 13 s rises | static |
 | Panels | CSS `panel-in` 550 ms fade/rise (no JS needed, so server-rendered text paints before hydration) | instant |

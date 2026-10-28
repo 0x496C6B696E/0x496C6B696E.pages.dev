@@ -197,6 +197,19 @@
     animation: fade-out 0.6s var(--ease-soft) forwards;
     pointer-events: none;
   }
+  @keyframes blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+  .blink {
+    animation: blink 1s steps(1) infinite;
+  }
   .panel::before {
     content: "";
     position: absolute;

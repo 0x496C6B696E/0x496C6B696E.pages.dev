@@ -1,7 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 import { Component, useEffect, useState, type ReactNode } from "react";
+import { destinationFor } from "@/config/site";
 import { useExperience } from "./ExperienceProvider";
 import { EmberFallback } from "./EmberFallback";
 import { cn } from "@/lib/cn";
@@ -25,6 +27,7 @@ class SceneBoundary extends Component<{ onFail: () => void; children: ReactNode 
 
 export function Backdrop() {
   const { mode, webgl, mounted, stage, reducedMotion, lowPower, disableWebgl } = useExperience();
+  const pathname = usePathname();
   const [idle, setIdle] = useState(false);
 
   // Let the first paint (title, button) land before pulling in three.js.
@@ -35,13 +38,14 @@ export function Backdrop() {
 
   const immersive = mounted && mode === "immersive" && webgl;
   const show3d = immersive && idle;
+  const focus = destinationFor(pathname)?.slug ?? null;
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden" aria-hidden="true" data-backdrop={immersive ? "3d" : "css"}>
       <EmberFallback animated={mounted && !reducedMotion && !immersive} />
       {show3d && (
         <SceneBoundary onFail={disableWebgl}>
-          <BonfireScene stage={stage} reducedMotion={reducedMotion} lowPower={lowPower} onContextLost={disableWebgl} />
+          <BonfireScene stage={stage} focus={focus} reducedMotion={reducedMotion} lowPower={lowPower} onContextLost={disableWebgl} />
         </SceneBoundary>
       )}
       <div className="vignette" />

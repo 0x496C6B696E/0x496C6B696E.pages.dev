@@ -30,9 +30,19 @@ test.describe("immersive mode", () => {
     await page.waitForTimeout(2000);
     await page.screenshot({ path: "qa/screenshots/entry-immersive-1440x900.jpg", type: "jpeg", quality: 82 });
     await page.getByTestId("enter").click();
-    await expect(page.getByRole("navigation", { name: "Destinations" })).toBeVisible({ timeout: 8_000 });
+    // the kindling boot log runs with real counts, then the hub appears
+    await expect(page.getByTestId("kindling")).toBeVisible({ timeout: 3_000 });
+    await page.waitForTimeout(1200);
+    await page.screenshot({ path: "qa/screenshots/kindling-1440x900.jpg", type: "jpeg", quality: 82 });
+    await expect(page.getByRole("navigation", { name: "Destinations" })).toBeVisible({ timeout: 10_000 });
     await page.waitForTimeout(3000);
     await page.screenshot({ path: "qa/screenshots/hub-immersive-1440x900.jpg", type: "jpeg", quality: 82 });
+    // waystones follow the 3D stones: the link wrappers carry projected transforms
+    const transforms = await page.getByRole("navigation", { name: "Destinations" }).locator("a.waystone").evaluateAll((els) => els.map((el) => (el.parentElement as HTMLElement).style.transform));
+    expect(transforms.filter((t) => t.includes("translate(")).length).toBe(6);
+    await page.getByRole("link", { name: /soul memory/i }).hover();
+    await page.waitForTimeout(600);
+    await page.screenshot({ path: "qa/screenshots/hub-immersive-hover-1440x900.jpg", type: "jpeg", quality: 82 });
   });
 
   test("the mode toggle switches to the CSS scene and back", async ({ page }) => {

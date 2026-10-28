@@ -90,6 +90,28 @@ About 490 to 550 KB of JavaScript transfer is reported by Lighthouse, of which ~
 - `verify-export.mjs` scans the output for GitHub, Anthropic and AWS token patterns on every build.
 - Dependencies: `npm audit` reported 0 vulnerabilities at install time.
 
+## Round 2: world-anchored hub, kindling log, terminal, ambience (2026-10-28)
+
+After reviewing the reference portfolio the camp gained standing stones that carry the navigation links, a camera dolly toward the chosen stone, a boot-log transition with real counts, a command terminal, a procedural fire ambience toggle, ash, a moon, a textured ground, more ruins, an attribute radar and denser About content. New checks: terminal commands end to end (backtick, `ls`, `warp`, `open`, Escape), HUD toggles, kindling log visibility, six projected waystone transforms, hover screenshot. Unit tests for the terminal parser and the kindling line generator.
+
+| Check | Result |
+| --- | --- |
+| TypeScript, ESLint (React Compiler rules) | pass |
+| Vitest | 23 passed in 3 files |
+| Playwright, 4 projects | **183 passed**, 0 failed, 30 skipped by design |
+| Lighthouse mobile `/`, `/about`, `/skills` | 99 / 100 / 100 / 100 · 100 / 100 / 100 / 100 · 99 / 100 / 100 / 100 (TBT 40 to 90 ms) |
+| Lighthouse desktop `/` | 99 / 100 / 100 / 100 |
+
+Visual QA findings in this round and their fixes:
+
+| Finding | Fix |
+| --- | --- |
+| Anchored waystones all rendered at the top-left corner: the entrance keyframe animation (`transform: none`, fill `both`) overrode the inline projected transform. | Entrance animation moved from the positioned wrapper to the link inside it. |
+| The HUD bar (full-width gradient) swallowed clicks on far waystones that sat under it. | HUD is `pointer-events: none`; only its controls catch pointer events. |
+| Links never became "stable" because the camera breathed continuously, and near stones crowded the screen edges or overlapped each other at 1024 to 1440 px. | Breathing drift limited to the entry camp; anchors quantised to half pixels and published only on change; ring turned into an ellipse (deeper far side), far plaques above the stone, near plaques at the foot; the near-centre stone is short so it never hides the flames. |
+| Hydration races in WebKit/Firefox/mobile (Escape or backtick pressed before React attached listeners). | Tests wait for a client-only HUD control before pressing keys. |
+| Six parallel software-WebGL browsers starved each other and produced spurious timeouts. | Playwright workers capped at 6 locally. |
+
 ## Live deployment check (2026-10-28, https://bonfireos.pages.dev)
 
 After the owner connected the repository to Cloudflare Pages, the same checks ran against the production URL (`BASE_URL=https://bonfireos.pages.dev npm run test:e2e`).

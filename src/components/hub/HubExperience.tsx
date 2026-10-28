@@ -1,35 +1,30 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useExperience, type Mode } from "@/components/experience/ExperienceProvider";
 import { EntryScreen } from "./EntryScreen";
 import { Hub } from "./Hub";
+import { KindlingSequence } from "./KindlingSequence";
 
 const LEAVE_MS = 600;
-const KINDLE_MS = 1300;
 
 type Phase = "leaving" | "kindling" | null;
 
 /**
- * Entry camp -> (fade out) -> short kindling -> hub.
+ * Entry camp -> (fade out) -> kindling boot log -> hub.
  * All motion is CSS; this component only sequences mount/unmount. The cinematic path is
  * skipped entirely in Explorer mode or with reduced motion, and can be cut short at any time.
  */
 export function HubExperience() {
   const { entered, enter, mounted, reducedMotion, setMode, mode } = useExperience();
   const [phase, setPhase] = useState<Phase>(null);
-  const timers = useRef<number[]>([]);
+  const timer = useRef<number | undefined>(undefined);
 
-  const clear = () => {
-    for (const id of timers.current) window.clearTimeout(id);
-    timers.current = [];
-  };
-
-  const finish = () => {
-    clear();
+  const finish = useCallback(() => {
+    window.clearTimeout(timer.current);
     enter();
     setPhase(null);
-  };
+  }, [enter]);
 
   const begin = (next?: Mode) => {
     if (next) setMode(next);
@@ -39,16 +34,13 @@ export function HubExperience() {
       return;
     }
     setPhase("leaving");
-    timers.current.push(
-      window.setTimeout(() => {
-        enter();
-        setPhase("kindling");
-      }, LEAVE_MS),
-      window.setTimeout(() => setPhase(null), LEAVE_MS + KINDLE_MS),
-    );
+    timer.current = window.setTimeout(() => {
+      enter();
+      setPhase("kindling");
+    }, LEAVE_MS);
   };
 
-  useEffect(() => clear, []);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
 
   useEffect(() => {
     if (!phase) return;
@@ -57,22 +49,9 @@ export function HubExperience() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-    // finish is stable for the lifetime of the component
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
+  }, [phase, finish]);
 
   if (!entered) return <EntryScreen onEnter={begin} ready={mounted} leaving={phase === "leaving"} />;
-
-  if (phase === "kindling") {
-    return (
-      <div className="rise-in flex min-h-dvh flex-col items-center justify-center gap-6 text-center" aria-live="polite">
-        <p className="display text-glow text-sm tracking-[0.4em] text-gold uppercase">The fire takes</p>
-        <button type="button" className="btn btn-ghost btn-sm" onClick={finish} autoFocus>
-          Skip
-        </button>
-      </div>
-    );
-  }
-
+  if (phase === "kindling") return <KindlingSequence onDone={finish} />;
   return <Hub />;
 }

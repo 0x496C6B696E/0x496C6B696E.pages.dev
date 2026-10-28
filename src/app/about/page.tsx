@@ -5,8 +5,9 @@ import { Panel } from "@/components/ui/Panel";
 import { TechIcon } from "@/components/ui/TechIcon";
 import { SigilDecoder } from "@/components/about/SigilDecoder";
 import { site } from "@/config/site";
-import { github } from "@/data/github";
-import { formatMonth } from "@/lib/format";
+import { github, languageShares, totals } from "@/data/github";
+import { quests } from "@/data/projects";
+import { formatMonth, yearsBetween } from "@/lib/format";
 
 export const metadata: Metadata = {
   title: "The Tarnished · About",
@@ -24,8 +25,22 @@ const interests = [
   { title: "Clean architecture", text: "Small diffs, boring solutions, decisions written down next to the code." },
 ];
 
+const method = [
+  { step: "01", title: "Read first", text: "Understand the system end to end before touching it. Most bugs are a misunderstanding wearing a stack trace." },
+  { step: "02", title: "Small diffs", text: "Change one thing, make it reviewable, ship it. Big rewrites hide big regressions." },
+  { step: "03", title: "Boring over clever", text: "Standard library before dependency, platform before framework. Clever is what someone decodes at 3am." },
+  { step: "04", title: "Keep it lit", text: "Timeouts, retries, logs that say what happened, and an error channel that reaches a human." },
+];
+
 export default function AboutPage() {
   const since = github.user?.createdAt ?? site.developer.since;
+  const years = yearsBetween(since);
+  const numbers: Array<{ value: string; label: string }> = [
+    { value: String(quests.length), label: "public quests" },
+    { value: String(languageShares(50).length), label: "languages in the archive" },
+    { value: years === 0 ? "<1" : String(years), label: years === 1 ? "year on GitHub" : "years on GitHub" },
+    { value: String(totals.stars), label: totals.stars === 1 ? "star received" : "stars received" },
+  ];
   return (
     <Panel slug="about" title="The Tarnished" lede="Every world has someone who keeps the fire lit. This one is a backend and systems engineer.">
       <div className="grid gap-10 md:grid-cols-[15rem_1fr] md:gap-12">
@@ -51,6 +66,20 @@ export default function AboutPage() {
         </aside>
 
         <div className="flex flex-col gap-10">
+          <section aria-labelledby="numbers">
+            <h2 id="numbers" className="sr-only">
+              By the numbers
+            </h2>
+            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {numbers.map((n) => (
+                <li key={n.label} className="card px-4 py-3">
+                  <p className="display text-glow text-2xl text-ink">{n.value}</p>
+                  <p className="text-[0.7rem] tracking-wide text-ash">{n.label}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+
           <section aria-labelledby="chronicle">
             <h2 id="chronicle" className="eyebrow mb-4">
               Chronicle · in the developer&apos;s own words
@@ -77,6 +106,23 @@ export default function AboutPage() {
                 </li>
               ))}
             </ul>
+          </section>
+
+          <section aria-labelledby="method">
+            <h2 id="method" className="eyebrow mb-4">
+              Method · how the work gets done
+            </h2>
+            <ol className="grid gap-3 sm:grid-cols-2">
+              {method.map((m) => (
+                <li key={m.step} className="card flex gap-4 p-4">
+                  <span className="display text-2xl leading-none text-gold/70">{m.step}</span>
+                  <div>
+                    <h3 className="display text-[0.95rem] text-ink">{m.title}</h3>
+                    <p className="mt-1.5 text-sm text-ash">{m.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </section>
 
           <SigilDecoder handle={site.developer.handle} />

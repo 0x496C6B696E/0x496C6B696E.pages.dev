@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ExternalLink, Info } from "lucide-react";
 import { Tabs } from "@/components/ui/Tabs";
+import { AttributeRadar } from "./AttributeRadar";
 import { attributes, creed } from "@/data/skills";
 
 const TABS = [
@@ -31,6 +32,17 @@ export function CharacterSheet() {
       </div>
 
       <div role="tabpanel" id="panel-attributes" aria-labelledby="tab-attributes" hidden={tab !== "attributes"} className="grid gap-4 lg:grid-cols-2">
+        <div className="lg:col-span-2 lg:grid lg:grid-cols-[22rem_1fr] lg:gap-4">
+          <AttributeRadar />
+          <div className="card mt-4 flex flex-col justify-center gap-3 p-5 lg:mt-0">
+            <h2 className="display text-lg text-ink">How to read the sheet</h2>
+            <p className="text-sm text-ash">
+              Each attribute is an engineering discipline wearing an RPG name. The level is the developer&apos;s own thematic estimate, so compare the shape, not the digits:
+              the sheet leans toward backend work, architecture and reliability, with systems programming and security as the fields being levelled.
+            </p>
+            <p className="text-sm text-ash">Every card below links to a public repository where that attribute was actually exercised.</p>
+          </div>
+        </div>
         {attributes.map((a) => (
           <article key={a.key} className="card p-5">
             <header className="flex items-baseline justify-between gap-4">

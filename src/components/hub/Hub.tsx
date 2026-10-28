@@ -1,14 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { destinations, type DestinationSlug } from "@/config/site";
 import { DestinationIcon } from "@/components/ui/DestinationIcon";
 import { useExperience } from "@/components/experience/ExperienceProvider";
 import { useMediaQuery } from "@/lib/useMediaQuery";
+import { sceneAnchors } from "@/lib/sceneAnchors";
 import { cn } from "@/lib/cn";
+import { quests } from "@/data/projects";
+import { github, languageShares } from "@/data/github";
+import { formatDate, formatMonth } from "@/lib/format";
 
-/** Waystone placement around the fire on large screens (the fire sits at the viewport centre). */
+/** CSS fallback placement while the 3D scene has not published anchors yet (or on narrow screens). */
 const RING: Record<DestinationSlug, string> = {
   about: "left-[8%] top-[24%] xl:left-[14%]",
   skills: "left-1/2 top-[11%] -translate-x-1/2",
@@ -22,18 +26,45 @@ export function Hub() {
   const { mode } = useExperience();
   const wide = useMediaQuery("(min-width: 1024px) and (min-height: 640px)");
   const list = useRef<HTMLDivElement>(null);
+  const stones = useRef<Partial<Record<DestinationSlug, HTMLDivElement | null>>>({});
+  const [anchored, setAnchored] = useState(false);
   const ring = mode === "immersive" && wide;
+
+  // Follow the 3D stones: the scene publishes projected positions every frame.
+  useEffect(() => {
+    if (!ring) return;
+    let first = true;
+    return sceneAnchors.subscribe((anchors) => {
+      for (const d of destinations) {
+        const el = stones.current[d.slug];
+        const a = anchors[d.slug];
+        if (!el || !a) continue;
+        el.style.transform = `translate(-50%, -100%) translate(${a.x.toFixed(1)}px, ${a.y.toFixed(1)}px) scale(${a.scale.toFixed(3)})`;
+        el.style.visibility = a.visible ? "visible" : "hidden";
+      }
+      if (first) {
+        first = false;
+        setAnchored(true);
+      }
+    });
+  }, [ring]);
+
+  useEffect(() => () => sceneAnchors.setHovered(null), []);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const keys = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"];
     if (!keys.includes(event.key)) return;
-    const stones = Array.from(list.current?.querySelectorAll<HTMLAnchorElement>("a.waystone") ?? []);
-    const index = stones.indexOf(document.activeElement as HTMLAnchorElement);
+    const links = Array.from(list.current?.querySelectorAll<HTMLAnchorElement>("a.waystone") ?? []);
+    const index = links.indexOf(document.activeElement as HTMLAnchorElement);
     if (index === -1) return;
     event.preventDefault();
     const forward = event.key === "ArrowRight" || event.key === "ArrowDown";
-    stones[(index + (forward ? 1 : stones.length - 1)) % stones.length]?.focus();
+    links[(index + (forward ? 1 : links.length - 1)) % links.length]?.focus();
   };
+
+  const snapshot = formatDate(github.fetchedAt);
+  const since = formatMonth(github.user?.createdAt);
+  const tongues = languageShares(50).length;
 
   return (
     <div className="safe-x safe-b relative min-h-dvh">
@@ -50,8 +81,24 @@ export function Hub() {
         )}
       >
         {destinations.map((d, i) => (
-          <div key={d.slug} className={cn("rise-in", ring && `absolute w-[12.5rem] ${RING[d.slug]}`)} style={{ animationDelay: `${i * 80}ms` }}>
-            <Link href={d.path} className={cn("waystone min-h-11", !ring && "h-full flex-row items-center gap-4 text-left sm:flex-col sm:text-center")}>
+          // The wrapper only carries position (projected transform or CSS ring); the entrance
+          // animation lives on the link so its keyframes never override that transform.
+          <div
+            key={d.slug}
+            ref={(el) => {
+              stones.current[d.slug] = el;
+            }}
+            className={cn(ring && (anchored && sceneAnchors.active ? "absolute top-0 left-0 w-[12.5rem] will-change-transform" : `absolute w-[12.5rem] ${RING[d.slug]}`))}
+          >
+            <Link
+              href={d.path}
+              className={cn("waystone rise-in min-h-11", !ring && "h-full flex-row items-center gap-4 text-left sm:flex-col sm:text-center")}
+              style={{ animationDelay: `${i * 80}ms` }}
+              onPointerEnter={() => sceneAnchors.setHovered(d.slug)}
+              onPointerLeave={() => sceneAnchors.setHovered(null)}
+              onFocus={() => sceneAnchors.setHovered(d.slug)}
+              onBlur={() => sceneAnchors.setHovered(null)}
+            >
               <span className="rune">
                 <DestinationIcon icon={d.icon} className="size-5" />
               </span>
@@ -65,11 +112,17 @@ export function Hub() {
         ))}
       </div>
 
-      {ring && (
-        <p className="rise-in pointer-events-none absolute inset-x-0 bottom-2 text-center text-[0.7rem] text-dust" style={{ animationDelay: "600ms" }}>
-          <kbd className="kbd">Tab</kbd> or arrow keys to move · <kbd className="kbd">Enter</kbd> to travel · <kbd className="kbd">Esc</kbd> returns here
+      <div className={cn("rise-in pointer-events-none absolute inset-x-0 bottom-2 flex flex-col items-center gap-1.5 text-center", !ring && "hidden lg:flex")} style={{ animationDelay: "600ms" }}>
+        <p className="font-mono text-[0.68rem] tracking-wide text-dust" aria-label="Camp status">
+          {quests.length} records · {tongues} tongues{since ? ` · journey since ${since}` : ""}
+          {snapshot ? ` · soul memory ${snapshot}` : ""}
         </p>
-      )}
+        {ring && (
+          <p className="text-[0.7rem] text-dust">
+            <kbd className="kbd">Tab</kbd> or arrow keys to move · <kbd className="kbd">Enter</kbd> to travel · <kbd className="kbd">`</kbd> opens the terminal
+          </p>
+        )}
+      </div>
     </div>
   );
 }

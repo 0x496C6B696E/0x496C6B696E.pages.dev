@@ -38,18 +38,28 @@ public                       _headers (CSP etc.), og.png, icons, avatar, project
 qa/screenshots               visual QA output (committed), see QA_REPORT.md
 ```
 
+## World-anchored hub
+
+In Immersive mode the six destination links are still ordinary HTML links, but they sit on six standing stones in the 3D camp. `AnchorPublisher` (inside the Canvas) projects each stone's world position to screen space every frame, quantises it to half pixels and publishes it through `lib/sceneAnchors.ts`; the `Hub` subscribes and writes `transform` on the link wrappers directly, so nothing re-renders. Hover and focus flow back the same way to light the stone's rune. Opening a destination makes the camera rig approach that stone (`focus` prop). If the scene never publishes (Explorer mode, narrow screens, no WebGL) the hub falls back to a CSS ring or a card grid.
+
+## Terminal and ambience
+
+- `lib/terminal.ts` is a pure command interpreter over the same typed data files (`ls`, `warp`, `quests`, `open`, `stats`, `mode`, ...). `BonfireTerminal` renders it as a bottom drawer (backtick key or HUD button) and performs navigation through the router. Unit tests cover the parser.
+- `lib/useCrackle.ts` synthesises the fire ambience with the Web Audio API (filtered noise voices with random gain bursts). It is off until the visitor presses the HUD sound toggle, so autoplay rules are respected and nothing is downloaded.
+- `KindlingSequence` is the boot log shown between the entry camp and the hub; every number in it is read from the data files at render time.
+
 ## Experience state machine
 
 ```text
             visit "/"                     ENTER / Skip
-  [entry] ───────────────▶ (entered=false) ──────────────▶ [kindling 1.5 s, skippable] ──▶ [hub]
+  [entry] ───────────────▶ (entered=false) ──────────────▶ [kindling boot log ~2.7 s, skippable] ──▶ [hub]
                                                              (skipped entirely in Explorer
                                                               mode or reduced motion)
   visit "/about" etc.  ─────────────────────────────────────────────────────────────────▶ [panel]
   Esc or "Return" from a panel ─────────────────────────────────────────────────────────▶ [hub]
 ```
 
-The scene reads the stage to pick a camera target (far camp, hub, panel) and sets `frameloop="never"` while a panel is open so the GPU idles behind the content.
+The scene reads the stage to pick a camera target (far camp, hub, or the focused stone for a panel) and drops to a 12 fps demand loop while a panel is open so the dolly still plays but the GPU mostly idles behind the content.
 
 ## Fallbacks and degradation
 

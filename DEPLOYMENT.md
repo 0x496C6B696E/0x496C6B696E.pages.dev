@@ -20,7 +20,8 @@ npm run build
 git init -b main
 git add -A
 git commit -m "BonfireOS"
-gh repo create BonfireOS --public --source=. --push     # or create the repo on github.com and `git remote add origin ...`
+# the repository is named after the site it publishes
+gh repo create 0x496C6B696E.pages.dev --public --source=. --push     # or create the repo on github.com and `git remote add origin ...`
 ```
 
 Nothing in the repository is secret. `src/data/github.snapshot.json` is committed on purpose so builds work offline and without API quota.
@@ -28,7 +29,7 @@ Nothing in the repository is secret. `src/data/github.snapshot.json` is committe
 ## 2. Connect Cloudflare Pages
 
 1. Cloudflare dashboard -> **Workers & Pages** -> **Create application** -> **Pages** -> **Connect to Git**.
-2. Pick the `BonfireOS` repository and the `main` branch.
+2. Pick the `0x496C6B696E.pages.dev` repository and the `main` branch.
 3. Build settings:
 
    | Setting | Value |

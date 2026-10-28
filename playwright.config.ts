@@ -12,6 +12,8 @@ const BASE_URL = process.env.BASE_URL;
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
+  // Headless WebGL runs on a software rasteriser; too many parallel browsers starve each other.
+  workers: process.env.CI ? 2 : 6,
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"], ["html", { open: "never", outputFolder: "qa/playwright-report" }]],
   outputDir: "qa/test-results",

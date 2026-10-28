@@ -5,6 +5,7 @@ import { site } from "@/config/site";
 import { ExperienceProvider } from "@/components/experience/ExperienceProvider";
 import { Backdrop } from "@/components/experience/Backdrop";
 import { Hud } from "@/components/hud/Hud";
+import { BonfireTerminal } from "@/components/terminal/BonfireTerminal";
 
 const cinzel = Cinzel({
   subsets: ["latin"],
@@ -89,6 +90,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main" className="relative z-10">
             {children}
           </main>
+          <BonfireTerminal />
         </ExperienceProvider>
         <div className="grain" aria-hidden="true" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
