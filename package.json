@@ -1,0 +1,42 @@
+{
+  "name": "bonfireos",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "prebuild": "node scripts/fetch-github.mjs",
+    "build": "next build",
+    "postbuild": "node scripts/normalize-export.mjs && node scripts/verify-export.mjs",
+    "start": "node scripts/serve-out.mjs",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "qa:shots": "playwright test --project=chromium --grep @shots",
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run build && npm run test:e2e"
+  },
+  "dependencies": {
+    "@react-three/fiber": "^9.8.2",
+    "lucide-react": "^1.63.0",
+    "next": "16.4.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "simple-icons": "^16.36.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/turbopack": "^4",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0.186.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.3",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^5.0.5"
+  },
+  "description": "BONFIREOS: an immersive dark-fantasy developer portfolio for 0x496C6B696E, built as a static Next.js site.",
+  "license": "MIT"
+}
