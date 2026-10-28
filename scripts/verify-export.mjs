@@ -20,6 +20,7 @@ const required = [
   "projects.html",
   "stack.html",
   "files.html",
+  "browser.html",
   "stats.html",
   "contact.html",
   ...slugs.map((s) => `projects/${s}.html`),

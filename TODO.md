@@ -11,8 +11,9 @@ Last updated: 2026-10-29. The site is complete and live. This file tracks what i
 - [x] Desktop: Linux-style top panel (applications menu, Files, Terminal, Firefox -> GitHub, window title, back to desk, sound, mode, clock, lock), folders and files as icons, Trash, arrow-key roving focus, Esc closes windows
 - [x] Files app: `/files` home folder with places sidebar; `/projects` as a detailed folder list; windows titled "file — App" with maximize and close and a path bar
 - [x] Content: Profile, Capabilities (+ radar), Projects (+6 windows), Toolchain, Telemetry, Mail, 404 (terminal style)
-- [x] 3D room: desk, three monitors (21:9 centre, two angled 16:9 sides) with canvas-painted screens, instanced keyboard with RGB underglow, glass tower with lit fans, desk lamp, mug, plant, speakers, headphone stand, bias lighting, dust
-- [x] Desk view: zoom out from the screen; every object clickable with a hint (lamp, mug, plant, speakers, tower RGB theme, side screens, keyboard, power, centre screen); Esc or the button returns
+- [x] 3D room: desk, two stacked 27" monitors on one short pole plus a 27" portrait monitor on the left, the PC case on the desk at the right (glass side, lit intake fans), instanced keyboard with RGB underglow, desk lamp, mug, plant, speakers, headphone stand, bias lighting, dust
+- [x] Desk view: the labelled Desk button zooms out (and switches to Immersive mode first if needed); drag to orbit, wheel to zoom; every object clickable with a hint (lamp, mug, plant, speakers, case RGB theme, upper and portrait screens, keyboard, power, lower centre screen); Esc or the button returns
+- [x] Browser window (`/browser`): Firefox opens on the screen with the GitHub profile built from the snapshot and the live avatar; github.com is one link away
 - [x] Extras: terminal with the two-line prompt (`ls`, `cd`, `open`, `neofetch`, `stats`, `mode`), Web Audio room tone behind an opt-in toggle (panel or the speakers)
 - [x] QA: unit and Playwright suites across Chromium/Firefox/WebKit/Pixel 7, screenshot sweep at 9 viewports, Lighthouse (QA_REPORT.md)
 - [x] Optimisation: three.js lazy + demand loop behind windows, phones default to Explorer, no WebGL probe, no animation library

@@ -18,14 +18,14 @@ Everything below was executed against the **exported** site served by `scripts/s
 
 - Lock screen -> Power on -> boot -> desktop with the panel; Skip boot -> Explorer mode remembered across reload.
 - Every file opens from the desktop into a window titled "file — App", and Escape closes it back to the desktop.
-- Folders: Home opens the Files app, the projects folder opens the detailed list, a project row opens its window; the Firefox icon points at the GitHub profile in a new tab; the Trash opens, empties and closes with Escape.
+- Folders: Home opens the Files app, the projects folder opens the detailed list, a project row opens its window; the Firefox icon opens the browser window on the screen (heading, panel title, one link out to github.com); the Trash opens, empties and closes with Escape.
 - The applications menu lists Files, Terminal, Firefox and the six files, closes with Escape and navigates.
 - Keyboard: Tab/arrow roving focus between desktop icons, Enter opens, window status bar prev/next, maximize toggle, tab lists with arrow keys, skip link.
 - Deep links render real data (`/projects/CreateOS` -> repository link, path bar `~ › projects › CreateOS`).
 - Terminal end to end: backtick opens, the prompt shows `user㉿host` and follows the working directory, `ls`, `neofetch`, `cd toolchain`, `open scanner`, Escape closes without leaving the page; panel toggles for terminal and sound; the power button locks the machine.
 - Toolchain inspection, capability tabs, mail page has only verified channels and no form.
 - 404 page for unknown paths with the correct HTTP status.
-- Console errors, page errors and failed requests on all 14 routes: none.
+- Console errors, page errors and failed requests on all 15 routes: none.
 - Every internal link resolves 200; every external link opens in a new tab with `rel="noopener"`; every link and button has an accessible name; no `<img>` without `alt`.
 - One `<main id="main">` and one `<h1>` per page; sitemap lists every route; robots and `_headers` exported.
 - No horizontal overflow at 320, 375, 390, 768, 1024, 1440, 1920 px wide, plus 844x390 landscape and 390x1400 tall, on all routes.

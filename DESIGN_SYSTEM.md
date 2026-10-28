@@ -33,7 +33,8 @@ Fonts are self-hosted through `next/font/google` (downloaded at build, served fr
 ## Surfaces
 
 - **Window** (`.win` + `.win-title` + `.win-tools` + `.win-status`): opaque dark body, 10px radius, 1px white border at 9%, deep shadow. Title bar: app icon, centred "file — App" title, maximize and close (close turns red on hover). Path bar: `~ › projects › CreateOS` as chips, the current one amber. Status bar links the previous and next files. Max width 64rem (78rem for wide content; 100% when maximized). Entrance: 10px rise over 300 ms, transform only.
-- **Panel** (`.ospanel`, `.panel-btn`): fixed 36px bar at the top, 92% dark, blur from `md`; 32px square buttons, active state amber at 22%.
+- **Panel** (`.ospanel`, `.panel-btn`, `.panel-btn-text`): fixed 36px bar at the top, 92% dark, blur from `md`; 32px square buttons, the Desk button carries its word; active state amber at 22%.
+- **Browser window** (`.browser-bar`, `.browser-url`): the window's tool slot holds back/forward/reload glyphs, a pill address bar with a lock, and the one link out to github.com.
 - **Applications menu** (`.apps-menu`, `.menu-item`): 17rem dropdown under the dragon button, grouped (Favourites, Files, Session), hover amber at 18%.
 - **Desktop icons** (`.desk-icons`, `.desk-icon`): a column at the left from `md` (auto-flow into a second column), a grid on phones; label under the glyph with a text shadow; selected state amber at 28%. Dimmed to 55% while a window is open.
 - **Glyphs** (`.glyph-folder`, `.glyph-file`, `.glyph-round`): CSS only. Folder: amber tab and body. File: paper with a folded corner and the extension printed in a colour per type (md brown, json amber, yaml pink, log slate, eml teal). Round: Firefox and the Trash.
@@ -54,9 +55,9 @@ Fonts are self-hosted through `next/font/google` (downloaded at build, served fr
 | Element | Motion | Reduced motion |
 | --- | --- | --- |
 | Lock -> desktop | lock screen fades 0.5 s; the boot log (9 lines at 230 ms, gradient progress bar, 0.5 s hold) is painted on the 3D monitor while the camera moves in; the HTML OS fades in (450 ms) once the camera has settled; skippable with Esc/Enter/Space | boot skipped, camera snaps |
-| Camera | damped move between lock, desk and screen targets; hand-held sway and pointer parallax at the wide views; static at the screen | snaps, no sway, no parallax |
-| Centre screen (3D) | canvas redrawn: sleeping dot while locked, boot log at ~14 fps, a small painted desktop (panel, icons, clock) every 0.5 s once on | unchanged (decorative texture) |
-| Side screens (3D) | system monitor with random-walking CPU bars at 4 fps; build log adding a line every 0.6 s; or off | unchanged |
+| Camera | damped move between lock, desk and screen targets; hand-held sway and pointer parallax at the lock view; at the desk, drag orbits (yaw ±40°, pitch -6° to +17°) and the wheel moves between 1.9 and 3.3 m; static at the screen | snaps, no sway, no parallax |
+| Lower centre screen (3D) | canvas redrawn: sleeping dot while locked, boot log at ~14 fps, a small painted desktop (panel, icons, clock) every 0.5 s when seen from the desk, the wallpaper alone under the HTML OS | unchanged (decorative texture) |
+| Upper and portrait screens (3D) | system monitor with random-walking CPU bars at 4 fps; build log adding a line every 0.6 s; or off | unchanged |
 | Desk objects | lamp light on/off; mug level per sip; plant leaves spring for 0.9 s when poked; RGB theme (amber, spectrum, ember, off) on fans, keyboard underglow and bias strip | unchanged |
 | Wallpaper (CSS) | two blurred colour blobs drift over 24 s behind two still ribbons | static |
 | Windows, Trash, overlays | CSS `panel-in` 300 ms / `rise-in` 500 ms | instant |

@@ -35,7 +35,8 @@ export function Backdrop() {
 
   const immersive = mounted && mode === "immersive" && webgl;
   const show3d = immersive && idle;
-  const screen = stage === "lock" ? "off" : boot === "painted" ? "boot" : "desktop";
+  // The painted panel shows a small desktop from afar; under the HTML OS it is the wallpaper alone.
+  const screen = stage === "lock" ? "off" : boot === "painted" ? "boot" : stage === "desk" ? "desktop" : "wallpaper";
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden" data-backdrop={immersive ? "3d" : "css"}>

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Armchair, Box, Folder, Power, SquareTerminal, Volume2, VolumeX } from "lucide-react";
 import { siFirefoxbrowser } from "simple-icons";
-import { destinationFor, site } from "@/config/site";
+import { destinationFor } from "@/config/site";
 import { projectBySlug } from "@/data/projects";
 import { useExperience } from "@/components/experience/ExperienceProvider";
 import { useHum } from "@/lib/useHum";
@@ -30,6 +30,7 @@ function Clock() {
 function windowTitle(pathname: string): string {
   if (pathname === "/") return "Desktop";
   if (pathname === "/files") return "Home — Files";
+  if (pathname === "/browser") return "GitHub — Firefox";
   const d = destinationFor(pathname);
   if (!d) return "Terminal";
   if (pathname.startsWith("/projects/")) {
@@ -42,6 +43,10 @@ function windowTitle(pathname: string): string {
 /** The top panel: applications menu, launchers, the open window, then session controls and the clock. */
 export function Panel() {
   const { mode, setMode, webgl, terminalOpen, setTerminalOpen, sound, setSound, goToDesk, lock } = useExperience();
+  const toDesk = () => {
+    if (!immersive) setMode("immersive");
+    goToDesk();
+  };
   const pathname = usePathname();
   useHum(sound);
   const immersive = mode === "immersive";
@@ -56,18 +61,19 @@ export function Panel() {
       <button type="button" className="panel-btn" onClick={() => setTerminalOpen(!terminalOpen)} aria-pressed={terminalOpen} aria-label="Terminal" title="Terminal (backtick key)">
         <SquareTerminal className="size-4" aria-hidden="true" />
       </button>
-      <a href={site.developer.github} target="_blank" rel="noopener noreferrer" className="panel-btn hidden sm:inline-grid" aria-label="Firefox: open the GitHub profile in a new tab" title="Firefox: GitHub profile">
+      <Link href="/browser" className="panel-btn hidden sm:inline-grid" aria-label="Firefox: GitHub profile" aria-current={pathname === "/browser" ? "page" : undefined} title="Firefox: GitHub profile">
         <svg viewBox="0 0 24 24" className="size-4" fill={`#${siFirefoxbrowser.hex}`} aria-hidden="true" focusable="false">
           <path d={siFirefoxbrowser.path} />
         </svg>
-      </a>
+      </Link>
       <span className="panel-sep" aria-hidden="true" />
       <span className="panel-task" aria-live="polite">
         {windowTitle(pathname)}
       </span>
-      {immersive && (
-        <button type="button" className="panel-btn" onClick={goToDesk} aria-label="Back to the desk" title="Zoom out to the desk">
+      {webgl && (
+        <button type="button" className="panel-btn panel-btn-text" onClick={toDesk} aria-label="Back to the desk" title={immersive ? "Zoom out to the desk" : "Switch to the 3D room and zoom out to the desk"}>
           <Armchair className="size-4" aria-hidden="true" />
+          <span>Desk</span>
         </button>
       )}
       <button

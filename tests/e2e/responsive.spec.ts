@@ -18,7 +18,7 @@ const VIEWPORTS = [
 ];
 
 const SHOT_VIEWPORTS = new Set(["390x844", "768x1024", "1440x900"]);
-const SHOT_ROUTES = new Set(["/", "/files", "/about", "/skills", "/projects", "/projects/AI-Driven-Crawling-Ingestion", "/stack", "/stats", "/contact"]);
+const SHOT_ROUTES = new Set(["/", "/files", "/browser", "/about", "/skills", "/projects", "/projects/AI-Driven-Crawling-Ingestion", "/stack", "/stats", "/contact"]);
 
 test.describe("no horizontal overflow at any viewport", () => {
   // The sweep sets its own viewports, so it runs once: desktop Chromium at device scale 1

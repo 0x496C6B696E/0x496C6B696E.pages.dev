@@ -3,6 +3,8 @@ import { desktop, immersiveVisitor } from "./helpers";
 
 test.describe("immersive mode", () => {
   test.skip(({ browserName }) => browserName !== "chromium", "WebGL is exercised in Chromium only");
+  // software WebGL under six parallel workers is slow; give these three times the budget
+  test.slow();
 
   test("mounts the WebGL room and keeps it behind a window", async ({ page, isMobile }) => {
     await immersiveVisitor(page);

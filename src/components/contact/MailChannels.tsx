@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, Copy, ExternalLink, Mail } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, Check, Copy, Mail } from "lucide-react";
 import { TechIcon } from "@/components/ui/TechIcon";
 import { site } from "@/config/site";
 
@@ -49,11 +50,10 @@ export function MailChannels() {
             </h2>
             <p className="font-mono text-sm text-ash">{site.developer.handle}</p>
             <p className="text-sm text-ash">Repositories, issues and pull requests. The best place for anything about the code.</p>
-            <a href={site.developer.github} target="_blank" rel="noopener noreferrer" className="btn btn-primary mt-auto">
+            <Link href="/browser" className="btn btn-primary mt-auto">
               Open profile
-              <ExternalLink className="size-3.5" aria-hidden="true" />
-              <span className="sr-only">(opens in a new tab)</span>
-            </a>
+              <ArrowUpRight className="size-3.5" aria-hidden="true" />
+            </Link>
           </li>
 
           <li className="card card-interactive flex flex-col gap-3 p-5">

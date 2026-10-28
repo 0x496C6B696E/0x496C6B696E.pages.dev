@@ -18,6 +18,8 @@ interface AppWindowProps {
   slug?: DestinationSlug;
   /** Chrome for windows that are not one of the six files (the Files app's home view). */
   chrome?: { name: string; app: string; crumbs: Crumb[] };
+  /** Replaces the path bar (the browser puts its address bar here). */
+  toolbar?: ReactNode;
   title: string;
   lede?: string;
   children: ReactNode;
@@ -37,7 +39,7 @@ const APP_ICONS: Record<string, typeof Folder> = {
  * (handled globally in GlobalKeys). The entrance is a transform-only CSS animation so
  * server-rendered text is a valid LCP candidate from the first paint.
  */
-export function AppWindow({ slug, chrome, title, lede, children, wide }: AppWindowProps) {
+export function AppWindow({ slug, chrome, toolbar, title, lede, children, wide }: AppWindowProps) {
   const pathname = usePathname();
   const [max, setMax] = useState(false);
   const index = slug ? destinations.findIndex((d) => d.slug === slug) : -1;
@@ -77,6 +79,7 @@ export function AppWindow({ slug, chrome, title, lede, children, wide }: AppWind
         </span>
       </div>
 
+      {toolbar ?? (
       <nav aria-label="Breadcrumb" className="win-tools">
         <ol className="flex min-w-0 items-center gap-0.5">
           {crumbs.map((c, i) => (
@@ -95,6 +98,7 @@ export function AppWindow({ slug, chrome, title, lede, children, wide }: AppWind
           ))}
         </ol>
       </nav>
+      )}
 
       <div className="safe-b p-5 sm:p-8 md:p-10">
         <header className="mb-8 flex flex-col gap-3">

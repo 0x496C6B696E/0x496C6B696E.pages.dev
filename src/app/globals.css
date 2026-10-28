@@ -952,3 +952,45 @@
     scrollbar-color: rgb(245 183 59 / 0.35) transparent;
   }
 }
+
+@layer components {
+  /* Panel button with a word next to the icon */
+  .panel-btn-text {
+    width: auto;
+    gap: 0.4rem;
+    padding: 0 0.6rem;
+    grid-auto-flow: column;
+    font-size: 0.76rem;
+    font-weight: 500;
+  }
+
+  /* Browser toolbar in the window's tool slot */
+  .browser-bar {
+    gap: 0.6rem;
+  }
+  .browser-nav {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--color-ash);
+  }
+  .browser-url {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    align-items: center;
+    gap: 0.45rem;
+    height: 1.9rem;
+    padding: 0 0.7rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.06);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    color: var(--color-ink);
+  }
+  .glyph-sm-folder.glyph-folder {
+    width: 1.25rem;
+    height: 1rem;
+    margin-top: 0.2rem;
+    flex: none;
+  }
+}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Armchair, Folder, Lock, SquareTerminal } from "lucide-react";
 import { siFirefoxbrowser, siKalilinux } from "simple-icons";
-import { destinations, site } from "@/config/site";
+import { destinations } from "@/config/site";
 import { DestinationIcon } from "@/components/ui/DestinationIcon";
 import { useExperience } from "@/components/experience/ExperienceProvider";
 
@@ -62,13 +62,13 @@ export function AppsMenu() {
             <SquareTerminal className="size-4 text-accent" aria-hidden="true" />
             Terminal
           </button>
-          <a href={site.developer.github} target="_blank" rel="noopener noreferrer" role="menuitem" className="menu-item" onClick={close}>
+          <Link href="/browser" role="menuitem" className="menu-item" onClick={close}>
             <svg viewBox="0 0 24 24" className="size-4" fill={`#${siFirefoxbrowser.hex}`} aria-hidden="true" focusable="false">
               <path d={siFirefoxbrowser.path} />
             </svg>
             Firefox
             <span className="ml-auto text-xs text-dust">GitHub</span>
-          </a>
+          </Link>
           <p className="menu-h">Files</p>
           {destinations.map((d) => (
             <Link key={d.slug} href={d.path} role="menuitem" className="menu-item" onClick={close}>

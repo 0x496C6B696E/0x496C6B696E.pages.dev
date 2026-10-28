@@ -20,14 +20,16 @@ src/app                      routes, metadata, sitemap, robots, 404
   layout.tsx                 fonts, metadata, JSON-LD, <Backdrop/> <main/> <OsShell/> <Terminal/> <GlobalKeys/>
   page.tsx                   lock screen -> boot -> desktop (Session)
   files/page.tsx             the Files app on the home folder
+  browser/page.tsx           the browser window: Firefox-style toolbar over the GitHub profile (components/browser)
   about|skills|projects|stack|stats|contact/page.tsx
   projects/[slug]/page.tsx   project window (static params from data)
 src/config/site.ts           identity, hostname, the six files and the app each opens in (the only place personal data lives)
 src/data                     projects.ts, skills.ts, stack.ts, github.ts + github.snapshot.json
 src/components
   experience/                ExperienceProvider, Backdrop, RoomFallback (CSS wallpaper), GlobalKeys
-  scene/WorkstationScene.tsx R3F room: camera rig, desk, three monitors with canvas-painted screens, keyboard, tower, lamp, mug, plant,
-                             speakers, headphone stand, bias light, dust; every object on the desk is a click target with a hint
+  scene/WorkstationScene.tsx R3F room: camera rig (with drag-orbit and wheel zoom at the desk), desk, two stacked 27" monitors on one
+                             pole plus a portrait one, all canvas-painted, keyboard, the PC case on the desk, lamp, mug, plant, speakers,
+                             headphone stand, bias light, dust; every object on the desk is a click target with a hint
   desktop/                   LockScreen, BootSequence (HTML fallback), DesktopHome (status line), Session (sequencer)
   os/                        OsShell (panel + icons + Trash, or the desk overlay), Panel, AppsMenu, DesktopIcons, TrashWindow,
                              DeskOverlay, FileGlyph (CSS folder / file / app glyphs)
@@ -57,12 +59,12 @@ qa/screenshots               visual QA output (committed), see QA_REPORT.md
   [desktop] ──── "Back to the desk" (panel, menu) ────▶ [desk] ──── centre screen, keyboard, Esc, button ────▶ [desktop]
 ```
 
-Stages map to camera targets: `lock` (three-quarter view), `desk` (frontal, everything clickable), `desktop` and `window` (the centre screen fills the viewport). The camera reports `settled` when it arrives; the HTML operating system is gated on `osReady = boot finished && (explorer || reduced motion || settled)`, so text never appears before the screen does. While a window is open the canvas drops to a 4 to 8 fps demand loop.
+Stages map to camera targets: `lock` (three-quarter view), `desk` (an orbit around the desk: drag turns it within limits, the wheel changes the distance; a drag is never a click), `desktop` and `window` (the lower centre screen fills the viewport; its texture then shows only the wallpaper so nothing fights the HTML icons). The camera reports `settled` when it arrives; the HTML operating system is gated on `osReady = boot finished && (explorer || reduced motion || settled)`, so text never appears before the screen does. While a window is open the canvas drops to a 4 to 8 fps demand loop.
 
 ## Panel, icons, terminal and sound
 
-- `OsShell` lives in the layout so the panel and the desktop icons stay behind every window. The panel holds the applications menu, launchers (Files, Terminal, Firefox -> GitHub), the open window's title, back-to-desk, sound, mode, a clock and lock. Icons: Home and projects (folders), the five files, Firefox and the Trash; folders and files are CSS glyphs.
-- `AppWindow` is the window chrome: "file — App" title with maximize and close, a path bar, the body, a status bar linking the neighbouring files. `/files` reuses it with its own chrome.
+- `OsShell` lives in the layout so the panel and the desktop icons stay behind every window. The panel holds the applications menu, launchers (Files, Terminal, Firefox -> the browser window), the open window's title, the labelled Desk button (switches to Immersive mode first if needed), sound, mode, a clock and lock. Icons: Home and projects (folders), the five files, Firefox and the Trash; folders and files are CSS glyphs.
+- `AppWindow` is the window chrome: "file — App" title with maximize and close, a path bar, the body, a status bar linking the neighbouring files. `/files` and `/browser` reuse it with their own chrome (the browser replaces the path bar with an address bar through the `toolbar` slot). github.com cannot be framed, so the browser window renders the profile from the snapshot and links out for the rest.
 - `lib/terminal.ts` is a pure command interpreter over the same typed data files (`ls`, `cd`, `projects`, `open`, `neofetch`, `stats`, `mode`, ...). `Terminal` renders it as a window (backtick, panel button or the keyboard on the desk) and performs navigation through the router. Unit tests cover the parser.
 - `lib/boot.ts` holds the boot log and its clock, shared by the HTML boot screen and the canvas painter so both run the same lines in the same time.
 - `lib/useHum.ts` synthesises a quiet fan hum and air noise with the Web Audio API. It is off until the visitor presses the panel toggle or the speakers on the desk, so autoplay rules are respected and nothing is downloaded.

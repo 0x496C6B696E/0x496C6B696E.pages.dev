@@ -1,16 +1,17 @@
 "use client";
 
 /**
- * The 3D room: a modern desk with three monitors (a 21:9 centre panel and two angled side
- * panels), a low-profile keyboard with RGB underglow, a glass-sided tower with lit fans, a desk
- * lamp, speakers, a headphone stand, a plant, a mug, bias lighting on the wall and dust in the
- * air. Lazy-loaded by <Backdrop/> only for Immersive mode on WebGL-capable devices. Everything
- * is procedural (no downloaded models or textures).
+ * The 3D room: a desk under one warm lamp with two stacked 27" monitors on a single pole in
+ * the middle, a 27" portrait monitor on the left, the PC case on the desk at the right, a
+ * low-profile keyboard with RGB underglow, speakers, a headphone stand, a plant, a mug,
+ * bias lighting on the wall and dust in the air. Lazy-loaded by <Backdrop/> only for
+ * Immersive mode on WebGL-capable devices. Everything is procedural (no downloaded models).
  *
- * Camera views: `lock` (three-quarter view), `desk` (frontal, every object clickable),
- * `desktop`/`window` (the centre screen fills the viewport and the HTML OS sits on it).
- * The boot log is painted onto the centre screen while the camera travels, and the camera
- * reports when it has settled so the HTML never appears before the screen does.
+ * Camera views: `lock` (three-quarter view), `desk` (frontal; drag to look around, wheel to
+ * zoom, every object clickable), `desktop`/`window` (the lower centre screen fills the
+ * viewport and the HTML OS sits on it). The boot log is painted onto that screen while the
+ * camera travels, and the camera reports when it has settled so the HTML never appears
+ * before the screen does.
  */
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
@@ -20,7 +21,7 @@ import { destinations, site } from "@/config/site";
 import { projects } from "@/data/projects";
 import { BOOT_STEP_MS, bootLines } from "@/lib/boot";
 
-export type ScreenMode = "off" | "boot" | "desktop";
+export type ScreenMode = "off" | "boot" | "desktop" | "wallpaper";
 
 interface Props {
   stage: Stage;
@@ -45,7 +46,8 @@ interface Props {
 const VOID = "#0b0a08";
 const AMBER = "#f5b73b";
 const ORANGE = "#e8743b";
-const MONO = "600 24px 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
+const MONO = "600 28px 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
+const DESK_TOP = 0.765;
 
 /** Small seeded PRNG (mulberry32) so procedural placement is deterministic and pure. */
 function seeded(seed: number): () => number {
@@ -59,17 +61,25 @@ function seeded(seed: number): () => number {
   };
 }
 
-/** Centre panel (21:9) shared by the monitor and the camera rig. */
-const SCREEN = { x: 0, y: 1.2, z: 0.27, w: 0.88, h: 0.375 };
-/** Side panels (16:9), angled in towards the chair. */
-const SIDE = { w: 0.5, h: 0.28, x: 0.7, y: 1.17, z: 0.2, yaw: 0.5 };
+/** 27" 16:9 panel. */
+const PANEL = { w: 0.598, h: 0.336 };
+/** The lower centre screen: the one the OS runs on. Shared by the monitor and the camera rig. */
+const SCREEN = { x: 0, y: 1.0, z: 0.26, ...PANEL };
+/** The upper centre screen, on the same pole. */
+const UPPER = { x: 0, y: SCREEN.y + PANEL.h + 0.03, z: 0.26 };
+/** The portrait screen on the left, turned towards the chair. */
+const PORTRAIT = { x: -0.53, y: DESK_TOP + 0.06 + PANEL.w / 2, z: 0.22, w: PANEL.h, h: PANEL.w, yaw: 0.35 };
 
-const CAMERA: Record<Stage, { pos: [number, number, number]; look: [number, number, number] }> = {
-  lock: { pos: [2.05, 1.5, 2.55], look: [-0.15, 0.98, 0.05] },
-  desk: { pos: [0.05, 1.45, 2.8], look: [-0.05, 1.0, 0.15] },
-  desktop: { pos: [SCREEN.x, SCREEN.y, SCREEN.z + 0.56], look: [SCREEN.x, SCREEN.y, SCREEN.z] },
-  window: { pos: [SCREEN.x, SCREEN.y, SCREEN.z + 0.52], look: [SCREEN.x, SCREEN.y, SCREEN.z] },
+const CAMERA: Record<Exclude<Stage, "desk">, { pos: [number, number, number]; look: [number, number, number] }> = {
+  lock: { pos: [1.9, 1.45, 2.4], look: [-0.1, 1.05, 0.1] },
+  desktop: { pos: [SCREEN.x, SCREEN.y, SCREEN.z + 0.45], look: [SCREEN.x, SCREEN.y, SCREEN.z] },
+  window: { pos: [SCREEN.x, SCREEN.y, SCREEN.z + 0.42], look: [SCREEN.x, SCREEN.y, SCREEN.z] },
 };
+/** The desk view orbits this point: drag turns the camera, the wheel moves it closer or further. */
+const DESK_ORBIT = { center: [0, 1.05, 0.15] as const, radius: 2.6, elevation: 0.12, minRadius: 1.9, maxRadius: 3.3, maxYaw: 0.7, minPitch: -0.1, maxPitch: 0.3 };
+
+/** Pointer travel since the last pointer down, so a drag at the desk never counts as a click. */
+const drag = { moved: 0 };
 
 type RgbTheme = "amber" | "spectrum" | "ember" | "off";
 const THEMES: readonly RgbTheme[] = ["amber", "spectrum", "ember", "off"];
@@ -77,11 +87,11 @@ const THEMES: readonly RgbTheme[] = ["amber", "spectrum", "ember", "off"];
 /** Colour for the RGB parts under the current theme; one call per frame per part is cheap. */
 function rgbColor(target: THREE.Color, time: number, offset: number, theme: RgbTheme, saturation = 0.85, lightness = 0.58) {
   switch (theme) {
-    case "spectrum":
-      target.setHSL((((time * 0.05 + offset) % 1) + 1) % 1, saturation, lightness);
-      break;
     case "amber":
       target.setHSL(0.105 + Math.sin(time * 0.3 + offset * 6) * 0.012, 0.92, 0.56);
+      break;
+    case "spectrum":
+      target.setHSL((((time * 0.05 + offset) % 1) + 1) % 1, saturation, lightness);
       break;
     case "ember":
       target.setHSL(0.03 + Math.sin(time * 0.5 + offset * 6) * 0.03, 0.95, 0.55);
@@ -92,11 +102,13 @@ function rgbColor(target: THREE.Color, time: number, offset: number, theme: RgbT
 }
 
 function CameraRig({ stage, reducedMotion, onSettled }: { stage: Stage; reducedMotion: boolean; onSettled: (settled: boolean) => void }) {
-  const { camera } = useThree();
-  const look = useRef(new THREE.Vector3(...CAMERA[stage].look));
+  const { camera, gl } = useThree();
+  const look = useRef(new THREE.Vector3(...(stage === "desk" ? DESK_ORBIT.center : CAMERA[stage].look)));
   const pointer = useRef({ x: 0, y: 0 });
   const previous = useRef(stage);
   const flying = useRef(false);
+  // desk orbit state: current and target yaw / pitch / radius
+  const orbit = useRef({ yaw: 0, pitch: 0, radius: DESK_ORBIT.radius, tYaw: 0, tPitch: 0, tRadius: DESK_ORBIT.radius });
 
   useEffect(() => {
     if (!window.matchMedia("(pointer: fine)").matches) return;
@@ -110,6 +122,57 @@ function CameraRig({ stage, reducedMotion, onSettled }: { stage: Stage; reducedM
     return () => window.removeEventListener("pointermove", onMove);
   }, []);
 
+  // Drag to look around and wheel to zoom, only at the desk.
+  useEffect(() => {
+    const o = orbit.current;
+    if (stage !== "desk") {
+      o.tYaw = 0;
+      o.tPitch = 0;
+      o.tRadius = DESK_ORBIT.radius;
+      return;
+    }
+    const el = gl.domElement;
+    let down = false;
+    let lastX = 0;
+    let lastY = 0;
+    const clamp = THREE.MathUtils.clamp;
+    const onDown = (e: PointerEvent) => {
+      down = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      drag.moved = 0;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!down) return;
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      drag.moved += Math.abs(dx) + Math.abs(dy);
+      o.tYaw = clamp(o.tYaw - dx * 0.0045, -DESK_ORBIT.maxYaw, DESK_ORBIT.maxYaw);
+      o.tPitch = clamp(o.tPitch + dy * 0.003, DESK_ORBIT.minPitch, DESK_ORBIT.maxPitch);
+    };
+    const onUp = () => {
+      down = false;
+    };
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      o.tRadius = clamp(o.tRadius + e.deltaY * 0.0015, DESK_ORBIT.minRadius, DESK_ORBIT.maxRadius);
+    };
+    el.addEventListener("pointerdown", onDown);
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      el.removeEventListener("wheel", onWheel);
+    };
+  }, [stage, gl]);
+
   useFrame(({ clock }, delta) => {
     if (previous.current !== stage) {
       previous.current = stage;
@@ -117,35 +180,55 @@ function CameraRig({ stage, reducedMotion, onSettled }: { stage: Stage; reducedM
       onSettled(false);
     }
     const dt = Math.min(delta, 0.1);
-    const target = CAMERA[stage];
     const t = clock.elapsedTime;
-    const wide = stage === "lock" || stage === "desk";
-    // Hand-held sway at the wide views only; at the screen the camera must hold still.
-    const sway = wide && !reducedMotion ? (stage === "lock" ? 1 : 0.4) : 0;
-    const parallax = stage === "lock" ? 0.14 : stage === "desk" ? 0.06 : 0.01;
-    const px = (reducedMotion ? 0 : pointer.current.x * parallax) + Math.sin(t * 0.21) * 0.05 * sway;
-    const py = (reducedMotion ? 0 : pointer.current.y * parallax * 0.6) + Math.sin(t * 0.17 + 1) * 0.025 * sway;
-    const tx = target.pos[0] + px;
-    const ty = target.pos[1] + py;
-    const tz = target.pos[2];
-
     const { damp } = THREE.MathUtils;
+    const o = orbit.current;
+
+    let tx: number;
+    let ty: number;
+    let tz: number;
+    let lookTarget: readonly [number, number, number];
+    if (stage === "desk") {
+      o.yaw = reducedMotion ? o.tYaw : damp(o.yaw, o.tYaw, 6, dt);
+      o.pitch = reducedMotion ? o.tPitch : damp(o.pitch, o.tPitch, 6, dt);
+      o.radius = reducedMotion ? o.tRadius : damp(o.radius, o.tRadius, 6, dt);
+      const el = DESK_ORBIT.elevation + o.pitch;
+      const [cx, cy, cz] = DESK_ORBIT.center;
+      const sway = reducedMotion ? 0 : 0.012;
+      tx = cx + o.radius * Math.sin(o.yaw) * Math.cos(el) + Math.sin(t * 0.21) * sway;
+      ty = cy + o.radius * Math.sin(el) + Math.sin(t * 0.17 + 1) * sway;
+      tz = cz + o.radius * Math.cos(o.yaw) * Math.cos(el);
+      lookTarget = DESK_ORBIT.center;
+    } else {
+      const target = CAMERA[stage];
+      // Hand-held sway at the lock view only; at the screen the camera must hold still.
+      const sway = stage === "lock" && !reducedMotion ? 1 : 0;
+      const parallax = stage === "lock" ? 0.14 : 0.01;
+      const px = (reducedMotion ? 0 : pointer.current.x * parallax) + Math.sin(t * 0.21) * 0.05 * sway;
+      const py = (reducedMotion ? 0 : pointer.current.y * parallax * 0.6) + Math.sin(t * 0.17 + 1) * 0.025 * sway;
+      tx = target.pos[0] + px;
+      ty = target.pos[1] + py;
+      tz = target.pos[2];
+      lookTarget = target.look;
+    }
+
     const p = camera.position;
     const l = look.current;
     if (reducedMotion) {
       p.set(tx, ty, tz);
-      l.set(...target.look);
+      l.set(...lookTarget);
     } else {
       p.set(damp(p.x, tx, 2.2, dt), damp(p.y, ty, 2.2, dt), damp(p.z, tz, 2.2, dt));
-      l.set(damp(l.x, target.look[0], 2.6, dt), damp(l.y, target.look[1], 2.6, dt), damp(l.z, target.look[2], 2.6, dt));
+      l.set(damp(l.x, lookTarget[0], 2.6, dt), damp(l.y, lookTarget[1], 2.6, dt), damp(l.z, lookTarget[2], 2.6, dt));
     }
     camera.lookAt(l);
 
     if (flying.current) {
-      const dx = p.x - target.pos[0];
-      const dy = p.y - target.pos[1];
-      const dz = p.z - target.pos[2];
+      const dx = p.x - tx;
+      const dy = p.y - ty;
+      const dz = p.z - tz;
       const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      const wide = stage === "lock" || stage === "desk";
       if (reducedMotion || distance < (wide ? 0.12 : 0.02)) {
         flying.current = false;
         onSettled(true);
@@ -171,7 +254,7 @@ class ScreenPainter {
 
   constructor() {
     this.canvas.width = 1024;
-    this.canvas.height = 436;
+    this.canvas.height = 576;
     this.ctx = this.canvas.getContext("2d")!;
     this.texture = new THREE.CanvasTexture(this.canvas);
     this.texture.colorSpace = THREE.SRGBColorSpace;
@@ -183,11 +266,12 @@ class ScreenPainter {
       this.last = -1;
       if (mode === "boot") this.bootStart = time;
     }
-    const interval = mode === "boot" ? 0.07 : mode === "off" ? 0.12 : 0.5;
+    const interval = mode === "boot" ? 0.07 : mode === "off" ? 0.12 : mode === "wallpaper" ? 2 : 0.5;
     if (time - this.last < interval) return;
     this.last = time;
     if (mode === "off") this.paintOff(time);
     else if (mode === "boot") this.paintBoot(time);
+    else if (mode === "wallpaper") this.paintWallpaper();
     else this.paintDesktop();
     this.texture.needsUpdate = true;
   }
@@ -206,7 +290,7 @@ class ScreenPainter {
     const pulse = 0.5 + 0.5 * Math.sin(time * 1.6);
     ctx.fillStyle = `rgba(245,183,59,${0.3 + pulse * 0.6})`;
     ctx.beginPath();
-    ctx.arc(canvas.width / 2, canvas.height - 40, 5 + pulse * 2, 0, Math.PI * 2);
+    ctx.arc(canvas.width / 2, canvas.height - 48, 6 + pulse * 2, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -220,79 +304,87 @@ class ScreenPainter {
     ctx.textAlign = "left";
     ctx.font = MONO;
     ctx.fillStyle = AMBER;
-    ctx.fillText(`${site.name.toLowerCase()} ${site.system.toLowerCase()} v${site.version}`, 48, 58);
+    ctx.fillText(`${site.name.toLowerCase()} ${site.system.toLowerCase()} v${site.version}`, 56, 70);
     ctx.font = MONO.replace("600", "500");
     for (let i = 0; i < shown; i++) {
       const last = i === shown - 1;
       const ready = i === lines.length - 1;
       ctx.fillStyle = ready ? "#8fd16b" : last ? "#f1ebdf" : "#a89c86";
-      ctx.fillText(`> ${lines[i]}`, 48, 104 + i * 30);
+      ctx.fillText(`> ${lines[i]}`, 56, 130 + i * 40);
     }
     if (shown < lines.length && Math.floor(time * 2) % 2 === 0) {
       ctx.fillStyle = "#f1ebdf";
-      ctx.fillRect(48, 104 + shown * 30 - 20, 12, 24);
+      ctx.fillRect(56, 130 + shown * 40 - 24, 14, 28);
     }
     // progress
     ctx.fillStyle = "rgba(255,255,255,0.08)";
-    ctx.fillRect(48, 392, canvas.width - 96, 6);
-    const fill = ctx.createLinearGradient(48, 0, canvas.width - 48, 0);
+    ctx.fillRect(56, 522, canvas.width - 112, 8);
+    const fill = ctx.createLinearGradient(56, 0, canvas.width - 56, 0);
     fill.addColorStop(0, "#c98a12");
     fill.addColorStop(1, ORANGE);
     ctx.fillStyle = fill;
-    ctx.fillRect(48, 392, ((canvas.width - 96) * shown) / lines.length, 6);
+    ctx.fillRect(56, 522, ((canvas.width - 112) * shown) / lines.length, 8);
   }
 
-  private paintDesktop() {
+  /** The wallpaper alone: what the panel shows under the HTML desktop, where the HTML draws the icons. */
+  private paintWallpaper() {
     const { ctx, canvas } = this;
     const w = canvas.width;
     const h = canvas.height;
     ctx.fillStyle = "#17110a";
     ctx.fillRect(0, 0, w, h);
-    const blue = ctx.createRadialGradient(720, 120, 10, 720, 120, 520);
-    blue.addColorStop(0, "rgba(245,183,59,0.45)");
-    blue.addColorStop(1, "rgba(245,183,59,0)");
-    ctx.fillStyle = blue;
+    const warm = ctx.createRadialGradient(720, 150, 10, 720, 150, 620);
+    warm.addColorStop(0, "rgba(245,183,59,0.45)");
+    warm.addColorStop(1, "rgba(245,183,59,0)");
+    ctx.fillStyle = warm;
     ctx.fillRect(0, 0, w, h);
-    const teal = ctx.createRadialGradient(180, 400, 10, 180, 400, 420);
-    teal.addColorStop(0, "rgba(232,116,59,0.22)");
-    teal.addColorStop(1, "rgba(232,116,59,0)");
-    ctx.fillStyle = teal;
+    const ember = ctx.createRadialGradient(180, 520, 10, 180, 520, 480);
+    ember.addColorStop(0, "rgba(232,116,59,0.22)");
+    ember.addColorStop(1, "rgba(232,116,59,0)");
+    ctx.fillStyle = ember;
     ctx.fillRect(0, 0, w, h);
     // two diagonal ribbons
     ctx.save();
     ctx.translate(w * 0.62, h * 0.5);
     ctx.rotate(-0.55);
     ctx.fillStyle = "rgba(245,183,59,0.08)";
-    ctx.fillRect(-900, -60, 1800, 90);
+    ctx.fillRect(-900, -70, 1800, 110);
     ctx.fillStyle = "rgba(232,116,59,0.06)";
-    ctx.fillRect(-900, 70, 1800, 40);
+    ctx.fillRect(-900, 90, 1800, 50);
     ctx.restore();
+  }
+
+  /** Wallpaper plus a small painted panel and icon column, seen from the desk and the lock view. */
+  private paintDesktop() {
+    this.paintWallpaper();
+    const { ctx, canvas } = this;
+    const w = canvas.width;
     // top panel
     ctx.fillStyle = "rgba(14,12,9,0.92)";
-    ctx.fillRect(0, 0, w, 26);
+    ctx.fillRect(0, 0, w, 32);
     ctx.fillStyle = AMBER;
     ctx.beginPath();
-    ctx.roundRect(10, 6, 14, 14, 3);
+    ctx.roundRect(12, 8, 16, 16, 3);
     ctx.fill();
-    ctx.font = "500 13px 'JetBrains Mono', ui-monospace, monospace";
+    ctx.font = "500 15px 'JetBrains Mono', ui-monospace, monospace";
     ctx.fillStyle = "#b3a893";
     const now = new Date();
     ctx.textAlign = "right";
-    ctx.fillText(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`, w - 14, 18);
+    ctx.fillText(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`, w - 16, 22);
     ctx.textAlign = "left";
     // desktop icons: folders first, then the files
     const items = ["Home", ...destinations.map((d) => d.file.replace(/\/$/, ""))];
-    ctx.font = "500 11px Inter, system-ui, sans-serif";
+    ctx.font = "500 13px Inter, system-ui, sans-serif";
     items.slice(0, 6).forEach((name, i) => {
-      const y = 48 + i * 60;
+      const y = 58 + i * 80;
       const folder = name === "Home" || name === "projects";
       ctx.fillStyle = folder ? AMBER : "#f6efe0";
       ctx.beginPath();
-      ctx.roundRect(folder ? 24 : 28, y, folder ? 34 : 26, folder ? 28 : 32, 4);
+      ctx.roundRect(folder ? 28 : 33, y, folder ? 42 : 32, folder ? 34 : 40, 5);
       ctx.fill();
       ctx.fillStyle = "#f1ebdf";
       ctx.textAlign = "center";
-      ctx.fillText(name, 41, y + 46);
+      ctx.fillText(name, 49, y + 58);
       ctx.textAlign = "left";
     });
   }
@@ -309,7 +401,7 @@ const LOG_POOL = [
   "$ git fetch --all --prune",
   ...projects.map((p) => `${p.repo}: up to date`),
   "$ npm run build",
-  `✓ ${destinations.length + projects.length + 2} routes exported to out/`,
+  `✓ ${destinations.length + projects.length + 3} routes exported to out/`,
   "✓ verify-export: no placeholders, no secrets",
   "$ npm test",
   "✓ unit tests passed",
@@ -325,7 +417,7 @@ const LOG_POOL = [
 
 const PROCESSES = ["next-server", "node scripts/serve-out.mjs", "three.js render", "zsh", "ssh-agent", "room-tone (web audio)"];
 
-/** Side panel: an htop-like system monitor, a scrolling build log, or off. */
+/** Secondary panel (any size): an htop-like system monitor, a scrolling build log, or off. */
 class SidePainter {
   readonly texture: THREE.CanvasTexture;
   private mode: SideMode = "monitor";
@@ -337,9 +429,9 @@ class SidePainter {
   private logIndex: number;
   private last = -1;
 
-  constructor(seed: number) {
-    this.canvas.width = 512;
-    this.canvas.height = 288;
+  constructor(seed: number, width: number, height: number) {
+    this.canvas.width = width;
+    this.canvas.height = height;
     this.ctx = this.canvas.getContext("2d")!;
     this.texture = new THREE.CanvasTexture(this.canvas);
     this.texture.colorSpace = THREE.SRGBColorSpace;
@@ -376,19 +468,20 @@ class SidePainter {
   }
 
   private bar(label: string, y: number, load: number) {
-    const { ctx } = this;
+    const { ctx, canvas } = this;
+    const width = canvas.width - 130;
     ctx.fillStyle = "#8a8068";
-    ctx.fillText(label, 16, y + 9);
+    ctx.fillText(label, 14, y + 9);
     ctx.fillStyle = "rgba(255,255,255,0.08)";
-    ctx.fillRect(60, y, 320, 10);
+    ctx.fillRect(56, y, width, 10);
     ctx.fillStyle = load < 0.6 ? "#8fd16b" : load < 0.85 ? "#facc15" : "#f87171";
-    ctx.fillRect(60, y, 320 * load, 10);
+    ctx.fillRect(56, y, width * load, 10);
     ctx.fillStyle = "#b3a893";
-    ctx.fillText(`${Math.round(load * 100)}%`.padStart(4), 392, y + 9);
+    ctx.fillText(`${Math.round(load * 100)}%`.padStart(4), 64 + width, y + 9);
   }
 
   private paintMonitor() {
-    const { ctx } = this;
+    const { ctx, canvas } = this;
     this.header("system monitor");
     ctx.font = "500 12px 'JetBrains Mono', ui-monospace, monospace";
     for (let i = 0; i < this.loads.length; i++) {
@@ -397,31 +490,39 @@ class SidePainter {
     }
     this.bar("mem", 168, 0.42 + Math.sin(this.last * 0.1) * 0.03);
     this.bar("gpu", 188, 0.3 + this.loads[0] * 0.4);
+    if (canvas.height < 260) return;
     ctx.fillStyle = "#8a8068";
-    ctx.fillText("PID    CPU%   CMD", 16, 222);
-    PROCESSES.slice(0, 3).forEach((cmd, i) => {
+    ctx.fillText("PID    CPU%   CMD", 14, 222);
+    const rows = Math.min(PROCESSES.length, Math.floor((canvas.height - 236) / 18));
+    PROCESSES.slice(0, rows).forEach((cmd, i) => {
       ctx.fillStyle = i === 0 ? "#f1ebdf" : "#b3a893";
       const pid = String(1180 + i * 37).padEnd(6);
-      const cpu = `${(this.loads[i] * 40).toFixed(1)}`.padStart(5);
-      ctx.fillText(`${pid} ${cpu}   ${cmd}`, 16, 242 + i * 18);
+      const cpu = `${(this.loads[i % this.loads.length] * 40).toFixed(1)}`.padStart(5);
+      ctx.fillText(`${pid} ${cpu}   ${cmd}`, 14, 242 + i * 18);
     });
   }
 
   private paintLog() {
-    const { ctx } = this;
+    const { ctx, canvas } = this;
     const now = new Date();
     const stamp = [now.getHours(), now.getMinutes(), now.getSeconds()].map((n) => String(n).padStart(2, "0")).join(":");
     this.log.push({ stamp, text: LOG_POOL[this.logIndex] });
     this.logIndex = (this.logIndex + 1) % LOG_POOL.length;
-    if (this.log.length > 12) this.log.shift();
+    const max = Math.floor((canvas.height - 50) / 20);
+    while (this.log.length > max) this.log.shift();
     this.header("build log");
     ctx.font = "500 12px 'JetBrains Mono', ui-monospace, monospace";
+    const narrow = canvas.width < 400;
     this.log.forEach((line, i) => {
       const last = i === this.log.length - 1;
-      ctx.fillStyle = "#8a8068";
-      ctx.fillText(line.stamp, 12, 46 + i * 20);
+      const y = 46 + i * 20;
+      if (!narrow) {
+        ctx.fillStyle = "#8a8068";
+        ctx.fillText(line.stamp, 12, y);
+      }
       ctx.fillStyle = line.text.startsWith("✓") ? "#8fd16b" : last ? "#f1ebdf" : "#b3a893";
-      ctx.fillText(line.text, 84, 46 + i * 20);
+      const text = narrow ? line.text.slice(0, 34) : line.text;
+      ctx.fillText(text, narrow ? 12 : 84, y);
     });
   }
 
@@ -442,7 +543,7 @@ interface InteractiveProps {
   children: ReactNode;
 }
 
-/** Makes a group clickable with a pointer cursor and a hint label while hovered. */
+/** Makes a group clickable with a pointer cursor and a hint label while hovered. A drag is not a click. */
 function Interactive({ label, enabled, onClick, onHint, children }: InteractiveProps) {
   const [over, setOver] = useState(false);
   const active = over && enabled;
@@ -461,6 +562,7 @@ function Interactive({ label, enabled, onClick, onHint, children }: InteractiveP
       onClick={(e) => {
         if (!enabled) return;
         stop(e);
+        if (drag.moved > 6) return;
         onClick();
       }}
       onPointerOver={(e) => {
@@ -497,83 +599,114 @@ function useDarkMaterials() {
   return mats;
 }
 
-interface CenterMonitorProps {
+/** Bezel, housing and glass for one panel, centred on the group origin and facing +z. */
+function PanelBody({ w, h, texture, dark, housing }: { w: number; h: number; texture: THREE.Texture; dark: THREE.Material; housing: THREE.Material }) {
+  return (
+    <>
+      <mesh position={[0, 0, -0.011]} material={dark}>
+        <boxGeometry args={[w + 0.022, h + 0.03, 0.014]} />
+      </mesh>
+      <mesh position={[0, 0, -0.05]} material={housing}>
+        <boxGeometry args={[w - 0.08, h - 0.05, 0.06]} />
+      </mesh>
+      <mesh>
+        <planeGeometry args={[w, h]} />
+        <meshBasicMaterial map={texture} toneMapped={false} />
+      </mesh>
+    </>
+  );
+}
+
+interface CenterStackProps {
   screen: ScreenMode;
   stage: Stage;
+  upper: SideMode;
+  onCycleUpper: () => void;
   onHint: Dispatch<SetStateAction<string | null>>;
   onPowerOn: () => void;
   onMonitor: () => void;
 }
 
-function CenterMonitor({ screen, stage, onHint, onPowerOn, onMonitor }: CenterMonitorProps) {
-  const painter = useMemo(() => new ScreenPainter(), []);
-  useEffect(() => () => painter.dispose(), [painter]);
-  useFrame(({ clock }) => painter.tick(clock.elapsedTime, screen));
+/** Two 27" panels on one pole: the OS on the lower one, a secondary panel above it. */
+function CenterStack({ screen, stage, upper, onCycleUpper, onHint, onPowerOn, onMonitor }: CenterStackProps) {
+  const main = useMemo(() => new ScreenPainter(), []);
+  const top = useMemo(() => new SidePainter(23, 512, 288), []);
+  useEffect(
+    () => () => {
+      main.dispose();
+      top.dispose();
+    },
+    [main, top],
+  );
+  useFrame(({ clock }) => {
+    main.tick(clock.elapsedTime, screen);
+    top.tick(clock.elapsedTime, upper);
+  });
   const glow = useRef<THREE.PointLight>(null);
   useFrame(({ clock }) => {
     if (glow.current) glow.current.intensity = (screen === "off" ? 0.25 : 0.7) + Math.sin(clock.elapsedTime * 1.3) * 0.05;
   });
   const { dark, housing } = useDarkMaterials();
   const atLock = stage === "lock";
+  const atDesk = stage === "desk";
+  const next = SIDE_MODES[(SIDE_MODES.indexOf(upper) + 1) % SIDE_MODES.length];
+  const what = next === "off" ? "turn it off" : next === "log" ? "show the build log" : "show the system monitor";
   return (
-    <Interactive label={atLock ? "Monitor: power on" : "Monitor: back to the screen"} enabled={atLock || stage === "desk"} onClick={atLock ? onPowerOn : onMonitor} onHint={onHint}>
-      <group>
-        <mesh position={[SCREEN.x, SCREEN.y, SCREEN.z - 0.012]} material={dark}>
-          <boxGeometry args={[SCREEN.w + 0.026, SCREEN.h + 0.034, 0.016]} />
+    <group>
+      <Interactive label={atLock ? "Monitor: power on" : "Monitor: back to the screen"} enabled={atLock || atDesk} onClick={atLock ? onPowerOn : onMonitor} onHint={onHint}>
+        <group position={[SCREEN.x, SCREEN.y, SCREEN.z]}>
+          <PanelBody w={SCREEN.w} h={SCREEN.h} texture={main.texture} dark={dark} housing={housing} />
+        </group>
+      </Interactive>
+      <Interactive label={`Upper monitor: ${what}`} enabled={atDesk} onClick={onCycleUpper} onHint={onHint}>
+        <group position={[UPPER.x, UPPER.y, UPPER.z]} rotation={[-0.08, 0, 0]}>
+          <PanelBody w={PANEL.w} h={PANEL.h} texture={top.texture} dark={dark} housing={housing} />
+        </group>
+      </Interactive>
+      {/* one pole and a flat base carry both panels; short arms reach the housings */}
+      <mesh position={[0, DESK_TOP + 0.39, 0.19]} material={dark}>
+        <cylinderGeometry args={[0.018, 0.018, 0.78, 16]} />
+      </mesh>
+      <mesh position={[0, DESK_TOP + 0.006, 0.2]} material={dark}>
+        <cylinderGeometry args={[0.17, 0.19, 0.012, 32]} />
+      </mesh>
+      {[SCREEN.y, UPPER.y].map((y) => (
+        <mesh key={y} position={[0, y, 0.205]} material={dark}>
+          <boxGeometry args={[0.08, 0.05, 0.04]} />
         </mesh>
-        <mesh position={[SCREEN.x, SCREEN.y, SCREEN.z - 0.055]} material={housing}>
-          <boxGeometry args={[SCREEN.w - 0.1, SCREEN.h - 0.06, 0.07]} />
-        </mesh>
-        <mesh position={[SCREEN.x, SCREEN.y, SCREEN.z]}>
-          <planeGeometry args={[SCREEN.w, SCREEN.h]} />
-          <meshBasicMaterial map={painter.texture} toneMapped={false} />
-        </mesh>
-        <mesh position={[0, 0.9, 0.2]} material={dark}>
-          <boxGeometry args={[0.05, 0.27, 0.03]} />
-        </mesh>
-        <mesh position={[0, 0.772, 0.22]} material={dark}>
-          <cylinderGeometry args={[0.22, 0.24, 0.012, 32]} />
-        </mesh>
-        <pointLight ref={glow} position={[SCREEN.x, SCREEN.y, SCREEN.z + 0.45]} color="#ffd9a8" distance={2.6} decay={2} intensity={0.7} />
-      </group>
-    </Interactive>
+      ))}
+      <pointLight ref={glow} position={[SCREEN.x, SCREEN.y + 0.1, SCREEN.z + 0.4]} color="#ffd9a8" distance={2.4} decay={2} intensity={0.7} />
+    </group>
   );
 }
 
-interface SideMonitorProps {
-  side: -1 | 1;
+interface PortraitMonitorProps {
   mode: SideMode;
   interactive: boolean;
   onCycle: () => void;
   onHint: Dispatch<SetStateAction<string | null>>;
 }
 
-function SideMonitor({ side, mode, interactive, onCycle, onHint }: SideMonitorProps) {
-  const painter = useMemo(() => new SidePainter(side < 0 ? 11 : 23), [side]);
+/** The 27" panel on the left, turned to portrait, on a short stand. */
+function PortraitMonitor({ mode, interactive, onCycle, onHint }: PortraitMonitorProps) {
+  const painter = useMemo(() => new SidePainter(11, 288, 512), []);
   useEffect(() => () => painter.dispose(), [painter]);
   useFrame(({ clock }) => painter.tick(clock.elapsedTime, mode));
   const { dark, housing } = useDarkMaterials();
   const next = SIDE_MODES[(SIDE_MODES.indexOf(mode) + 1) % SIDE_MODES.length];
-  const name = side < 0 ? "Left monitor" : "Right monitor";
   const what = next === "off" ? "turn it off" : next === "log" ? "show the build log" : "show the system monitor";
+  const standH = PORTRAIT.y - PORTRAIT.h / 2 - DESK_TOP;
   return (
-    <Interactive label={`${name}: ${what}`} enabled={interactive} onClick={onCycle} onHint={onHint}>
-      <group position={[side * SIDE.x, SIDE.y, SIDE.z]} rotation={[0, -side * SIDE.yaw, 0]}>
-        <mesh position={[0, 0, -0.011]} material={dark}>
-          <boxGeometry args={[SIDE.w + 0.024, SIDE.h + 0.03, 0.014]} />
+    <Interactive label={`Left monitor: ${what}`} enabled={interactive} onClick={onCycle} onHint={onHint}>
+      <group position={[PORTRAIT.x, 0, PORTRAIT.z]} rotation={[0, PORTRAIT.yaw, 0]}>
+        <group position={[0, PORTRAIT.y, 0]}>
+          <PanelBody w={PORTRAIT.w} h={PORTRAIT.h} texture={painter.texture} dark={dark} housing={housing} />
+        </group>
+        <mesh position={[0, DESK_TOP + standH / 2 + 0.02, -0.04]} material={dark}>
+          <boxGeometry args={[0.04, standH + 0.08, 0.025]} />
         </mesh>
-        <mesh position={[0, 0, -0.05]} material={housing}>
-          <boxGeometry args={[SIDE.w - 0.08, SIDE.h - 0.05, 0.06]} />
-        </mesh>
-        <mesh>
-          <planeGeometry args={[SIDE.w, SIDE.h]} />
-          <meshBasicMaterial map={painter.texture} toneMapped={false} />
-        </mesh>
-        <mesh position={[0, -0.27, -0.03]} material={dark}>
-          <boxGeometry args={[0.04, 0.27, 0.025]} />
-        </mesh>
-        <mesh position={[0, -0.4, -0.02]} material={dark}>
-          <cylinderGeometry args={[0.13, 0.15, 0.01, 28]} />
+        <mesh position={[0, DESK_TOP + 0.005, -0.03]} material={dark}>
+          <cylinderGeometry args={[0.12, 0.14, 0.01, 28]} />
         </mesh>
       </group>
     </Interactive>
@@ -622,19 +755,19 @@ function Keyboard({ theme, interactive, onClick, onHint }: { theme: RgbTheme; in
         <planeGeometry args={[0.42, 0.17]} />
         <meshBasicMaterial ref={glowMat} color={AMBER} transparent opacity={0.55} toneMapped={false} />
       </mesh>
-      <mesh position={[0.36, 0.79, 0.65]} rotation={[0, -0.25, 0]}>
+      <mesh position={[0.32, 0.79, 0.66]} rotation={[0, -0.25, 0]}>
         <boxGeometry args={[0.062, 0.034, 0.11]} />
         <meshStandardMaterial color="#15120e" roughness={0.55} metalness={0.3} />
       </mesh>
-      <mesh position={[0.08, 0.767, 0.64]}>
-        <boxGeometry args={[1.1, 0.005, 0.5]} />
+      <mesh position={[0.02, 0.767, 0.64]}>
+        <boxGeometry args={[0.9, 0.005, 0.5]} />
         <meshStandardMaterial color="#100d0a" roughness={1} />
       </mesh>
     </group>
   );
 }
 
-interface TowerProps {
+interface CaseProps {
   theme: RgbTheme;
   stage: Stage;
   onPowerOn: () => void;
@@ -643,20 +776,21 @@ interface TowerProps {
   onHint: Dispatch<SetStateAction<string | null>>;
 }
 
-/** Glass-sided tower with three lit fans, a clickable power button and a clickable RGB panel. */
-function Tower({ theme, stage, onPowerOn, onPowerOff, onCycleTheme, onHint }: TowerProps) {
+/** The PC case on the desk at the right: glass left side, two lit intake fans up front, a clickable power button. */
+function Case({ theme, stage, onPowerOn, onPowerOff, onCycleTheme, onHint }: CaseProps) {
   const fans = useRef<Array<THREE.MeshBasicMaterial | null>>([]);
   const inner = useRef<THREE.PointLight>(null);
   const button = useRef<THREE.MeshBasicMaterial>(null);
-  const x = -1.72;
   const metal = useMemo(() => new THREE.MeshStandardMaterial({ color: "#100d0a", roughness: 0.45, metalness: 0.5 }), []);
   const glass = useMemo(() => new THREE.MeshStandardMaterial({ color: "#ffd9a0", roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.16 }), []);
+  const front = useMemo(() => new THREE.MeshStandardMaterial({ color: "#0a0806", roughness: 0.9, metalness: 0.2 }), []);
   useEffect(
     () => () => {
       metal.dispose();
       glass.dispose();
+      front.dispose();
     },
-    [metal, glass],
+    [metal, glass, front],
   );
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
@@ -665,7 +799,7 @@ function Tower({ theme, stage, onPowerOn, onPowerOff, onCycleTheme, onHint }: To
     });
     if (inner.current) {
       rgbColor(inner.current.color, t, 0.2, theme, 0.9, 0.55);
-      inner.current.intensity = theme === "off" ? 0 : 0.55;
+      inner.current.intensity = theme === "off" ? 0 : 0.5;
     }
     if (button.current) {
       const pulse = 0.5 + 0.5 * Math.sin(t * 1.8);
@@ -675,19 +809,27 @@ function Tower({ theme, stage, onPowerOn, onPowerOff, onCycleTheme, onHint }: To
   const atLock = stage === "lock";
   const atDesk = stage === "desk";
   const next = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+  const W = 0.22;
+  const H = 0.46;
+  const D = 0.45;
   return (
-    <group position={[x, 0, 0.3]}>
-      <Interactive label={`Tower: switch the RGB to ${next}`} enabled={atDesk} onClick={onCycleTheme} onHint={onHint}>
+    <group position={[0.64, DESK_TOP, 0.3]}>
+      <Interactive label={`Case: switch the RGB to ${next}`} enabled={atDesk} onClick={onCycleTheme} onHint={onHint}>
         <group>
-          <mesh position={[0, 0.26, 0]} material={metal}>
-            <boxGeometry args={[0.44, 0.52, 0.5]} />
+          <mesh position={[0, H / 2, 0]} material={metal}>
+            <boxGeometry args={[W, H, D]} />
           </mesh>
-          <mesh position={[0.222, 0.27, 0]} rotation={[0, Math.PI / 2, 0]} material={glass}>
-            <planeGeometry args={[0.46, 0.46]} />
+          {/* glass side facing the chair's left, with the lit interior behind it */}
+          <mesh position={[-W / 2 - 0.001, H / 2 + 0.01, 0]} rotation={[0, -Math.PI / 2, 0]} material={glass}>
+            <planeGeometry args={[D - 0.04, H - 0.05]} />
           </mesh>
-          {[0.1, 0.26, 0.42].map((y, i) => (
-            <mesh key={y} position={[0.2, y, -0.12]} rotation={[0, Math.PI / 2, 0]}>
-              <torusGeometry args={[0.055, 0.007, 12, 36]} />
+          {/* mesh front with two intake fans */}
+          <mesh position={[0, H / 2, D / 2 + 0.001]} material={front}>
+            <planeGeometry args={[W - 0.03, H - 0.06]} />
+          </mesh>
+          {[0.14, 0.3].map((y, i) => (
+            <mesh key={y} position={[0, y, D / 2 + 0.004]}>
+              <torusGeometry args={[0.05, 0.007, 12, 36]} />
               <meshBasicMaterial
                 ref={(el) => {
                   fans.current[i] = el;
@@ -699,10 +841,10 @@ function Tower({ theme, stage, onPowerOn, onPowerOff, onCycleTheme, onHint }: To
           ))}
         </group>
       </Interactive>
-      <pointLight ref={inner} position={[0.12, 0.3, -0.05]} color={AMBER} distance={1.4} decay={2} intensity={0.55} />
+      <pointLight ref={inner} position={[-W / 2 + 0.03, H / 2, 0]} color={AMBER} distance={1.1} decay={2} intensity={0.5} />
       <Interactive label={atLock ? "Power button: power on" : "Power button: shut down"} enabled={atLock || atDesk} onClick={atLock ? onPowerOn : onPowerOff} onHint={onHint}>
-        <mesh position={[0.1, 0.526, 0.2]}>
-          <cylinderGeometry args={[0.018, 0.018, 0.012, 20]} />
+        <mesh position={[0.05, H + 0.005, D / 2 - 0.06]}>
+          <cylinderGeometry args={[0.016, 0.016, 0.01, 20]} />
           <meshBasicMaterial ref={button} color={AMBER} toneMapped={false} />
         </mesh>
       </Interactive>
@@ -715,7 +857,7 @@ function Lamp({ on, interactive, onToggle, onHint }: { on: boolean; interactive:
   useEffect(() => () => metal.dispose(), [metal]);
   return (
     <Interactive label={`Desk lamp: turn ${on ? "off" : "on"}`} enabled={interactive} onClick={onToggle} onHint={onHint}>
-      <group position={[-1.22, 0.765, 0.0]}>
+      <group position={[-1.18, DESK_TOP, 0.0]}>
         <mesh position={[0, 0.008, 0]} material={metal}>
           <cylinderGeometry args={[0.075, 0.08, 0.016, 28]} />
         </mesh>
@@ -745,7 +887,7 @@ function Mug({ coffee, interactive, onSip, onHint }: { coffee: number; interacti
   const label = coffee > 0 ? `Coffee: take a sip (${coffee * 25}% left)` : "Coffee: refill the mug";
   return (
     <Interactive label={label} enabled={interactive} onClick={onSip} onHint={onHint}>
-      <group position={[0.62, 0.765, 0.55]}>
+      <group position={[0.42, DESK_TOP, 0.84]}>
         <mesh position={[0, 0.0475, 0]}>
           <cylinderGeometry args={[0.045, 0.04, 0.095, 24, 1, true]} />
           <meshStandardMaterial color="#e8e4dc" roughness={0.5} side={THREE.DoubleSide} />
@@ -785,7 +927,7 @@ function Plant({ interactive, onHint }: { interactive: boolean; onHint: Dispatch
       }}
       onHint={onHint}
     >
-      <group position={[1.32, 0.765, 0.1]}>
+      <group position={[1.3, DESK_TOP, 0.05]}>
         <mesh position={[0, 0.06, 0]}>
           <cylinderGeometry args={[0.065, 0.05, 0.12, 20]} />
           <meshStandardMaterial color="#2b2a30" roughness={0.9} />
@@ -813,8 +955,8 @@ function Speakers({ sound, interactive, onToggle, onHint }: { sound: boolean; in
   return (
     <Interactive label={`Speakers: turn the room tone ${sound ? "off" : "on"}`} enabled={interactive} onClick={onToggle} onHint={onHint}>
       <group>
-        {[-0.98, 0.98].map((sx) => (
-          <group key={sx} position={[sx, 0.845, 0.42]} rotation={[0, -sx * 0.25, 0]}>
+        {[-0.95, 1.0].map((sx) => (
+          <group key={sx} position={[sx, DESK_TOP + 0.08, 0.5]} rotation={[0, -Math.sign(sx) * 0.25, 0]}>
             <mesh material={plastic}>
               <boxGeometry args={[0.09, 0.16, 0.09]} />
             </mesh>
@@ -851,7 +993,7 @@ function Room({ theme }: { theme: RgbTheme }) {
     if (strip.current) rgbColor(strip.current.color, clock.elapsedTime, 0.6, theme, 0.85, 0.6);
     if (stripLight.current) {
       rgbColor(stripLight.current.color, clock.elapsedTime, 0.6, theme, 0.85, 0.6);
-      stripLight.current.intensity = theme === "off" ? 0 : 2.2;
+      stripLight.current.intensity = theme === "off" ? 0 : 2.0;
     }
   });
   return (
@@ -883,14 +1025,14 @@ function Room({ theme }: { theme: RgbTheme }) {
         </group>
       ))}
       {/* bias-light strip behind the monitors and the light it throws on the wall */}
-      <mesh position={[0, 1.0, -0.05]}>
-        <boxGeometry args={[1.9, 0.014, 0.014]} />
+      <mesh position={[-0.1, 1.2, -0.05]}>
+        <boxGeometry args={[1.5, 0.014, 0.014]} />
         <meshBasicMaterial ref={strip} color={AMBER} toneMapped={false} />
       </mesh>
-      <pointLight ref={stripLight} position={[0, 1.15, -0.3]} color={AMBER} distance={3.6} decay={2} intensity={2.2} />
+      <pointLight ref={stripLight} position={[-0.1, 1.3, -0.3]} color={AMBER} distance={3.6} decay={2} intensity={2.0} />
       <pointLight position={[-0.9, 1.6, -0.4]} color={ORANGE} distance={2.6} decay={2} intensity={0.5} />
-      {/* headphone stand to the right */}
-      <group position={[1.08, 0.765, 0.5]}>
+      {/* headphone stand to the right, between the case and the plant */}
+      <group position={[1.0, DESK_TOP, 0.12]}>
         <mesh position={[0, 0.005, 0]} material={metal}>
           <cylinderGeometry args={[0.06, 0.06, 0.01, 24]} />
         </mesh>
@@ -941,7 +1083,7 @@ function useDustTexture() {
   return texture;
 }
 
-/** Dust drifting in the bias light, kept behind and beside the desk so nothing floats between camera and screen. */
+/** Dust drifting in the lamp light, kept behind and beside the desk so nothing floats between camera and screen. */
 function Dust({ count }: { count: number }) {
   const points = useRef<THREE.Points>(null);
   const tex = useDustTexture();
@@ -962,7 +1104,7 @@ function Dust({ count }: { count: number }) {
     const attr = points.current?.geometry.getAttribute("position") as THREE.BufferAttribute | undefined;
     if (!attr) return;
     const arr = attr.array as Float32Array;
-    const dt = Math.min(delta, 0.1);
+    const dt = Math.min(delta, 0.05);
     const t = clock.elapsedTime;
     for (let i = 0; i < count; i++) {
       const i3 = i * 3;
@@ -991,8 +1133,15 @@ export default function WorkstationScene({ stage, screen, reducedMotion, lowPowe
   const [theme, setTheme] = useState<RgbTheme>("amber");
   const [lamp, setLamp] = useState(true);
   const [coffee, setCoffee] = useState(3);
-  const [sides, setSides] = useState<[SideMode, SideMode]>(["monitor", "log"]);
-  const [initialCamera] = useState(() => ({ fov: 42, near: 0.05, far: 40, position: CAMERA[stage].pos }));
+  const [upper, setUpper] = useState<SideMode>("monitor");
+  const [left, setLeft] = useState<SideMode>("log");
+  const [initialCamera] = useState(() => {
+    const pos: [number, number, number] =
+      stage === "desk"
+        ? [DESK_ORBIT.center[0], DESK_ORBIT.center[1] + DESK_ORBIT.radius * Math.sin(DESK_ORBIT.elevation), DESK_ORBIT.center[2] + DESK_ORBIT.radius * Math.cos(DESK_ORBIT.elevation)]
+        : CAMERA[stage].pos;
+    return { fov: 42, near: 0.05, far: 40, position: pos };
+  });
 
   useEffect(() => {
     const onVisibility = () => setVisible(document.visibilityState === "visible");
@@ -1007,12 +1156,7 @@ export default function WorkstationScene({ stage, screen, reducedMotion, lowPowe
   useInvalidateWhen(frameloop === "demand", lowPower ? 4 : 8, invalidate);
 
   const atDesk = stage === "desk";
-  const cycleSide = (index: 0 | 1) =>
-    setSides((s) => {
-      const next = [...s] as [SideMode, SideMode];
-      next[index] = SIDE_MODES[(SIDE_MODES.indexOf(s[index]) + 1) % SIDE_MODES.length];
-      return next;
-    });
+  const cycle = (mode: SideMode) => SIDE_MODES[(SIDE_MODES.indexOf(mode) + 1) % SIDE_MODES.length];
 
   return (
     <div className={`absolute inset-0 transition-opacity duration-1000 ${ready ? "opacity-100" : "opacity-0"}`} data-scene={ready ? "ready" : "loading"} data-screen={screen}>
@@ -1041,11 +1185,10 @@ export default function WorkstationScene({ stage, screen, reducedMotion, lowPowe
         <pointLight position={[1.6, 2.4, 1.9]} color="#ffd9a8" distance={6} decay={2} intensity={1.1} />
         <CameraRig stage={stage} reducedMotion={reducedMotion} onSettled={onSettled} />
         <Room theme={theme} />
-        <CenterMonitor screen={screen} stage={stage} onHint={onHint} onPowerOn={onPowerOn} onMonitor={onMonitor} />
-        <SideMonitor side={-1} mode={sides[0]} interactive={atDesk} onCycle={() => cycleSide(0)} onHint={onHint} />
-        <SideMonitor side={1} mode={sides[1]} interactive={atDesk} onCycle={() => cycleSide(1)} onHint={onHint} />
+        <CenterStack screen={screen} stage={stage} upper={upper} onCycleUpper={() => setUpper(cycle)} onHint={onHint} onPowerOn={onPowerOn} onMonitor={onMonitor} />
+        <PortraitMonitor mode={left} interactive={atDesk} onCycle={() => setLeft(cycle)} onHint={onHint} />
         <Keyboard theme={theme} interactive={atDesk} onClick={onKeyboard} onHint={onHint} />
-        <Tower theme={theme} stage={stage} onPowerOn={onPowerOn} onPowerOff={onPowerOff} onCycleTheme={() => setTheme((t) => THEMES[(THEMES.indexOf(t) + 1) % THEMES.length])} onHint={onHint} />
+        <Case theme={theme} stage={stage} onPowerOn={onPowerOn} onPowerOff={onPowerOff} onCycleTheme={() => setTheme((t) => THEMES[(THEMES.indexOf(t) + 1) % THEMES.length])} onHint={onHint} />
         <Lamp on={lamp} interactive={atDesk} onToggle={() => setLamp((v) => !v)} onHint={onHint} />
         <Mug coffee={coffee} interactive={atDesk} onSip={() => setCoffee((c) => (c > 0 ? c - 1 : 4))} onHint={onHint} />
         <Plant interactive={atDesk} onHint={onHint} />

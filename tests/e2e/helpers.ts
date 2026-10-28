@@ -3,7 +3,7 @@ import { destinations } from "../../src/config/site";
 import { projects } from "../../src/data/projects";
 
 /** Every static route the site exports. */
-export const ROUTES = ["/", "/files", ...destinations.map((d) => d.path), ...projects.map((q) => `/projects/${q.slug}`)];
+export const ROUTES = ["/", "/files", "/browser", ...destinations.map((d) => d.path), ...projects.map((q) => `/projects/${q.slug}`)];
 
 /** Pretend the visitor already powered on and prefers the CSS scene (deterministic, no WebGL). */
 export async function explorerVisitor(page: Page) {

@@ -55,8 +55,14 @@ test("the desktop has folders, the browser and the Trash", async ({ page }) => {
   await expect(page).toHaveURL(/\/projects\/.+/);
   await page.goto("/");
   const firefox = nav.getByRole("link", { name: /^firefox/i });
-  await expect(firefox).toHaveAttribute("href", site.developer.github);
-  await expect(firefox).toHaveAttribute("target", "_blank");
+  await expect(firefox).toHaveAttribute("href", "/browser");
+  // the browser opens on the screen, with the profile and a link out to the real site
+  await firefox.click();
+  await expect(page).toHaveURL(/\/browser$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("GitHub");
+  await expect(page.getByRole("navigation", { name: "Panel" })).toContainText("GitHub — Firefox");
+  await expect(page.getByRole("main").getByRole("link", { name: /open on github\.com/i })).toHaveAttribute("href", site.developer.github);
+  await page.goto("/");
   await nav.getByRole("button", { name: "Trash" }).click();
   const trash = page.getByRole("dialog", { name: /trash/i });
   await expect(trash).toBeVisible();
@@ -73,7 +79,7 @@ test("the applications menu lists the files and closes with Escape", async ({ pa
   await page.getByRole("button", { name: "Applications" }).click();
   const menu = page.getByRole("menu", { name: "Applications" });
   await expect(menu).toBeVisible();
-  await expect(menu.getByRole("menuitem", { name: /firefox/i })).toHaveAttribute("href", site.developer.github);
+  await expect(menu.getByRole("menuitem", { name: /firefox/i })).toHaveAttribute("href", "/browser");
   await page.keyboard.press("Escape");
   await expect(menu).toHaveCount(0);
   await page.getByRole("button", { name: "Applications" }).click();
@@ -144,7 +150,7 @@ test("the capability sheet switches tabs with the keyboard", async ({ page }) =>
 test("the mail page only offers real, verified channels", async ({ page }) => {
   await explorerVisitor(page);
   await page.goto("/contact");
-  await expect(page.getByRole("link", { name: /open profile/i })).toHaveAttribute("href", "https://github.com/0x496C6B696E");
+  await expect(page.getByRole("link", { name: /open profile/i })).toHaveAttribute("href", "/browser");
   await expect(page.getByRole("link", { name: /write/i })).toHaveAttribute("href", /^mailto:0x496c6b696e@proton\.me/);
   await expect(page.locator("form")).toHaveCount(0);
 });
@@ -194,7 +200,7 @@ test("the panel exposes terminal, sound and lock controls", async ({ page }) => 
   await sound.click();
   await expect(sound).toHaveAttribute("aria-pressed", "false");
   // the Firefox launcher is hidden on phones (the desktop icon and the menu carry it there)
-  if ((page.viewportSize()?.width ?? 1280) >= 640) await expect(panel.getByRole("link", { name: /firefox/i })).toHaveAttribute("href", site.developer.github);
+  if ((page.viewportSize()?.width ?? 1280) >= 640) await expect(panel.getByRole("link", { name: /firefox/i })).toHaveAttribute("href", "/browser");
   // the power button locks the machine again
   await panel.getByRole("button", { name: "Lock screen" }).click();
   await expect(page).toHaveURL(/\/$/);

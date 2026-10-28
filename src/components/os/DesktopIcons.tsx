@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, type KeyboardEvent } from "react";
-import { destinations, site } from "@/config/site";
+import { destinations } from "@/config/site";
 import { BrowserGlyph, EntryGlyph, TrashGlyph } from "./FileGlyph";
 
 interface Entry {
@@ -30,7 +30,7 @@ export function DesktopIcons({ onTrash }: { onTrash: () => void }) {
     ...destinations
       .filter((d) => d.slug !== "projects")
       .map((d) => ({ key: d.slug, name: d.file, label: `${d.file} (${d.app})`, glyph: <EntryGlyph file={d.file} className="glyph-lg" />, href: d.path })),
-    { key: "firefox", name: "Firefox", label: "Firefox (GitHub profile, opens in a new tab)", glyph: <BrowserGlyph className="glyph-lg" />, href: site.developer.github, external: true },
+    { key: "firefox", name: "Firefox", label: "Firefox (GitHub profile)", glyph: <BrowserGlyph className="glyph-lg" />, href: "/browser" },
     { key: "trash", name: "Trash", label: "Trash", glyph: <TrashGlyph className="glyph-lg" />, onClick: onTrash },
   ];
 
