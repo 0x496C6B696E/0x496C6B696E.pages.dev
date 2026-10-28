@@ -1,0 +1,5 @@
+# Keep LF in the repository and on every checkout (Cloudflare builds on Linux).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
