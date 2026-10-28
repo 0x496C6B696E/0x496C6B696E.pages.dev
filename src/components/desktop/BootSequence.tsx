@@ -1,46 +1,22 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { destinations, site } from "@/config/site";
-import { projects } from "@/data/projects";
-import { toolchain } from "@/data/stack";
-import { capabilities } from "@/data/skills";
-import { github, languageShares } from "@/data/github";
-import { formatDate } from "@/lib/format";
+import { site } from "@/config/site";
+import { BOOT_STEP_MS, bootLines } from "@/lib/boot";
 
-const STEP_MS = 230;
-const HOLD_MS = 500;
-
-/** Boot log. Every number is read from the real data files. */
-export function bootLines(): string[] {
-  const pieces = toolchain.reduce((n, g) => n + g.items.length, 0);
-  const snapshot = formatDate(github.fetchedAt);
-  const tongues = languageShares(50).length;
-  return [
-    `starting ${site.system.toLowerCase()} v${site.version}`,
-    `memory check: ${tongues} languages`,
-    `mounting projects/: ${projects.length} repositories`,
-    `loading skills.json: ${capabilities.length} capabilities`,
-    `loading stack.yaml: ${pieces} entries`,
-    snapshot ? `reading github.log: snapshot ${snapshot}` : "reading github.log: empty",
-    `mounting ~: ${destinations.length} files`,
-    "network: mail.eml, 2 routes",
-    "ready. welcome back.",
-  ];
-}
-
-export function BootSequence({ onDone }: { onDone: () => void }) {
+/**
+ * HTML boot screen, used when the 3D room is not drawing yet (otherwise the same log is painted
+ * on the monitor). It only animates; <Session/> ends the boot on the shared clock.
+ */
+export function BootSequence() {
   const lines = useMemo(() => bootLines(), []);
   const [shown, setShown] = useState(1);
 
   useEffect(() => {
-    if (shown < lines.length) {
-      const id = window.setTimeout(() => setShown((n) => n + 1), STEP_MS);
-      return () => window.clearTimeout(id);
-    }
-    const id = window.setTimeout(onDone, HOLD_MS);
+    if (shown >= lines.length) return;
+    const id = window.setTimeout(() => setShown((n) => n + 1), BOOT_STEP_MS);
     return () => window.clearTimeout(id);
-  }, [shown, lines.length, onDone]);
+  }, [shown, lines.length]);
 
   const progress = Math.round((shown / lines.length) * 100);
 

@@ -4,11 +4,18 @@
  */
 import { destinations, site, type DestinationSlug } from "@/config/site";
 import { projects } from "@/data/projects";
-import { github, totals } from "@/data/github";
+import { github, totals, languageShares } from "@/data/github";
 import { formatDate, formatMonth } from "@/lib/format";
 import type { Mode } from "@/components/experience/ExperienceProvider";
 
-export const PROMPT = `${site.developer.handle.toLowerCase()}@${site.system.toLowerCase()}:~$`;
+/** user㉿host, as the two-line prompt shows it. */
+export const PROMPT = `${site.developer.handle.toLowerCase()}㉿${site.system.toLowerCase()}`;
+
+/** The working directory the prompt shows for a route. */
+export function cwd(pathname: string): string {
+  if (pathname.startsWith("/projects")) return "~/projects";
+  return "~";
+}
 
 export interface TerminalContext {
   pathname: string;
@@ -27,11 +34,12 @@ export interface TerminalResult {
 const HELP = [
   "commands:",
   "  help                 this list",
-  "  ls                   list files on the desktop",
-  "  cd <file>            open a file (e.g. cd projects, cd about.txt, cd telemetry)",
+  "  ls                   list the files in ~",
+  "  cd <file>            open a file (e.g. cd projects, cd profile.md, cd telemetry)",
   "  projects             list repositories",
   "  open <project>       open a project (name, title word or number)",
   "  whoami               who runs this machine",
+  "  neofetch             system summary",
   "  stats                github.log in numbers",
   "  mode [immersive|explorer]",
   "  pwd · home · clear",
@@ -51,7 +59,7 @@ function findDestination(query: string): DestinationSlug | undefined {
   )?.slug;
 }
 
-function findQuest(query: string) {
+function findProject(query: string) {
   const q = query.toLowerCase();
   const index = Number.parseInt(q, 10);
   if (!Number.isNaN(index) && index >= 1 && index <= projects.length) return projects[index - 1];
@@ -71,7 +79,7 @@ export function runCommand(input: string, ctx: TerminalContext): TerminalResult 
     case "dir":
       return { lines: destinations.map((d) => `${d.file.padEnd(13)} ${d.title.padEnd(13)} ${d.label}`) };
     case "pwd":
-      return { lines: [ctx.pathname] };
+      return { lines: [cwd(ctx.pathname)] };
     case "home":
     case "desktop":
       return { lines: ["back to the desktop"], navigate: "/" };
@@ -81,7 +89,7 @@ export function runCommand(input: string, ctx: TerminalContext): TerminalResult 
     case "open-file": {
       if (!arg || arg === "/" || arg === "~" || arg === "..") return { lines: ["back to the desktop"], navigate: "/" };
       const slug = findDestination(arg);
-      if (!slug) return { lines: [`no such file: ${arg}. try: ls`] };
+      if (!slug) return { lines: [`cd: no such file or directory: ${arg}. try: ls`] };
       const d = destinations.find((x) => x.slug === slug)!;
       return { lines: [`opening ${d.file}`], navigate: d.path };
     }
@@ -91,12 +99,28 @@ export function runCommand(input: string, ctx: TerminalContext): TerminalResult 
     case "open":
     case "cat": {
       if (!arg) return { lines: ["open what? try: projects"] };
-      const project = findQuest(arg);
+      const project = findProject(arg);
       if (!project) return { lines: [`no project matches "${arg}". try: projects`] };
       return { lines: [`opening ${project.repo}`], navigate: `/projects/${project.slug}` };
     }
     case "whoami":
       return { lines: [site.developer.handle, site.developer.title, site.developer.github] };
+    case "neofetch":
+    case "fetch": {
+      const u = github.user;
+      return {
+        lines: [
+          `${PROMPT}`,
+          `os        ${site.system.toLowerCase()} v${site.version}`,
+          `host      ${site.url.replace(/^https?:\/\//, "")}`,
+          `shell     zsh`,
+          `languages ${languageShares(50).length}`,
+          `repos     ${projects.length} public projects`,
+          u ? `uptime    since ${formatMonth(u.createdAt)}` : "uptime    unknown",
+          `mode      ${ctx.mode ?? "unknown"}`,
+        ],
+      };
+    }
     case "stats":
     case "uptime": {
       const u = github.user;
@@ -120,6 +144,6 @@ export function runCommand(input: string, ctx: TerminalContext): TerminalResult 
     case "cls":
       return { lines: [], clear: true };
     default:
-      return { lines: [`${cmd}: command not found. try: help`] };
+      return { lines: [`zsh: command not found: ${cmd}. try: help`] };
   }
 }

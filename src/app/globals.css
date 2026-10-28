@@ -2,21 +2,23 @@
 
 /* ---------------------------------------------------------------------------
  * 0x496C6B696E · WORKSTATION design tokens
- * A dark room, a modern desk, one bright ultrawide. Cool accents: cyan and violet.
+ * A dark room, a desk with three monitors, and a Linux desktop on the centre screen.
+ * Blue is the system colour (selection, prompt, folders); teal is its second hue.
  * Token names are generic so components never carry theme words.
  * ------------------------------------------------------------------------- */
 @theme {
   --color-void: #0a0d12;
-  --color-surface: #10151d;
-  --color-raised: #161c27;
-  --color-edge: #232c3b;
-  --color-accent: #5ee1ff;
-  --color-accent-deep: #1d8fb0;
-  --color-signal: #b388ff;
-  --color-glow: #c9f3ff;
-  --color-ink: #e7ebf2;
-  --color-ash: #9aa6b8;
-  --color-dust: #67738a;
+  --color-surface: #171a21;
+  --color-raised: #1e222b;
+  --color-edge: #2b303b;
+  --color-accent: #3d8bfd;
+  --color-accent-deep: #2563eb;
+  --color-signal: #2dd4bf;
+  --color-glow: #cfe3ff;
+  --color-ink: #e6e9ef;
+  --color-ash: #9aa3b2;
+  --color-dust: #7d8697;
+  --color-ok: #4ade80;
 
   --font-display: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -24,7 +26,7 @@
 
   --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
   --shadow-panel: 0 30px 80px -30px rgb(0 0 0 / 0.85), inset 0 1px 0 rgb(255 255 255 / 0.06);
-  --shadow-glow: 0 0 0 1px rgb(94 225 255 / 0.4), 0 10px 32px -12px rgb(94 225 255 / 0.45);
+  --shadow-glow: 0 0 0 1px rgb(61 139 253 / 0.4), 0 10px 32px -12px rgb(61 139 253 / 0.45);
 
   --animate-breathe: breathe 6s ease-in-out infinite;
   --animate-drift: drift 24s ease-in-out infinite alternate;
@@ -51,12 +53,13 @@
 @layer base {
   :root {
     color-scheme: dark;
+    /* the top panel */
+    --panel-h: 2.25rem;
   }
   html {
     background: var(--color-void);
     scroll-behavior: smooth;
-    /* the floating dock is about 4.5rem tall including its margin */
-    scroll-padding-bottom: 5.5rem;
+    scroll-padding-top: calc(var(--panel-h) + 0.5rem);
   }
   body {
     min-height: 100dvh;
@@ -68,12 +71,12 @@
     overflow-x: hidden;
   }
   ::selection {
-    background: rgb(94 225 255 / 0.3);
+    background: rgb(61 139 253 / 0.35);
     color: var(--color-ink);
   }
   :focus-visible {
     outline: 2px solid var(--color-accent);
-    outline-offset: 3px;
+    outline-offset: 2px;
   }
   h1,
   h2,
@@ -113,109 +116,584 @@
     transform: translateY(-200%);
     padding: 0.5rem 0.9rem;
     background: var(--color-accent);
-    color: var(--color-void);
+    color: #fff;
     font-weight: 600;
-    border-radius: 999px;
+    border-radius: 6px;
     transition: transform 0.2s var(--ease-soft);
   }
   .skip-link:focus-visible {
     transform: translateY(0);
   }
 
-  /* Small uppercase label. */
+  /* Small section label (sentence case). */
   .eyebrow {
     font-family: var(--font-display);
-    font-size: 0.68rem;
+    font-size: 0.82rem;
     font-weight: 600;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
     color: var(--color-accent);
   }
 
   .hairline {
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgb(94 225 255 / 0.35), rgb(179 136 255 / 0.35), transparent);
+    background: linear-gradient(90deg, rgb(61 139 253 / 0.5), rgb(45 212 191 / 0.35), transparent);
   }
 
-  /* Window chrome: translucent glass, soft shadow, rounded. */
-  .panel {
+  /* Pages are hidden until the boot is over and the camera has arrived at the screen. */
+  .os-gate {
+    transition: opacity 0.45s var(--ease-soft);
+  }
+  .os-gate[data-ready="false"] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ---- Window chrome ------------------------------------------------------------------ */
+  .win {
     position: relative;
-    background: linear-gradient(180deg, rgb(22 28 39 / 0.9), rgb(16 21 29 / 0.94));
-    border: 1px solid rgb(255 255 255 / 0.08);
-    border-radius: 16px;
-    box-shadow: var(--shadow-panel);
+    display: flex;
+    flex-direction: column;
+    background: rgb(23 26 33 / 0.985);
+    border: 1px solid rgb(255 255 255 / 0.09);
+    border-radius: 10px;
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.5),
+      0 28px 60px -24px rgb(0 0 0 / 0.95);
+    overflow: hidden;
   }
-  @media (min-width: 768px) {
-    .panel {
-      backdrop-filter: blur(18px) saturate(1.2);
-    }
-  }
-  .titlebar {
+  .win-title {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    min-height: 2.9rem;
-    padding: 0.45rem 0.6rem 0.45rem 0.75rem;
+    gap: 0.5rem;
+    min-height: 2.4rem;
+    padding: 0 0.4rem 0 0.75rem;
+    background: #12151b;
     border-bottom: 1px solid rgb(255 255 255 / 0.06);
-    background: rgb(255 255 255 / 0.025);
+    color: var(--color-ash);
+    font-size: 0.8rem;
+  }
+  .win-app {
+    flex: none;
+    color: var(--color-accent);
+  }
+  .win-title-text {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+  .win-ctls {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+  }
+  .win-ctl {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 6px;
+    color: var(--color-ash);
+    transition:
+      background 0.15s var(--ease-soft),
+      color 0.15s var(--ease-soft);
+  }
+  .win-ctl:hover,
+  .win-ctl:focus-visible {
+    background: rgb(255 255 255 / 0.1);
+    color: var(--color-ink);
+  }
+  .win-ctl-close:hover,
+  .win-ctl-close:focus-visible {
+    background: #e5484d;
+    color: #fff;
+  }
+  /* path bar */
+  .win-tools {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    background: rgb(255 255 255 / 0.02);
+    border-bottom: 1px solid rgb(255 255 255 / 0.06);
     font-family: var(--font-mono);
     font-size: 0.76rem;
     color: var(--color-ash);
-    border-radius: 16px 16px 0 0;
   }
-  .statusline {
+  .path-seg {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    background: rgb(255 255 255 / 0.05);
+    color: var(--color-ash);
+    transition:
+      background 0.15s var(--ease-soft),
+      color 0.15s var(--ease-soft);
+  }
+  a.path-seg:hover,
+  a.path-seg:focus-visible {
+    background: rgb(255 255 255 / 0.1);
+    color: var(--color-ink);
+  }
+  .path-current {
+    background: rgb(61 139 253 / 0.2);
+    color: var(--color-glow);
+  }
+  .win-status {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem 1rem;
-    padding: 0.55rem 0.75rem;
+    margin-top: auto;
+    padding: 0.5rem 0.75rem;
     border-top: 1px solid rgb(255 255 255 / 0.06);
-    background: rgb(0 0 0 / 0.18);
+    background: rgb(0 0 0 / 0.2);
     font-family: var(--font-mono);
     font-size: 0.72rem;
     color: var(--color-dust);
-    border-radius: 0 0 16px 16px;
-  }
-  /* The one real window control: close. */
-  .winclose {
-    display: inline-grid;
-    place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 999px;
-    color: var(--color-ash);
-    border: 1px solid transparent;
-    transition:
-      background 0.2s var(--ease-soft),
-      color 0.2s var(--ease-soft),
-      border-color 0.2s var(--ease-soft);
-  }
-  .winclose:hover {
-    background: rgb(255 95 87 / 0.18);
-    color: #ff8a84;
-    border-color: rgb(255 95 87 / 0.35);
   }
 
+  /* Terminal colours */
+  .term {
+    background: rgb(27 30 38 / 0.97);
+  }
+  .t-frame {
+    color: var(--color-ok);
+  }
+  .t-user {
+    color: var(--color-accent);
+    font-weight: 600;
+  }
+  .t-path {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+
+  /* ---- Top panel ---------------------------------------------------------------------- */
+  .ospanel {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    height: var(--panel-h);
+    padding-top: 0;
+    padding-bottom: 0;
+    background: rgb(13 16 22 / 0.92);
+    border-bottom: 1px solid rgb(255 255 255 / 0.06);
+    box-shadow: 0 10px 30px -20px rgb(0 0 0 / 0.9);
+  }
+  @media (min-width: 768px) {
+    .ospanel {
+      backdrop-filter: blur(14px) saturate(1.2);
+    }
+  }
+  .panel-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 1.85rem;
+    border-radius: 6px;
+    color: var(--color-ash);
+    transition:
+      background 0.15s var(--ease-soft),
+      color 0.15s var(--ease-soft);
+  }
+  .panel-btn:hover,
+  .panel-btn:focus-visible {
+    background: rgb(255 255 255 / 0.08);
+    color: var(--color-ink);
+  }
+  .panel-btn[aria-pressed="true"],
+  .panel-btn[aria-current="page"],
+  .panel-btn[aria-expanded="true"] {
+    background: rgb(61 139 253 / 0.22);
+    color: var(--color-glow);
+  }
+  .panel-btn:disabled {
+    opacity: 0.4;
+  }
+  .panel-apps {
+    color: var(--color-accent);
+  }
+  .panel-sep {
+    width: 1px;
+    height: 1.1rem;
+    margin: 0 0.3rem;
+    background: rgb(255 255 255 / 0.1);
+  }
+  .panel-task {
+    flex: 1;
+    min-width: 0;
+    padding: 0 0.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.78rem;
+    color: var(--color-ink);
+  }
+  .panel-clock {
+    padding: 0 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--color-ash);
+  }
+
+  /* applications menu */
+  .apps-menu {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    width: 17rem;
+    max-height: calc(100dvh - 3.5rem);
+    overflow-y: auto;
+    padding: 0.4rem;
+    background: rgb(30 34 43 / 0.98);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 10px;
+    box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.9);
+  }
+  .menu-h {
+    padding: 0.55rem 0.6rem 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-ash);
+  }
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--color-ink);
+    text-align: left;
+    transition: background 0.15s var(--ease-soft);
+  }
+  .menu-item:hover,
+  .menu-item:focus-visible {
+    background: rgb(61 139 253 / 0.18);
+    outline: none;
+  }
+
+  /* ---- Desktop icons ------------------------------------------------------------------ */
+  .desk-icons {
+    position: fixed;
+    inset: calc(var(--panel-h) + 0.75rem) 0.75rem 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+    align-content: start;
+    gap: 0.25rem;
+    overflow-y: auto;
+  }
+  @media (max-width: 767px) {
+    .desk-icons[data-window="true"] {
+      display: none;
+    }
+  }
+  @media (min-width: 768px) {
+    .desk-icons {
+      inset: calc(var(--panel-h) + 0.75rem) auto 1rem 0.75rem;
+      width: auto;
+      grid-template-columns: none;
+      grid-auto-flow: column;
+      grid-template-rows: repeat(auto-fill, 6.4rem);
+      grid-auto-columns: 6.25rem;
+      overflow: hidden;
+    }
+  }
+  .desk-icons[data-window="true"] .desk-icon {
+    opacity: 0.55;
+  }
+  .desk-icon {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.4rem;
+    min-height: 5.75rem;
+    padding: 0.6rem 0.25rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--color-ink);
+    font-size: 0.76rem;
+    line-height: 1.2;
+    text-align: center;
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.9);
+    overflow-wrap: anywhere;
+    transition:
+      background 0.15s var(--ease-soft),
+      border-color 0.15s var(--ease-soft);
+  }
+  .desk-icon:hover,
+  .desk-icon:focus-visible {
+    background: rgb(255 255 255 / 0.1);
+    border-color: rgb(255 255 255 / 0.14);
+  }
+  .desk-icon[aria-current="page"] {
+    background: rgb(61 139 253 / 0.28);
+    border-color: rgb(61 139 253 / 0.5);
+  }
+
+  /* glyphs: a folder, a sheet of paper, a round app icon */
+  .glyph-folder {
+    position: relative;
+    display: block;
+    width: 2.75rem;
+    height: 2.2rem;
+    margin-top: 0.35rem;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #4d96ff, #2f6fe0);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.25),
+      0 6px 14px -8px rgb(0 0 0 / 0.9);
+  }
+  .glyph-folder::before {
+    content: "";
+    position: absolute;
+    top: -0.35rem;
+    left: 0;
+    width: 42%;
+    height: 0.5rem;
+    border-radius: 4px 4px 0 0;
+    background: #2f6fe0;
+  }
+  .glyph-folder::after {
+    content: "";
+    position: absolute;
+    inset: 0.45rem 0 0 0;
+    border-radius: 3px 3px 4px 4px;
+    background: linear-gradient(180deg, #6aaaff, #3d8bfd);
+  }
+  .glyph-file {
+    position: relative;
+    display: grid;
+    align-content: end;
+    justify-items: center;
+    width: 2.2rem;
+    height: 2.75rem;
+    padding-bottom: 0.3rem;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #eef2f7, #cfd7e2);
+    clip-path: polygon(0 0, 68% 0, 100% 24%, 100% 100%, 0 100%);
+    box-shadow: 0 6px 14px -8px rgb(0 0 0 / 0.9);
+  }
+  .glyph-file::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 32%;
+    height: 24%;
+    background: #9fb0c5;
+    clip-path: polygon(0 0, 0 100%, 100% 100%);
+  }
+  .glyph-file > span {
+    font-family: var(--font-mono);
+    font-size: 0.52rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #1f2937;
+    text-shadow: none;
+  }
+  .glyph-file[data-ext="md"] > span {
+    color: #2563eb;
+  }
+  .glyph-file[data-ext="json"] > span {
+    color: #b45309;
+  }
+  .glyph-file[data-ext="yaml"] > span {
+    color: #be185d;
+  }
+  .glyph-file[data-ext="log"] > span {
+    color: #475569;
+  }
+  .glyph-file[data-ext="eml"] > span {
+    color: #0f766e;
+  }
+  .glyph-round {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.03) 60%), #171a21;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    box-shadow: 0 6px 14px -8px rgb(0 0 0 / 0.9);
+  }
+  .glyph-round > svg {
+    width: 62%;
+    height: 62%;
+  }
+  .glyph-trash {
+    color: var(--color-ash);
+  }
+  .glyph-lg {
+    transform: scale(1.1);
+    transform-origin: center;
+  }
+  .glyph-md.glyph-folder {
+    width: 2rem;
+    height: 1.6rem;
+    margin-top: 0.3rem;
+  }
+  .glyph-sm.glyph-file {
+    width: 1.3rem;
+    height: 1.65rem;
+    padding-bottom: 0.15rem;
+  }
+  .glyph-sm.glyph-file > span {
+    font-size: 0.4rem;
+  }
+
+  /* ---- Files app ---------------------------------------------------------------------- */
+  .files-h {
+    padding: 0 0.5rem;
+    margin-bottom: 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-dust);
+  }
+  .files-places ul + .files-h {
+    margin-top: 1.25rem;
+  }
+  .files-place {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 2.5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--color-ink);
+    transition: background 0.15s var(--ease-soft);
+  }
+  a.files-place:hover,
+  a.files-place:focus-visible {
+    background: rgb(255 255 255 / 0.07);
+  }
+  .files-place[aria-current="page"] {
+    background: rgb(61 139 253 / 0.2);
+    color: var(--color-glow);
+  }
+  .file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+    gap: 0.5rem;
+  }
+  .file-entry {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    height: 100%;
+    padding: 1rem 0.6rem 0.9rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    text-align: center;
+    color: var(--color-ink);
+    transition:
+      background 0.15s var(--ease-soft),
+      border-color 0.15s var(--ease-soft);
+  }
+  .file-entry:hover,
+  .file-entry:focus-visible {
+    background: rgb(61 139 253 / 0.14);
+    border-color: rgb(61 139 253 / 0.35);
+  }
+  .file-entry .file-name {
+    margin-top: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    overflow-wrap: anywhere;
+  }
+  .file-entry .file-meta {
+    font-size: 0.7rem;
+    color: var(--color-dust);
+  }
+  .file-entry .file-blurb {
+    margin-top: 0.2rem;
+    font-size: 0.78rem;
+    color: var(--color-ash);
+  }
+  /* detailed list */
+  .file-list {
+    display: grid;
+    border: 1px solid rgb(255 255 255 / 0.07);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .file-list-head,
+  .file-row {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.9rem;
+  }
+  @media (min-width: 640px) {
+    .file-list-head,
+    .file-row {
+      grid-template-columns: 2.5rem minmax(0, 1fr) 9rem;
+    }
+  }
+  @media (min-width: 768px) {
+    .file-list-head,
+    .file-row {
+      grid-template-columns: 2.5rem minmax(0, 1fr) 8rem 9rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .file-list-head,
+    .file-row {
+      grid-template-columns: 2.5rem minmax(0, 1fr) 8rem 7rem 9rem;
+    }
+  }
+  .file-list-head {
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+    background: rgb(255 255 255 / 0.03);
+    border-bottom: 1px solid rgb(255 255 255 / 0.07);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-dust);
+  }
+  .file-row {
+    min-height: 3.5rem;
+    color: var(--color-ink);
+    transition: background 0.15s var(--ease-soft);
+  }
+  .file-list li + li .file-row {
+    border-top: 1px solid rgb(255 255 255 / 0.05);
+  }
+  .file-row:hover,
+  .file-row:focus-visible {
+    background: rgb(61 139 253 / 0.14);
+  }
+
+  /* ---- Generic pieces ----------------------------------------------------------------- */
   .card {
     background: linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.015));
     border: 1px solid rgb(255 255 255 / 0.07);
-    border-radius: 12px;
+    border-radius: 8px;
     transition:
       border-color 0.25s var(--ease-soft),
-      transform 0.25s var(--ease-soft),
       box-shadow 0.25s var(--ease-soft);
   }
   .card-interactive:hover,
   .card-interactive:focus-within {
-    border-color: rgb(94 225 255 / 0.45);
-    box-shadow: 0 16px 36px -24px rgb(94 225 255 / 0.4);
-  }
-  @media (hover: hover) {
-    .card-interactive:hover {
-      transform: translateY(-2px);
-    }
+    border-color: rgb(61 139 253 / 0.45);
+    box-shadow: 0 16px 36px -24px rgb(61 139 253 / 0.4);
   }
 
   .btn {
@@ -224,15 +702,14 @@
     justify-content: center;
     gap: 0.5rem;
     min-height: 2.75rem;
-    padding: 0.65rem 1.25rem;
+    padding: 0.65rem 1.1rem;
     font-family: var(--font-display);
     font-size: 0.85rem;
     font-weight: 600;
-    letter-spacing: 0;
-    border: 1px solid rgb(255 255 255 / 0.1);
-    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-radius: 6px;
     color: var(--color-ink);
-    background: rgb(255 255 255 / 0.04);
+    background: rgb(255 255 255 / 0.05);
     transition:
       border-color 0.2s var(--ease-soft),
       box-shadow 0.2s var(--ease-soft),
@@ -241,22 +718,24 @@
       color 0.2s var(--ease-soft);
   }
   .btn:hover {
-    border-color: rgb(94 225 255 / 0.6);
-    background: rgb(94 225 255 / 0.08);
-    box-shadow: var(--shadow-glow);
+    border-color: rgb(61 139 253 / 0.6);
+    background: rgb(61 139 253 / 0.12);
   }
   .btn:active {
     transform: translateY(1px);
   }
+  .btn:disabled {
+    opacity: 0.45;
+    pointer-events: none;
+  }
   .btn-primary {
     border-color: transparent;
-    color: #061018;
-    background: linear-gradient(135deg, var(--color-accent), var(--color-signal));
-    box-shadow: 0 12px 30px -12px rgb(94 225 255 / 0.6);
+    color: #fff;
+    background: var(--color-accent-deep);
+    box-shadow: 0 12px 30px -12px rgb(37 99 235 / 0.7);
   }
   .btn-primary:hover {
-    color: #061018;
-    background: linear-gradient(135deg, var(--color-glow), #c7adff);
+    background: #1d4ed8;
     border-color: transparent;
   }
   .btn-ghost {
@@ -265,27 +744,26 @@
     color: var(--color-ash);
   }
   .btn-ghost:hover {
-    color: var(--color-glow);
+    color: var(--color-ink);
     border-color: rgb(255 255 255 / 0.1);
     box-shadow: none;
     background: rgb(255 255 255 / 0.06);
   }
   .btn-sm {
-    min-height: 2.5rem;
-    padding: 0.45rem 0.85rem;
+    min-height: 2.4rem;
+    padding: 0.4rem 0.8rem;
     font-size: 0.78rem;
   }
 
   .tag {
     display: inline-flex;
     align-items: center;
-    padding: 0.2rem 0.55rem;
+    padding: 0.2rem 0.5rem;
     font-family: var(--font-mono);
     font-size: 0.7rem;
-    letter-spacing: 0.01em;
     color: var(--color-ash);
     border: 1px solid rgb(255 255 255 / 0.08);
-    border-radius: 999px;
+    border-radius: 4px;
     background: rgb(255 255 255 / 0.03);
   }
 
@@ -301,130 +779,20 @@
     border: 1px solid rgb(255 255 255 / 0.12);
     border-bottom-width: 2px;
     background: rgb(255 255 255 / 0.05);
+    border-radius: 4px;
+  }
+
+  .hint-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    padding: 0.4rem 0.85rem;
     border-radius: 6px;
-  }
-
-  /* Desktop icons */
-  .app-icon {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 1rem 0.75rem 0.9rem;
-    text-align: center;
+    background: rgb(13 16 22 / 0.88);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
     color: var(--color-ink);
-    text-decoration: none;
-    border: 1px solid transparent;
-    border-radius: 14px;
-    transition:
-      border-color 0.2s var(--ease-soft),
-      background 0.2s var(--ease-soft),
-      transform 0.2s var(--ease-soft);
-  }
-  .app-icon:hover,
-  .app-icon:focus-visible {
-    border-color: rgb(255 255 255 / 0.1);
-    background: rgb(255 255 255 / 0.05);
-  }
-  .app-icon .glyph {
-    display: grid;
-    place-items: center;
-    width: 3.75rem;
-    height: 3.75rem;
-    color: var(--color-glow);
-    border-radius: 18px;
-    background:
-      linear-gradient(145deg, rgb(94 225 255 / 0.22), rgb(179 136 255 / 0.18)),
-      var(--color-raised);
-    border: 1px solid rgb(255 255 255 / 0.1);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.12),
-      0 10px 24px -14px rgb(94 225 255 / 0.55);
-    transition:
-      transform 0.25s var(--ease-soft),
-      box-shadow 0.25s var(--ease-soft),
-      border-color 0.25s var(--ease-soft);
-  }
-  .app-icon:hover .glyph,
-  .app-icon:focus-visible .glyph {
-    transform: translateY(-3px) scale(1.04);
-    border-color: rgb(94 225 255 / 0.6);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.14),
-      0 16px 36px -14px rgb(94 225 255 / 0.7);
-  }
-
-  /* Floating dock */
-  .dock {
-    display: flex;
-    align-items: center;
-    gap: 0.15rem;
-    padding: 0.35rem;
-    border-radius: 999px;
-    background: rgb(16 21 29 / 0.8);
-    border: 1px solid rgb(255 255 255 / 0.1);
-    box-shadow:
-      0 20px 50px -20px rgb(0 0 0 / 0.9),
-      inset 0 1px 0 rgb(255 255 255 / 0.06);
-  }
-  @media (min-width: 768px) {
-    .dock {
-      backdrop-filter: blur(18px) saturate(1.3);
-    }
-  }
-  .dock-item {
-    position: relative;
-    display: inline-grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 999px;
-    color: var(--color-ash);
-    border: 1px solid transparent;
-    transition:
-      color 0.2s var(--ease-soft),
-      background 0.2s var(--ease-soft),
-      transform 0.2s var(--ease-soft);
-  }
-  @media (min-width: 640px) {
-    .dock-item {
-      width: 2.75rem;
-      height: 2.75rem;
-    }
-  }
-  .dock-item:hover,
-  .dock-item:focus-visible {
-    color: var(--color-glow);
-    background: rgb(255 255 255 / 0.08);
-  }
-  @media (hover: hover) {
-    .dock-item:hover {
-      transform: translateY(-2px);
-    }
-  }
-  .dock-item[aria-current="page"],
-  .dock-item[aria-pressed="true"] {
-    color: var(--color-glow);
-    background: rgb(94 225 255 / 0.12);
-  }
-  .dock-item[aria-current="page"]::after {
-    content: "";
-    position: absolute;
-    bottom: 0.2rem;
-    left: 50%;
-    width: 0.3rem;
-    height: 0.3rem;
-    border-radius: 999px;
-    transform: translateX(-50%);
-    background: var(--color-accent);
-    box-shadow: 0 0 8px var(--color-accent);
-  }
-  .dock-sep {
-    width: 1px;
-    height: 1.5rem;
-    margin: 0 0.25rem;
-    background: rgb(255 255 255 / 0.1);
   }
 
   /* Bars */
@@ -440,22 +808,25 @@
     inset: 0 auto 0 0;
     border-radius: 999px;
     background: linear-gradient(90deg, var(--color-accent-deep), var(--color-accent), var(--color-signal));
-    box-shadow: 0 0 10px rgb(94 225 255 / 0.35);
+    box-shadow: 0 0 10px rgb(61 139 253 / 0.35);
     transition: width 1.1s var(--ease-soft);
   }
 
-  /* CSS-only backdrop: a modern wallpaper, used before/without WebGL. */
+  /* CSS-only backdrop: the desktop wallpaper, used before/without WebGL. */
   .wallpaper {
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background: linear-gradient(180deg, #080b10 0%, var(--color-void) 60%, #0c1018 100%);
+    background:
+      radial-gradient(55% 50% at 72% 30%, rgb(61 139 253 / 0.38), transparent 70%),
+      radial-gradient(45% 45% at 18% 85%, rgb(45 212 191 / 0.2), transparent 70%),
+      linear-gradient(160deg, #0a0f1a 0%, #0b1220 45%, #060a12 100%);
   }
   .wallpaper .blob {
     position: absolute;
     border-radius: 999px;
     filter: blur(70px);
-    opacity: 0.55;
+    opacity: 0.4;
     animation: var(--animate-drift);
   }
   .wallpaper .blob-a {
@@ -463,24 +834,23 @@
     top: 12%;
     width: 46vmax;
     height: 46vmax;
-    background: radial-gradient(circle at 50% 50%, rgb(94 225 255 / 0.55), transparent 70%);
+    background: radial-gradient(circle at 50% 50%, rgb(61 139 253 / 0.5), transparent 70%);
   }
   .wallpaper .blob-b {
     right: 4%;
     bottom: 6%;
     width: 52vmax;
     height: 52vmax;
-    background: radial-gradient(circle at 50% 50%, rgb(179 136 255 / 0.5), transparent 70%);
+    background: radial-gradient(circle at 50% 50%, rgb(45 212 191 / 0.4), transparent 70%);
     animation-delay: -12s;
   }
+  /* two diagonal ribbons */
   .wallpaper .grid {
     position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
-    background-size: 56px 56px;
-    mask-image: radial-gradient(80% 70% at 50% 45%, #000 40%, transparent 100%);
+    inset: -20%;
+    background:
+      linear-gradient(115deg, transparent 44%, rgb(61 139 253 / 0.09) 44%, rgb(61 139 253 / 0.09) 50%, transparent 50%),
+      linear-gradient(115deg, transparent 54%, rgb(45 212 191 / 0.06) 54%, rgb(45 212 191 / 0.06) 57%, transparent 57%);
   }
   .wallpaper[data-animated="false"] .blob {
     animation: none;
@@ -503,7 +873,7 @@
   .prose a {
     color: var(--color-glow);
     text-decoration: underline;
-    text-decoration-color: rgb(94 225 255 / 0.4);
+    text-decoration-color: rgb(61 139 253 / 0.4);
     text-underline-offset: 3px;
   }
   .prose a:hover {
@@ -522,14 +892,14 @@
      would leave the page without a largest paint and wreck the metric. */
   @keyframes panel-in {
     from {
-      transform: translateY(14px) scale(0.985);
+      transform: translateY(10px) scale(0.99);
     }
     to {
       transform: none;
     }
   }
   .panel-enter {
-    animation: panel-in 0.4s var(--ease-soft) both;
+    animation: panel-in 0.3s var(--ease-soft) both;
   }
   @keyframes rise-in {
     from {
@@ -572,13 +942,13 @@
 
 @layer utilities {
   .text-glow-soft {
-    text-shadow: 0 0 24px rgb(94 225 255 / 0.3);
+    text-shadow: 0 0 24px rgb(61 139 253 / 0.3);
   }
   .text-glow {
-    text-shadow: 0 0 24px rgb(94 225 255 / 0.3);
+    text-shadow: 0 0 24px rgb(61 139 253 / 0.3);
   }
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgb(94 225 255 / 0.35) transparent;
+    scrollbar-color: rgb(61 139 253 / 0.35) transparent;
   }
 }

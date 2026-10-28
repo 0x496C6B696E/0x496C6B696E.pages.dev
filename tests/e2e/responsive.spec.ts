@@ -18,7 +18,7 @@ const VIEWPORTS = [
 ];
 
 const SHOT_VIEWPORTS = new Set(["390x844", "768x1024", "1440x900"]);
-const SHOT_ROUTES = new Set(["/", "/about", "/skills", "/projects", "/projects/AI-Driven-Crawling-Ingestion", "/stack", "/stats", "/contact"]);
+const SHOT_ROUTES = new Set(["/", "/files", "/about", "/skills", "/projects", "/projects/AI-Driven-Crawling-Ingestion", "/stack", "/stats", "/contact"]);
 
 test.describe("no horizontal overflow at any viewport", () => {
   // The sweep sets its own viewports, so it runs once: desktop Chromium at device scale 1
@@ -61,6 +61,6 @@ test("touch targets on the desktop are at least 44px tall on mobile", async ({ p
   await page.setViewportSize({ width: 375, height: 667 });
   await explorerVisitor(page);
   await page.goto("/");
-  const boxes = await page.getByRole("navigation", { name: "Destinations" }).getByRole("link").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
+  const boxes = await page.getByRole("navigation", { name: "Destinations" }).locator(".desk-icon").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
   for (const h of boxes) expect(h).toBeGreaterThanOrEqual(44);
 });

@@ -14,34 +14,51 @@ const PUBLIC = fileURLToPath(new URL("../public/", import.meta.url));
 const OG_HTML = `<!doctype html><html><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#0a0d12;color:#e7ebf2;font-family:Inter,system-ui,sans-serif}
-  .bg{position:absolute;inset:0;background:linear-gradient(180deg,#080b10,#0a0d12 60%,#0c1018)}
-  .blob{position:absolute;border-radius:999px;filter:blur(70px);opacity:.6}
-  .a{left:60px;top:40px;width:520px;height:520px;background:radial-gradient(circle,rgba(94,225,255,.6),transparent 70%)}
-  .b{right:40px;bottom:-60px;width:600px;height:600px;background:radial-gradient(circle,rgba(179,136,255,.55),transparent 70%)}
-  .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(80% 70% at 50% 45%,#000 40%,transparent 100%)}
-  .monitor{position:absolute;left:50%;top:50%;width:1000px;height:430px;transform:translate(-50%,-52%);border-radius:18px;background:linear-gradient(180deg,rgba(22,28,39,.92),rgba(16,21,29,.96));border:1px solid rgba(255,255,255,.1);box-shadow:0 40px 90px -30px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.06)}
-  .bar{position:absolute;left:0;right:0;top:0;height:46px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);border-radius:18px 18px 0 0;font-family:'JetBrains Mono',monospace;font-size:16px;color:#9aa6b8;display:flex;align-items:center;gap:14px;padding:0 20px}
-  .dot{width:14px;height:14px;border-radius:999px;background:#ff5f57}
-  .body{position:absolute;inset:46px 0 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-  .eyebrow{font-size:14px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#5ee1ff}
-  h1{font-weight:700;font-size:92px;letter-spacing:-.03em;margin:14px 0 8px;text-shadow:0 0 40px rgba(94,225,255,.3)}
-  .sub{font-size:22px;letter-spacing:.22em;text-transform:uppercase;color:#5ee1ff;font-weight:600}
-  .tag{font-size:24px;color:#9aa6b8;margin-top:26px}
-  .dock{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);display:flex;gap:10px;padding:8px;border-radius:999px;background:rgba(16,21,29,.85);border:1px solid rgba(255,255,255,.1)}
-  .dock span{width:40px;height:40px;border-radius:999px;background:linear-gradient(145deg,rgba(94,225,255,.25),rgba(179,136,255,.2));border:1px solid rgba(255,255,255,.1)}
+  html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#0a0d12;color:#e6e9ef;font-family:Inter,system-ui,sans-serif}
+  .bg{position:absolute;inset:0;background:radial-gradient(55% 50% at 72% 30%,rgba(61,139,253,.38),transparent 70%),radial-gradient(45% 45% at 18% 85%,rgba(45,212,191,.2),transparent 70%),linear-gradient(160deg,#0a0f1a 0%,#0b1220 45%,#060a12 100%)}
+  .ribbons{position:absolute;inset:-20%;background:linear-gradient(115deg,transparent 44%,rgba(61,139,253,.09) 44%,rgba(61,139,253,.09) 50%,transparent 50%),linear-gradient(115deg,transparent 54%,rgba(45,212,191,.06) 54%,rgba(45,212,191,.06) 57%,transparent 57%)}
+  .panel{position:absolute;left:0;right:0;top:0;height:44px;background:rgba(13,16,22,.92);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:14px;padding:0 18px;font-size:16px;color:#e6e9ef}
+  .panel .sq{width:16px;height:16px;border-radius:4px;background:#3d8bfd}
+  .panel .sep{width:1px;height:18px;background:rgba(255,255,255,.12)}
+  .panel .clock{margin-left:auto;font-family:'JetBrains Mono',monospace;color:#9aa3b2}
+  .icons{position:absolute;left:24px;top:70px;display:flex;flex-direction:column;gap:22px;font-size:13px;text-align:center;color:#e6e9ef;text-shadow:0 1px 2px #000}
+  .icons div{width:84px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .folder{width:44px;height:34px;border-radius:4px;background:linear-gradient(180deg,#6aaaff,#3d8bfd);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+  .file{width:34px;height:42px;border-radius:3px;background:linear-gradient(180deg,#eef2f7,#cfd7e2);clip-path:polygon(0 0,68% 0,100% 24%,100% 100%,0 100%)}
+  .win{position:absolute;left:170px;top:92px;width:960px;height:470px;border-radius:10px;background:rgba(23,26,33,.985);border:1px solid rgba(255,255,255,.09);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 40px 90px -30px rgba(0,0,0,.95);overflow:hidden}
+  .bar{height:40px;background:#12151b;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:15px;color:#e6e9ef;font-weight:500;position:relative}
+  .bar .ctl{position:absolute;right:12px;display:flex;gap:6px}
+  .bar .ctl span{width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,.06)}
+  .bar .ctl span:last-child{background:#e5484d}
+  .path{height:36px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);font-family:'JetBrains Mono',monospace;font-size:14px;color:#9aa3b2}
+  .path span{padding:3px 10px;border-radius:4px;background:rgba(255,255,255,.05)}
+  .path span.cur{background:rgba(61,139,253,.2);color:#cfe3ff}
+  .body{padding:44px 56px;display:flex;flex-direction:column;align-items:flex-start}
+  h1{font-weight:700;font-size:92px;letter-spacing:-.03em;margin:0 0 10px;text-shadow:0 0 40px rgba(61,139,253,.3)}
+  .sub{font-size:24px;color:#3d8bfd;font-weight:600}
+  .tag{font-size:24px;color:#9aa3b2;margin-top:22px}
+  .prompt{margin-top:34px;font-family:'JetBrains Mono',monospace;font-size:18px;line-height:1.5}
+  .g{color:#4ade80}.b{color:#3d8bfd;font-weight:600}.w{color:#e6e9ef;font-weight:600}
 </style></head><body>
-<div class="bg"></div><div class="blob a"></div><div class="blob b"></div><div class="grid"></div>
-<div class="monitor">
-  <div class="bar"><span class="dot"></span><span>~ / 0x496C6B696E</span></div>
+<div class="bg"></div><div class="ribbons"></div>
+<div class="panel"><span class="sq"></span><span class="sep"></span><span>profile.md — Text Editor</span><span class="clock">09:41</span></div>
+<div class="icons">
+  <div><span class="folder"></span>Home</div>
+  <div><span class="folder"></span>projects</div>
+  <div><span class="file"></span>profile.md</div>
+  <div><span class="file"></span>skills.json</div>
+  <div><span class="file"></span>stack.yaml</div>
+</div>
+<div class="win">
+  <div class="bar">profile.md — Text Editor<div class="ctl"><span></span><span></span></div></div>
+  <div class="path"><span>~</span>›<span class="cur">profile.md</span></div>
   <div class="body">
-    <div class="eyebrow">Workstation · Backend · Systems · Automation</div>
     <h1>0x496C6B696E</h1>
-    <div class="sub">Developer portfolio</div>
+    <div class="sub">Backend · Systems · Automation</div>
     <div class="tag">Boot. Build. Deploy. Repeat.</div>
+    <div class="prompt"><span class="g">┌──(</span><span class="b">0x496c6b696e㉿workstation</span><span class="g">)-[</span><span class="w">~</span><span class="g">]</span><br><span class="g">└─</span><span class="b">$</span> cd projects</div>
   </div>
 </div>
-<div class="dock"><span></span><span></span><span></span><span></span><span></span><span></span></div>
 </body></html>`;
 
 const browser = await chromium.launch();

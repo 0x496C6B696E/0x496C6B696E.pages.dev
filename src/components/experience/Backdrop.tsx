@@ -24,7 +24,7 @@ class SceneBoundary extends Component<{ onFail: () => void; children: ReactNode 
 }
 
 export function Backdrop() {
-  const { mode, webgl, mounted, stage, reducedMotion, lowPower, disableWebgl, requestPower } = useExperience();
+  const { mode, webgl, mounted, stage, boot, reducedMotion, lowPower, sound, disableWebgl, requestPower, lock, goToScreen, setTerminalOpen, setSound, setSceneReady, setSettled, setHint } = useExperience();
   const [idle, setIdle] = useState(false);
 
   // Let the first paint (wordmark, power button) land before pulling in three.js.
@@ -35,6 +35,7 @@ export function Backdrop() {
 
   const immersive = mounted && mode === "immersive" && webgl;
   const show3d = immersive && idle;
+  const screen = stage === "lock" ? "off" : boot === "painted" ? "boot" : "desktop";
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden" data-backdrop={immersive ? "3d" : "css"}>
@@ -43,7 +44,25 @@ export function Backdrop() {
       </div>
       {show3d && (
         <SceneBoundary onFail={disableWebgl}>
-          <WorkstationScene stage={stage} reducedMotion={reducedMotion} lowPower={lowPower} onContextLost={disableWebgl} onPowerOn={requestPower} />
+          <WorkstationScene
+            stage={stage}
+            screen={screen}
+            reducedMotion={reducedMotion}
+            lowPower={lowPower}
+            sound={sound}
+            onContextLost={disableWebgl}
+            onReady={setSceneReady}
+            onSettled={setSettled}
+            onHint={setHint}
+            onPowerOn={requestPower}
+            onPowerOff={lock}
+            onMonitor={goToScreen}
+            onKeyboard={() => {
+              goToScreen();
+              setTerminalOpen(true);
+            }}
+            onSpeakers={() => setSound(!sound)}
+          />
         </SceneBoundary>
       )}
       <div className="vignette" aria-hidden="true" />

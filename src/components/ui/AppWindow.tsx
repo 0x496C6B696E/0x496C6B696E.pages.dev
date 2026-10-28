@@ -2,93 +2,114 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
-import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { Activity, ArrowLeft, ArrowRight, ChevronRight, FileText, Folder, Mail, Minimize2, Square, X } from "lucide-react";
 import { destinations, type DestinationSlug } from "@/config/site";
 import { projectBySlug } from "@/data/projects";
 import { cn } from "@/lib/cn";
 
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
 interface AppWindowProps {
-  slug: DestinationSlug;
+  /** One of the six files; sets the title bar, path and the neighbouring files. */
+  slug?: DestinationSlug;
+  /** Chrome for windows that are not one of the six files (the Files app's home view). */
+  chrome?: { name: string; app: string; crumbs: Crumb[] };
   title: string;
   lede?: string;
   children: ReactNode;
   wide?: boolean;
 }
 
+const APP_ICONS: Record<string, typeof Folder> = {
+  Files: Folder,
+  "Text Editor": FileText,
+  "System Monitor": Activity,
+  Mail: Mail,
+};
+
 /**
- * The window every app opens in: title bar with the path and one real close control,
- * body, status line linking the neighbouring apps. Escape closes it (handled globally in GlobalKeys).
- * The entrance is a CSS animation so server-rendered content paints before hydration.
+ * The window every app opens in: a title bar ("profile.md — Text Editor") with maximize and
+ * close, a path bar, the body and a status bar linking the neighbouring files. Escape closes it
+ * (handled globally in GlobalKeys). The entrance is a transform-only CSS animation so
+ * server-rendered text is a valid LCP candidate from the first paint.
  */
-export function AppWindow({ slug, title, lede, children, wide }: AppWindowProps) {
+export function AppWindow({ slug, chrome, title, lede, children, wide }: AppWindowProps) {
   const pathname = usePathname();
-  const index = destinations.findIndex((d) => d.slug === slug);
-  const current = destinations[index];
-  const prev = destinations[(index + destinations.length - 1) % destinations.length];
-  const next = destinations[(index + 1) % destinations.length];
+  const [max, setMax] = useState(false);
+  const index = slug ? destinations.findIndex((d) => d.slug === slug) : -1;
+  const current = index >= 0 ? destinations[index] : undefined;
+  const prev = current ? destinations[(index + destinations.length - 1) % destinations.length] : undefined;
+  const next = current ? destinations[(index + 1) % destinations.length] : undefined;
   const projectSlug = pathname.startsWith("/projects/") ? decodeURIComponent(pathname.split("/")[2] ?? "") : "";
   const project = projectSlug ? projectBySlug(projectSlug) : undefined;
 
+  const name = chrome?.name ?? project?.repo ?? current?.file.replace(/\/$/, "") ?? title;
+  const app = chrome?.app ?? current?.app ?? "Files";
+  const Icon = APP_ICONS[app] ?? Folder;
+  const crumbs: Crumb[] = chrome?.crumbs ?? [
+    { label: "~", href: "/" },
+    ...(current ? [{ label: current.file.replace(/\/$/, ""), href: project ? current.path : undefined }] : []),
+    ...(project ? [{ label: project.repo }] : []),
+  ];
+  const headingId = `${slug ?? "window"}-title`;
+
   return (
-    // Padding (not margin) below the window so its status line can always scroll above the dock.
-    <div className="pb-24 md:pb-28">
-      <section
-        aria-labelledby={`${slug}-title`}
-        className={cn("panel panel-enter mx-auto mt-5 w-[min(100%-1.25rem,var(--panel-w))] md:mt-8", wide ? "[--panel-w:78rem]" : "[--panel-w:64rem]")}
-      >
-        <div className="titlebar">
-          <div className="flex min-w-0 items-center gap-3">
-            <Link href="/" className="winclose" aria-label="Close window and return to the desktop">
-              <X className="size-4" aria-hidden="true" />
-            </Link>
-            <nav aria-label="Breadcrumb" className="min-w-0">
-              <ol className="flex min-w-0 items-center gap-1.5">
-                <li>
-                  <Link href="/" className="transition-colors hover:text-glow">
-                    ~
-                  </Link>
-                </li>
-                <li aria-hidden="true">/</li>
-                <li aria-current={project ? undefined : "page"} className={project ? undefined : "text-glow"}>
-                  {project ? (
-                    <Link href={current.path} className="transition-colors hover:text-glow">
-                      {current.file.replace(/\/$/, "")}
-                    </Link>
-                  ) : (
-                    current.file
-                  )}
-                </li>
-                {project && (
-                  <>
-                    <li aria-hidden="true">/</li>
-                    <li aria-current="page" className="max-w-[16rem] truncate text-glow">
-                      {project.repo}
-                    </li>
-                  </>
-                )}
-              </ol>
-            </nav>
-          </div>
-          <span className="shrink-0 pr-2 text-[0.68rem] tracking-[0.14em] text-dust uppercase">
-            {current.title} · {String(index + 1).padStart(2, "0")}/{String(destinations.length).padStart(2, "0")}
-          </span>
-        </div>
+    <section
+      aria-labelledby={headingId}
+      className={cn("win panel-enter pointer-events-auto mx-auto mt-[calc(var(--panel-h)+0.75rem)] mb-6 w-[min(100%-1rem,var(--win-w))] sm:mt-[calc(var(--panel-h)+1.25rem)]", max ? "[--win-w:100%]" : wide ? "[--win-w:78rem]" : "[--win-w:64rem]")}
+    >
+      <div className="win-title">
+        <Icon className="win-app size-4" aria-hidden="true" />
+        <span className="win-title-text">
+          {name} — {app}
+        </span>
+        <span className="win-ctls">
+          <button type="button" className="win-ctl" onClick={() => setMax((v) => !v)} aria-pressed={max} aria-label={max ? "Restore window size" : "Maximize window"}>
+            {max ? <Minimize2 className="size-3.5" aria-hidden="true" /> : <Square className="size-3" aria-hidden="true" />}
+          </button>
+          <Link href="/" className="win-ctl win-ctl-close" aria-label="Close window and return to the desktop">
+            <X className="size-3.5" aria-hidden="true" />
+          </Link>
+        </span>
+      </div>
 
-        <div className="safe-b p-5 sm:p-8 md:p-10">
-          <header className="mb-8 flex flex-col gap-3">
-            <p className="eyebrow">{current.label}</p>
-            <h1 id={`${slug}-title`} className="text-glow text-3xl text-ink sm:text-4xl md:text-5xl">
-              {title}
-            </h1>
-            {lede && <p className="max-w-2xl text-base text-ash sm:text-lg">{lede}</p>}
-            <div className="hairline mt-2" />
-          </header>
+      <nav aria-label="Breadcrumb" className="win-tools">
+        <ol className="flex min-w-0 items-center gap-0.5">
+          {crumbs.map((c, i) => (
+            <li key={`${c.label}-${i}`} className="flex min-w-0 items-center gap-0.5">
+              {i > 0 && <ChevronRight className="size-3 shrink-0 text-dust" aria-hidden="true" />}
+              {c.href ? (
+                <Link href={c.href} className="path-seg">
+                  {c.label}
+                </Link>
+              ) : (
+                <span className="path-seg path-current truncate" aria-current="page">
+                  {c.label}
+                </span>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
 
-          {children}
-        </div>
+      <div className="safe-b p-5 sm:p-8 md:p-10">
+        <header className="mb-8 flex flex-col gap-3">
+          <h1 id={headingId} className="text-glow text-3xl text-ink sm:text-4xl md:text-5xl">
+            {title}
+          </h1>
+          {lede && <p className="max-w-2xl text-base text-ash sm:text-lg">{lede}</p>}
+          <div className="hairline mt-2" />
+        </header>
 
-        <footer className="statusline">
+        {children}
+      </div>
+
+      <footer className="win-status">
+        {prev ? (
           <Link href={prev.path} className="btn btn-ghost btn-sm">
             <ArrowLeft className="size-3.5" aria-hidden="true" />
             <span>
@@ -96,9 +117,13 @@ export function AppWindow({ slug, title, lede, children, wide }: AppWindowProps)
               {prev.file}
             </span>
           </Link>
-          <span className="hidden sm:inline">
-            <kbd className="kbd">Esc</kbd> closes · <kbd className="kbd">`</kbd> terminal
-          </span>
+        ) : (
+          <span />
+        )}
+        <span className="hidden sm:inline">
+          <kbd className="kbd">Esc</kbd> closes · <kbd className="kbd">`</kbd> terminal
+        </span>
+        {next ? (
           <Link href={next.path} className="btn btn-ghost btn-sm">
             <span>
               <span className="sr-only">Next destination: </span>
@@ -106,8 +131,10 @@ export function AppWindow({ slug, title, lede, children, wide }: AppWindowProps)
             </span>
             <ArrowRight className="size-3.5" aria-hidden="true" />
           </Link>
-        </footer>
-      </section>
-    </div>
+        ) : (
+          <span />
+        )}
+      </footer>
+    </section>
   );
 }

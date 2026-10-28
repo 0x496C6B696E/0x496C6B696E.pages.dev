@@ -19,6 +19,7 @@ const required = [
   "skills.html",
   "projects.html",
   "stack.html",
+  "files.html",
   "stats.html",
   "contact.html",
   ...slugs.map((s) => `projects/${s}.html`),

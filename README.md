@@ -4,14 +4,14 @@
 
 **Live:** [0x496c6b696e.pages.dev](https://0x496c6b696e.pages.dev) · Cloudflare Pages Free, deployed from this repository.
 
-A developer portfolio that behaves like a machine. A dark room, a modern desk, an ultrawide monitor, a glass-sided tower with lit fans. Power it on (the button on screen, or the one on the tower), watch the boot log run with real numbers, and open the files on the desktop: **Profile**, **Capabilities**, **Projects**, **Toolchain**, **Telemetry** and **Mail**. Every project, number and technology is real and taken from the public GitHub profile of **[0x496C6B696E](https://github.com/0x496C6B696E)**, backend & systems engineer.
+A developer portfolio that behaves like a machine. A dark room, a desk with three monitors, a glass-sided tower with lit fans, a lamp, a mug. Power it on (the button on screen, the button on the tower, or the monitor itself), watch the boot log run on the centre screen while the camera moves in, and land on a Linux-style desktop: a top panel with an applications menu, folders and files on the left, a terminal with a two-line prompt. Open **Home** or **projects**, or the files **profile.md**, **skills.json**, **stack.yaml**, **github.log** and **mail.eml**. The **Firefox** icon opens the GitHub profile. Every project, number and technology is real and taken from the public GitHub profile of **[0x496C6B696E](https://github.com/0x496C6B696E)**, backend & systems engineer.
 
 Two ways in:
 
-- **Immersive mode**: a procedural 3D room (React Three Fiber). Powering on dollies the camera into the screen; the HTML desktop then sits on it. Lazy-loaded, slowed to a crawl behind windows, capped pixel ratio.
-- **Explorer mode**: the same content over a CSS wallpaper. Default on phones, devices without WebGL, reduced motion, data saver or few cores. One click in the dock switches between the two at any time.
+- **Immersive mode**: a procedural 3D room (React Three Fiber). The boot is painted onto the monitor; the HTML desktop appears only once the camera has arrived, never before the screen. From the panel you can zoom **back to the desk** and click things: the lamp, the mug, the plant, the speakers (room tone), the tower (RGB theme), the side monitors (system monitor, build log, off), the keyboard (opens the terminal), the power button (shuts down). The centre screen takes you back in.
+- **Explorer mode**: the same desktop over a CSS wallpaper. Default on phones, devices without WebGL, reduced motion, data saver or few cores. One click in the panel switches between the two at any time.
 
-Also on the machine: a floating **dock** that switches apps from anywhere, a **terminal** (press backtick: `ls`, `cd projects`, `open scanner`, `stats`), and an optional **room tone** (fan hum) synthesised with the Web Audio API, off until you ask.
+Also on the machine: a **terminal** (backtick, the panel or the keyboard on the desk: `ls`, `cd projects`, `open scanner`, `neofetch`, `stats`), a **Trash** you can empty, and an optional **room tone** (fan hum) synthesised with the Web Audio API, off until you ask.
 
 Fully static (`next build` -> `out/`), designed for **Cloudflare Pages Free**. No server, no database, no paid service, no tracking.
 
@@ -47,7 +47,7 @@ Everything personal lives in typed files, so changing the site never means touch
 
 | File | Contents |
 | --- | --- |
-| `src/config/site.ts` | wordmark, system name, tagline, hostname, developer identity, links, the six files on the desktop |
+| `src/config/site.ts` | wordmark, system name, tagline, hostname, developer identity, links, the six files on the desktop and the app each opens in |
 | `src/data/projects.ts` | project entries (one per repository) |
 | `src/data/skills.ts` | capabilities, evidence links, creed |
 | `src/data/stack.ts` | toolchain entries grouped as languages / frameworks / infrastructure / data & tools |
@@ -66,7 +66,8 @@ Set `NEXT_PUBLIC_SITE_URL` to change the canonical hostname (defaults to `https:
 ## Credits and licences
 
 - Code: MIT (see [LICENSE](LICENSE)).
-- UI icons: [lucide](https://lucide.dev) (ISC). Brand icons: [Simple Icons](https://simpleicons.org) (CC0 1.0).
+- UI icons: [lucide](https://lucide.dev) (ISC). Brand icons: [Simple Icons](https://simpleicons.org) (CC0 1.0); the Kali Linux and Firefox marks belong to their owners and are used to refer to them.
 - Fonts: Inter and JetBrains Mono via `next/font` (SIL Open Font License), self-hosted at build time.
-- Everything visual in the room (3D geometry, the drawn screen, favicon, OG image) is generated in this repository. No downloaded models or textures.
+- Everything visual in the room (3D geometry, the painted screens, folder and file glyphs, favicon, OG image) is generated in this repository. No downloaded models or textures.
+- The desktop is inspired by Kali Linux's Xfce layout and by [lizuju.github.io](https://lizuju.github.io/); no code or assets were copied.
 - Project charts in `public/projects` are the developer's own output from the `AI-Driven-Crawling-Ingestion` repository.

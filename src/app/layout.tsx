@@ -4,7 +4,7 @@ import "./globals.css";
 import { site } from "@/config/site";
 import { ExperienceProvider } from "@/components/experience/ExperienceProvider";
 import { Backdrop } from "@/components/experience/Backdrop";
-import { Dock } from "@/components/dock/Dock";
+import { OsShell } from "@/components/os/OsShell";
 import { Terminal } from "@/components/terminal/Terminal";
 import { GlobalKeys } from "@/components/experience/GlobalKeys";
 
@@ -81,10 +81,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <ExperienceProvider>
           <Backdrop />
-          <main id="main" className="relative z-10">
+          {/* Pointer events pass through to the 3D room; windows and buttons opt back in. */}
+          <main id="main" className="pointer-events-none relative z-10">
             {children}
           </main>
-          <Dock />
+          <OsShell />
           <Terminal />
           <GlobalKeys />
         </ExperienceProvider>

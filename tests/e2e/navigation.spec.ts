@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { destinations, site } from "../../src/config/site";
-import { explorerVisitor } from "./helpers";
+import { desktop, explorerVisitor, startsWith } from "./helpers";
 
 test("the lock screen powers on into the desktop", async ({ page }) => {
   await page.goto("/");
@@ -8,40 +8,83 @@ test("the lock screen powers on into the desktop", async ({ page }) => {
   const enter = page.getByTestId("enter");
   await expect(enter).toBeEnabled();
   await enter.click();
-  await expect(page.getByRole("navigation", { name: "Destinations" })).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByRole("navigation", { name: "Destinations" }).getByRole("link", { name: /^projects/i })).toBeVisible();
+  await expect(desktop(page)).toBeVisible({ timeout: 15_000 });
+  await expect(desktop(page).getByRole("link", { name: /^projects/i })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Panel" })).toBeVisible();
 });
 
 test("skipping the boot lands in explorer mode immediately", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: /skip boot/i }).click();
-  await expect(page.getByRole("navigation", { name: "Destinations" })).toBeVisible({ timeout: 3_000 });
+  await expect(desktop(page)).toBeVisible({ timeout: 3_000 });
   await expect(page.locator("[data-backdrop]")).toHaveAttribute("data-backdrop", "css");
   // the choice is remembered
   await page.reload();
-  await expect(page.getByRole("navigation", { name: "Destinations" })).toBeVisible();
+  await expect(desktop(page)).toBeVisible();
 });
 
 test("every file opens from the desktop and Escape closes it", async ({ page }) => {
   await explorerVisitor(page);
   for (const d of destinations) {
     await page.goto("/");
-    await page.getByRole("navigation", { name: "Destinations" }).getByRole("link", { name: new RegExp(`^${d.title}\\b`, "i") }).click();
+    await desktop(page).getByRole("link", { name: startsWith(d.file.replace(/\/$/, "")) }).click();
     await expect(page).toHaveURL(new RegExp(`${d.path}$`));
     await expect(page.getByRole("heading", { level: 1 })).toContainText(d.title);
-    await expect(page.getByRole("link", { name: /home: back to the desktop/i })).toBeVisible();
+    // the title bar names the file and the app it opened in
+    await expect(page.getByRole("main")).toContainText(`${d.file.replace(/\/$/, "")} — ${d.app}`);
+    await expect(page.getByRole("link", { name: /close window and return to the desktop/i })).toBeVisible();
     // the mode toggle only renders after hydration, so the Escape listener is attached by now
     await expect(page.getByRole("button", { name: "Immersive mode" })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole("navigation", { name: "Destinations" })).toBeVisible();
+    await expect(desktop(page)).toBeVisible();
   }
+});
+
+test("the desktop has folders, the browser and the Trash", async ({ page }) => {
+  await explorerVisitor(page);
+  await page.goto("/");
+  const nav = desktop(page);
+  await nav.getByRole("link", { name: /^home/i }).click();
+  await expect(page).toHaveURL(/\/files$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Home");
+  // the home folder lists the projects folder and the five files
+  await page.getByRole("main").getByRole("link", { name: /^projects\// }).click();
+  await expect(page).toHaveURL(/\/projects$/);
+  await page.getByRole("main").locator(".file-row").first().click();
+  await expect(page).toHaveURL(/\/projects\/.+/);
+  await page.goto("/");
+  const firefox = nav.getByRole("link", { name: /^firefox/i });
+  await expect(firefox).toHaveAttribute("href", site.developer.github);
+  await expect(firefox).toHaveAttribute("target", "_blank");
+  await nav.getByRole("button", { name: "Trash" }).click();
+  const trash = page.getByRole("dialog", { name: /trash/i });
+  await expect(trash).toBeVisible();
+  await trash.getByRole("button", { name: /empty trash/i }).click();
+  await expect(trash).toContainText(/trash is empty/i);
+  await page.keyboard.press("Escape");
+  await expect(trash).toHaveCount(0);
+  await expect(page).toHaveURL(/\/$/);
+});
+
+test("the applications menu lists the files and closes with Escape", async ({ page }) => {
+  await explorerVisitor(page);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Applications" }).click();
+  const menu = page.getByRole("menu", { name: "Applications" });
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: /firefox/i })).toHaveAttribute("href", site.developer.github);
+  await page.keyboard.press("Escape");
+  await expect(menu).toHaveCount(0);
+  await page.getByRole("button", { name: "Applications" }).click();
+  await menu.getByRole("menuitem", { name: /skills\.json/ }).click();
+  await expect(page).toHaveURL(/\/skills$/);
 });
 
 test("the desktop is fully keyboard navigable", async ({ page }) => {
   await explorerVisitor(page);
   await page.goto("/");
-  const nav = page.getByRole("navigation", { name: "Destinations" });
+  const nav = desktop(page);
   await expect(nav).toBeVisible();
   const first = nav.getByRole("link").first();
   await first.focus();
@@ -51,17 +94,21 @@ test("the desktop is fully keyboard navigable", async ({ page }) => {
   await page.keyboard.press("ArrowLeft");
   await expect(first).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page).toHaveURL(/\/about$/);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Profile");
+  await expect(page).toHaveURL(/\/files$/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Home");
 });
 
-test("the window status line walks to the neighbouring file", async ({ page }) => {
+test("the window status bar walks to the neighbouring file", async ({ page }) => {
   await explorerVisitor(page);
   await page.goto("/about");
   await page.getByRole("link", { name: /next destination/i }).click();
   await expect(page).toHaveURL(/\/skills$/);
   await page.getByRole("link", { name: /previous destination/i }).click();
   await expect(page).toHaveURL(/\/about$/);
+  // maximize is a real control
+  const max = page.getByRole("button", { name: /maximize window/i });
+  await max.click();
+  await expect(page.getByRole("button", { name: /restore window size/i })).toHaveAttribute("aria-pressed", "true");
 });
 
 test("a project deep link renders real repository data", async ({ page }) => {
@@ -71,9 +118,8 @@ test("a project deep link renders real repository data", async ({ page }) => {
   const repoLink = page.getByRole("link", { name: /view on github/i });
   await expect(repoLink).toHaveAttribute("href", "https://github.com/0x496C6B696E/CreateOS");
   await expect(repoLink).toHaveAttribute("rel", /noopener/);
-  const width = page.viewportSize()?.width ?? 1280;
-  if (width >= 768) await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("projects");
-  else await expect(page.getByRole("link", { name: /back to projects/i })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("projects");
+  await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("CreateOS");
 });
 
 test("the toolchain inspects a selected entry", async ({ page }) => {
@@ -106,39 +152,54 @@ test("the mail page only offers real, verified channels", async ({ page }) => {
 test("the terminal opens with the backtick key and can navigate", async ({ page }) => {
   await explorerVisitor(page);
   await page.goto("/");
-  // taskbar buttons only render after hydration, so the global key listener exists by now
+  // panel buttons only render after hydration, so the global key listener exists by now
   await expect(page.getByRole("button", { name: "Terminal" })).toBeVisible();
   await page.keyboard.press("`");
   const terminal = page.getByRole("region", { name: "Terminal" });
   await expect(terminal).toBeVisible();
-  const input = page.getByLabel("0x496c6b696e@workstation:~$");
+  await expect(terminal).toContainText("0x496c6b696e㉿workstation");
+  const input = page.getByRole("textbox", { name: "Terminal command" });
   await expect(input).toBeFocused();
   await input.fill("ls");
   await input.press("Enter");
   await expect(terminal.getByRole("log")).toContainText("projects/");
+  await input.fill("neofetch");
+  await input.press("Enter");
+  await expect(terminal.getByRole("log")).toContainText("workstation v");
   await input.fill("cd toolchain");
   await input.press("Enter");
   await expect(page).toHaveURL(/\/stack$/, { timeout: 10_000 });
   await input.fill("open scanner");
   await input.press("Enter");
   await expect(page).toHaveURL(/\/projects\/portscanner$/, { timeout: 10_000 });
+  // the prompt follows the working directory
+  await expect(terminal).toContainText("~/projects");
   // Escape inside the terminal closes it without leaving the page
   await input.press("Escape");
   await expect(terminal).toHaveCount(0);
   await expect(page).toHaveURL(/\/projects\/portscanner$/);
 });
 
-test("the taskbar exposes terminal and sound toggles", async ({ page }) => {
+test("the panel exposes terminal, sound and lock controls", async ({ page }) => {
   await explorerVisitor(page);
   await page.goto("/about");
-  await page.getByRole("button", { name: "Terminal" }).click();
+  const panel = page.getByRole("navigation", { name: "Panel" });
+  await expect(panel).toContainText("profile.md — Text Editor");
+  await panel.getByRole("button", { name: "Terminal" }).click();
   await expect(page.getByRole("region", { name: "Terminal" })).toBeVisible();
-  const sound = page.getByRole("button", { name: "Ambient sound" });
+  const sound = panel.getByRole("button", { name: "Ambient sound" });
   await expect(sound).toHaveAttribute("aria-pressed", "false");
   await sound.click();
   await expect(sound).toHaveAttribute("aria-pressed", "true");
   await sound.click();
   await expect(sound).toHaveAttribute("aria-pressed", "false");
+  // the Firefox launcher is hidden on phones (the desktop icon and the menu carry it there)
+  if ((page.viewportSize()?.width ?? 1280) >= 640) await expect(panel.getByRole("link", { name: /firefox/i })).toHaveAttribute("href", site.developer.github);
+  // the power button locks the machine again
+  await panel.getByRole("button", { name: "Lock screen" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByTestId("enter")).toBeVisible();
+  await expect(panel).toHaveCount(0);
 });
 
 test("unknown paths show the themed 404 page", async ({ page }) => {

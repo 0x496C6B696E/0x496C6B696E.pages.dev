@@ -8,7 +8,7 @@ export const site = {
   shortName: "0x496C6B696E",
   /** The machine the portfolio pretends to be. */
   system: "WORKSTATION",
-  version: "2.0",
+  version: "2.1",
   tagline: "Boot. Build. Deploy. Repeat.",
   identity: "Backend · Systems · Automation",
   description:
@@ -40,24 +40,26 @@ export type DestinationSlug = "about" | "skills" | "projects" | "stack" | "stats
 export interface Destination {
   slug: DestinationSlug;
   path: `/${DestinationSlug}`;
-  /** App name shown in windows, on the desktop and in the dock. */
+  /** App name shown in windows, on the desktop and in the panel. */
   title: string;
   /** Plain label so recruiters always know what it is. */
   label: string;
   /** File name shown under the desktop icon and in the window path. */
   file: string;
+  /** The desktop application the file opens in (shown in the window title bar). */
+  app: string;
   blurb: string;
   /** Key resolved to a lucide icon in components/ui/DestinationIcon.tsx */
   icon: "profile" | "skills" | "projects" | "stack" | "stats" | "mail";
 }
 
 export const destinations: readonly Destination[] = [
-  { slug: "about", path: "/about", title: "Profile", label: "About", file: "profile.md", blurb: "Who runs this machine, and how.", icon: "profile" },
-  { slug: "skills", path: "/skills", title: "Capabilities", label: "Skills", file: "skills.json", blurb: "Seven disciplines, each tied to shipped code.", icon: "skills" },
-  { slug: "projects", path: "/projects", title: "Projects", label: "Projects", file: "projects/", blurb: "Six public repositories with full write-ups.", icon: "projects" },
-  { slug: "stack", path: "/stack", title: "Toolchain", label: "Tech Stack", file: "stack.yaml", blurb: "Languages, frameworks, infrastructure, tools.", icon: "stack" },
-  { slug: "stats", path: "/stats", title: "Telemetry", label: "GitHub Activity", file: "github.log", blurb: "Public numbers captured at build time.", icon: "stats" },
-  { slug: "contact", path: "/contact", title: "Mail", label: "Contact", file: "mail.eml", blurb: "Two verified channels, no forms.", icon: "mail" },
+  { slug: "about", path: "/about", title: "Profile", label: "About", file: "profile.md", app: "Text Editor", blurb: "Who runs this machine, and how.", icon: "profile" },
+  { slug: "skills", path: "/skills", title: "Capabilities", label: "Skills", file: "skills.json", app: "Text Editor", blurb: "Seven disciplines, each tied to shipped code.", icon: "skills" },
+  { slug: "projects", path: "/projects", title: "Projects", label: "Projects", file: "projects/", app: "Files", blurb: "Six public repositories with full write-ups.", icon: "projects" },
+  { slug: "stack", path: "/stack", title: "Toolchain", label: "Tech Stack", file: "stack.yaml", app: "Text Editor", blurb: "Languages, frameworks, infrastructure, tools.", icon: "stack" },
+  { slug: "stats", path: "/stats", title: "Telemetry", label: "GitHub Activity", file: "github.log", app: "System Monitor", blurb: "Public numbers captured at build time.", icon: "stats" },
+  { slug: "contact", path: "/contact", title: "Mail", label: "Contact", file: "mail.eml", app: "Mail", blurb: "Two verified channels, no forms.", icon: "mail" },
 ] as const;
 
 export function destinationFor(pathname: string): Destination | undefined {

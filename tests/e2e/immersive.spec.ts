@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { immersiveVisitor } from "./helpers";
+import { desktop, immersiveVisitor } from "./helpers";
 
 test.describe("immersive mode", () => {
   test.skip(({ browserName }) => browserName !== "chromium", "WebGL is exercised in Chromium only");
@@ -12,7 +12,7 @@ test.describe("immersive mode", () => {
     await expect(page.locator("[data-scene]")).toHaveAttribute("data-scene", "ready", { timeout: 15_000 });
     await page.waitForTimeout(2500); // let the camera settle for the QA screenshot
     await page.screenshot({ path: `qa/screenshots/desktop-immersive-${isMobile ? "pixel7" : "1280x720"}.jpg`, type: "jpeg", quality: 82 });
-    await page.getByRole("navigation", { name: "Destinations" }).getByRole("link", { name: /^projects/i }).click();
+    await desktop(page).getByRole("link", { name: /^projects/i }).click();
     await expect(page).toHaveURL(/\/projects$/);
     // the canvas survives navigation (persistent layout) and the window is readable over it
     await expect(page.locator("canvas")).toHaveCount(1);
@@ -21,7 +21,7 @@ test.describe("immersive mode", () => {
     await page.screenshot({ path: `qa/screenshots/projects-immersive-${isMobile ? "pixel7" : "1280x720"}.jpg`, type: "jpeg", quality: 82 });
   });
 
-  test("the lock screen over the 3D room, then the boot log", async ({ page, isMobile }) => {
+  test("the lock screen over the 3D room, then the boot painted on the monitor", async ({ page, isMobile }) => {
     test.skip(isMobile, "desktop framing check");
     await page.addInitScript(() => localStorage.setItem("workstation:mode", "immersive"));
     await page.setViewportSize({ width: 1440, height: 900 });
@@ -30,16 +30,47 @@ test.describe("immersive mode", () => {
     await page.waitForTimeout(2500);
     await page.screenshot({ path: "qa/screenshots/lock-immersive-1440x900.jpg", type: "jpeg", quality: 82 });
     await page.getByTestId("enter").click();
-    // the boot log runs with real counts, then the desktop appears
-    await expect(page.getByTestId("boot")).toBeVisible({ timeout: 3_000 });
-    await page.waitForTimeout(1200);
+    // the boot runs on the 3D monitor while the camera travels; the HTML desktop waits for both
+    await expect(page.getByTestId("boot")).toBeAttached({ timeout: 3_000 });
+    await expect(page.locator(".os-gate").first()).toHaveAttribute("data-ready", "false");
+    await page.waitForTimeout(600);
     await page.screenshot({ path: "qa/screenshots/boot-1440x900.jpg", type: "jpeg", quality: 82 });
-    await expect(page.getByRole("navigation", { name: "Destinations" })).toBeVisible({ timeout: 10_000 });
-    await page.waitForTimeout(3000);
+    await expect(desktop(page)).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator(".os-gate").first()).toHaveAttribute("data-ready", "true", { timeout: 10_000 });
+    await page.waitForTimeout(1500);
     await page.screenshot({ path: "qa/screenshots/desktop-immersive-1440x900.jpg", type: "jpeg", quality: 82 });
-    await page.getByRole("navigation", { name: "Destinations" }).getByRole("link", { name: /^telemetry/i }).hover();
+    await desktop(page).getByRole("link", { name: /^github\.log/i }).hover();
     await page.waitForTimeout(400);
     await page.screenshot({ path: "qa/screenshots/desktop-immersive-hover-1440x900.jpg", type: "jpeg", quality: 82 });
+  });
+
+  test("zooming out to the desk hides the OS, and the screen brings it back", async ({ page, isMobile }) => {
+    test.skip(isMobile, "desktop framing check");
+    await immersiveVisitor(page);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await expect(page.locator("[data-scene]")).toHaveAttribute("data-scene", "ready", { timeout: 15_000 });
+    await page.getByRole("button", { name: "Back to the desk" }).click();
+    const overlay = page.locator("[data-stage=desk]");
+    await expect(overlay).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Panel" })).toHaveCount(0);
+    await page.waitForTimeout(3000); // camera travel
+    await page.screenshot({ path: "qa/screenshots/desk-1440x900.jpg", type: "jpeg", quality: 82 });
+    // hovering the 3D objects produces a hint; the lamp sits left of the monitors
+    await page.mouse.move(380, 470);
+    await page.waitForTimeout(300);
+    const hint = overlay.getByRole("status");
+    await expect(hint).toBeVisible();
+    await page.getByRole("button", { name: "Back to the screen" }).click();
+    await expect(overlay).toHaveCount(0);
+    // the OS waits for the camera, then reappears
+    await expect(page.locator(".os-gate").first()).toHaveAttribute("data-ready", "true", { timeout: 10_000 });
+    await expect(page.getByRole("navigation", { name: "Panel" })).toBeVisible();
+    // Escape from the desk also returns
+    await page.getByRole("button", { name: "Back to the desk" }).click();
+    await expect(overlay).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(overlay).toHaveCount(0);
   });
 
   test("the mode toggle switches to the CSS room and back", async ({ page }) => {
@@ -59,6 +90,6 @@ test.describe("immersive mode", () => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.goto("/");
     await page.getByTestId("enter").click();
-    await expect(page.getByRole("navigation", { name: "Destinations" })).toBeVisible({ timeout: 2_000 });
+    await expect(desktop(page)).toBeVisible({ timeout: 2_000 });
   });
 });
