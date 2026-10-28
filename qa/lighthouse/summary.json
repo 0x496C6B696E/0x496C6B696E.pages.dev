@@ -4,7 +4,7 @@
     "route": "/",
     "formFactor": "mobile",
     "runs": [
-      100,
+      96,
       100,
       100
     ],
@@ -13,10 +13,10 @@
     "bestPractices": 100,
     "seo": 100,
     "lcp": "0.9 s",
-    "tbt": "40 ms",
+    "tbt": "50 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T21:17:52.888Z"
+    "fetchTime": "2026-10-28T21:39:05.399Z"
   },
   {
     "host": "0x496c6b696e.pages.dev",
@@ -32,17 +32,17 @@
     "bestPractices": 100,
     "seo": 100,
     "lcp": "0.3 s",
-    "tbt": "70 ms",
+    "tbt": "50 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T21:18:31.599Z"
+    "fetchTime": "2026-10-28T21:39:45.251Z"
   },
   {
     "host": "0x496c6b696e.pages.dev",
     "route": "/about",
     "formFactor": "mobile",
     "runs": [
-      99,
+      95,
       100,
       100
     ],
@@ -51,14 +51,52 @@
     "bestPractices": 100,
     "seo": 100,
     "lcp": "0.9 s",
-    "tbt": "40 ms",
+    "tbt": "50 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T21:18:57.788Z"
+    "fetchTime": "2026-10-28T21:40:11.314Z"
   },
   {
     "host": "0x496c6b696e.pages.dev",
     "route": "/files",
+    "formFactor": "mobile",
+    "runs": [
+      99,
+      99,
+      100
+    ],
+    "performance": 99,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "lcp": "0.9 s",
+    "tbt": "110 ms",
+    "cls": "0",
+    "lighthouse": "13.6.0",
+    "fetchTime": "2026-10-28T21:41:17.395Z"
+  },
+  {
+    "host": "0x496c6b696e.pages.dev",
+    "route": "/projects",
+    "formFactor": "mobile",
+    "runs": [
+      98,
+      99,
+      99
+    ],
+    "performance": 99,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "lcp": "0.9 s",
+    "tbt": "100 ms",
+    "cls": "0",
+    "lighthouse": "13.6.0",
+    "fetchTime": "2026-10-28T21:41:30.624Z"
+  },
+  {
+    "host": "0x496c6b696e.pages.dev",
+    "route": "/skills",
     "formFactor": "mobile",
     "runs": [
       98,
@@ -73,11 +111,49 @@
     "tbt": "100 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T21:20:02.979Z"
+    "fetchTime": "2026-10-28T21:42:10.784Z"
   },
   {
     "host": "0x496c6b696e.pages.dev",
-    "route": "/projects",
+    "route": "/stack",
+    "formFactor": "mobile",
+    "runs": [
+      98,
+      98,
+      100
+    ],
+    "performance": 98,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "lcp": "2.3 s",
+    "tbt": "90 ms",
+    "cls": "0",
+    "lighthouse": "13.6.0",
+    "fetchTime": "2026-10-28T21:43:16.833Z"
+  },
+  {
+    "host": "0x496c6b696e.pages.dev",
+    "route": "/stats",
+    "formFactor": "mobile",
+    "runs": [
+      99,
+      99,
+      100
+    ],
+    "performance": 99,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "lcp": "0.9 s",
+    "tbt": "100 ms",
+    "cls": "0",
+    "lighthouse": "13.6.0",
+    "fetchTime": "2026-10-28T21:43:42.931Z"
+  },
+  {
+    "host": "0x496c6b696e.pages.dev",
+    "route": "/contact",
     "formFactor": "mobile",
     "runs": [
       99,
@@ -92,82 +168,6 @@
     "tbt": "80 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T21:20:16.045Z"
-  },
-  {
-    "host": "0x496c6b696e.pages.dev",
-    "route": "/skills",
-    "formFactor": "mobile",
-    "runs": [
-      99,
-      99,
-      100
-    ],
-    "performance": 99,
-    "accessibility": 100,
-    "bestPractices": 100,
-    "seo": 100,
-    "lcp": "0.9 s",
-    "tbt": "100 ms",
-    "cls": "0",
-    "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T21:21:08.899Z"
-  },
-  {
-    "host": "0x496c6b696e.pages.dev",
-    "route": "/stack",
-    "formFactor": "mobile",
-    "runs": [
-      100,
-      100,
-      100
-    ],
-    "performance": 100,
-    "accessibility": 100,
-    "bestPractices": 100,
-    "seo": 100,
-    "lcp": "0.9 s",
-    "tbt": "70 ms",
-    "cls": "0",
-    "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T21:21:48.502Z"
-  },
-  {
-    "host": "0x496c6b696e.pages.dev",
-    "route": "/stats",
-    "formFactor": "mobile",
-    "runs": [
-      98,
-      98,
-      99
-    ],
-    "performance": 98,
-    "accessibility": 100,
-    "bestPractices": 100,
-    "seo": 100,
-    "lcp": "2.1 s",
-    "tbt": "120 ms",
-    "cls": "0",
-    "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T21:22:41.169Z"
-  },
-  {
-    "host": "0x496c6b696e.pages.dev",
-    "route": "/contact",
-    "formFactor": "mobile",
-    "runs": [
-      98,
-      99,
-      100
-    ],
-    "performance": 99,
-    "accessibility": 100,
-    "bestPractices": 100,
-    "seo": 100,
-    "lcp": "0.9 s",
-    "tbt": "110 ms",
-    "cls": "0",
-    "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T21:22:54.420Z"
+    "fetchTime": "2026-10-28T21:44:09.185Z"
   }
 ]

@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-28T20:56:11.257Z",
+  "fetchedAt": "2026-10-28T21:45:22.177Z",
   "user": {
     "login": "0x496C6B696E",
     "name": null,
@@ -14,13 +14,13 @@
   "repos": [
     {
       "name": "0x496C6B696E.pages.dev",
-      "description": "Immersive dark-fantasy developer portfolio. Rest at the Bonfire. Build. Deploy. Repeat.",
+      "description": "Developer portfolio that behaves like a machine: a lamp-lit 3D desk with a Linux-style desktop on the screen. Next.js static export on Cloudflare Pages.",
       "language": "TypeScript",
       "stars": 0,
       "forks": 0,
       "fork": false,
       "archived": false,
-      "pushedAt": "2026-10-28T20:49:56Z",
+      "pushedAt": "2026-10-28T21:37:58Z",
       "createdAt": "2026-10-28T14:45:00Z",
       "htmlUrl": "https://github.com/0x496C6B696E/0x496C6B696E.pages.dev",
       "homepage": "https://0x496c6b696e.pages.dev",
@@ -143,9 +143,9 @@
     }
   ],
   "languages": {
-    "TypeScript": 222655,
-    "CSS": 23407,
-    "JavaScript": 31945,
+    "TypeScript": 240797,
+    "CSS": 24288,
+    "JavaScript": 32628,
     "Python": 114122,
     "C": 2326,
     "Shell": 468,

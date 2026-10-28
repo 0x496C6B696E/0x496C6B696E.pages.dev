@@ -11,8 +11,8 @@ Everything below was executed against the **exported** site served by `scripts/s
 | TypeScript strict | `npm run typecheck` | pass |
 | ESLint (next/core-web-vitals, typescript, React Compiler rules) | `npm run lint` | pass, 0 warnings |
 | Unit tests (Vitest) | `npm test` | 27 passed in 3 files (data integrity, formatting, terminal parser and prompt, boot log and clock) |
-| Production build + export verification | `npm run build` | 18 routes, 22 required files present, no placeholder text, no secrets |
-| End-to-end (Playwright 1.64) | `npm run test:e2e` | **200 passed**, 0 failed, 44 skipped by design (WebGL and viewport sweeps run in Chromium only) across Chromium, Firefox, WebKit and Pixel 7 emulation |
+| Production build + export verification | `npm run build` | 19 routes, 23 required files present, no placeholder text, no secrets |
+| End-to-end (Playwright 1.64) | `npm run test:e2e` | **208 passed**, 0 failed, 44 skipped by design (WebGL and viewport sweeps run in Chromium only) across Chromium, Firefox, WebKit and Pixel 7 emulation |
 
 ### What the e2e suite covers
 
@@ -50,19 +50,19 @@ Final state reviewed at 390x844, 768x1024, 1280x720 and 1440x900: lock screen (3
 
 Mobile = Moto G Power emulation, 4x CPU slowdown, slow 4G. The table is measured against the **live deployment** (https://0x496c6b696e.pages.dev); each route is audited three times and the median run is kept (per-run performance scores are listed in `qa/lighthouse/summary.json`, which is committed; the full reports are regenerated locally and git-ignored).
 
-| Route | Form factor | Perf | A11y | Best practices | SEO | LCP | TBT | CLS |
+| Route | Form factor | Perf (median of 3 runs) | A11y | Best practices | SEO | LCP | TBT | CLS |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `/` (lock screen) | mobile | 100 | 100 | 100 | 100 | 1.1 s | 90 ms | 0 |
-| `/about` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 40 ms | 0 |
-| `/files` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 40 ms | 0 |
-| `/projects` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 40 ms | 0 |
-| `/skills` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 50 ms | 0 |
-| `/stack` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 50 ms | 0 |
-| `/stats` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 50 ms | 0 |
-| `/contact` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 40 ms | 0 |
-| `/` | desktop | 97 | 100 | 100 | 100 | 0.3 s | 110 ms | 0 |
+| `/` (lock screen) | mobile | 100 (96 / 100 / 100) | 100 | 100 | 100 | 0.9 s | 50 ms | 0 |
+| `/about` | mobile | 100 (95 / 100 / 100) | 100 | 100 | 100 | 0.9 s | 50 ms | 0 |
+| `/files` | mobile | 99 (99 / 99 / 100) | 100 | 100 | 100 | 0.9 s | 110 ms | 0 |
+| `/projects` | mobile | 99 (98 / 99 / 99) | 100 | 100 | 100 | 0.9 s | 100 ms | 0 |
+| `/skills` | mobile | 99 (98 / 99 / 100) | 100 | 100 | 100 | 0.9 s | 100 ms | 0 |
+| `/stack` | mobile | 98 (98 / 98 / 100) | 100 | 100 | 100 | 2.3 s | 90 ms | 0 |
+| `/stats` | mobile | 99 (99 / 99 / 100) | 100 | 100 | 100 | 0.9 s | 100 ms | 0 |
+| `/contact` | mobile | 100 (99 / 100 / 100) | 100 | 100 | 100 | 0.9 s | 80 ms | 0 |
+| `/` | desktop | 98 (98 / 98 / 98) | 100 | 100 | 100 | 0.3 s | 50 ms | 0 |
 
-Targets from the brief (90 / 95 / 95 / 95 on mobile) are met on every audited route. The lock screen now paints only Inter above the fold (the small status line used the mono face before, and the second font file on slow 4G pushed the simulated LCP to 5 s). Against localhost the simulated LCP flips between 1.1 s and about 5.5 s from run to run with identical observed paints (about 0.4 s): with no network latency the script chunks arrive at 20 ms and sometimes start hydrating a few milliseconds before the first paint, so the Lantern estimate folds the whole script graph into the LCP. Inlining the stylesheet (`experimental.inlineCss`) did not change the odds and quadrupled the HTML, so it was reverted. Over a real network the paint always lands first, which is why the live deployment is what is measured and reported, as the median of three runs.
+Targets from the brief (90 / 95 / 95 / 95 on mobile) are met on every audited route, in every one of the three runs. The latest live Chromium run after the deploy: 63 passed. The lock screen now paints only Inter above the fold (the small status line used the mono face before, and the second font file on slow 4G pushed the simulated LCP to 5 s). Against localhost the simulated LCP flips between 1.1 s and about 5.5 s from run to run with identical observed paints (about 0.4 s): with no network latency the script chunks arrive at 20 ms and sometimes start hydrating a few milliseconds before the first paint, so the Lantern estimate folds the whole script graph into the LCP. Inlining the stylesheet (`experimental.inlineCss`) did not change the odds and quadrupled the HTML, so it was reverted. Over a real network the paint always lands first, which is why the live deployment is what is measured and reported, as the median of three runs.
 
 ### What keeps the numbers there
 
