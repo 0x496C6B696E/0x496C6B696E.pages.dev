@@ -42,9 +42,9 @@ interface Props {
   onSpeakers: () => void;
 }
 
-const VOID = "#0a0d12";
-const BLUE = "#3d8bfd";
-const TEAL = "#2dd4bf";
+const VOID = "#0b0a08";
+const AMBER = "#f5b73b";
+const ORANGE = "#e8743b";
 const MONO = "600 24px 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace";
 
 /** Small seeded PRNG (mulberry32) so procedural placement is deterministic and pure. */
@@ -71,8 +71,8 @@ const CAMERA: Record<Stage, { pos: [number, number, number]; look: [number, numb
   window: { pos: [SCREEN.x, SCREEN.y, SCREEN.z + 0.52], look: [SCREEN.x, SCREEN.y, SCREEN.z] },
 };
 
-type RgbTheme = "spectrum" | "arctic" | "ember" | "off";
-const THEMES: readonly RgbTheme[] = ["spectrum", "arctic", "ember", "off"];
+type RgbTheme = "amber" | "spectrum" | "ember" | "off";
+const THEMES: readonly RgbTheme[] = ["amber", "spectrum", "ember", "off"];
 
 /** Colour for the RGB parts under the current theme; one call per frame per part is cheap. */
 function rgbColor(target: THREE.Color, time: number, offset: number, theme: RgbTheme, saturation = 0.85, lightness = 0.58) {
@@ -80,14 +80,14 @@ function rgbColor(target: THREE.Color, time: number, offset: number, theme: RgbT
     case "spectrum":
       target.setHSL((((time * 0.05 + offset) % 1) + 1) % 1, saturation, lightness);
       break;
-    case "arctic":
-      target.setHSL(0.55 + Math.sin(time * 0.4 + offset * 6) * 0.05, saturation, lightness);
+    case "amber":
+      target.setHSL(0.105 + Math.sin(time * 0.3 + offset * 6) * 0.012, 0.92, 0.56);
       break;
     case "ember":
       target.setHSL(0.03 + Math.sin(time * 0.5 + offset * 6) * 0.03, 0.95, 0.55);
       break;
     case "off":
-      target.set("#0d1016");
+      target.set("#100d0a");
   }
 }
 
@@ -194,7 +194,7 @@ class ScreenPainter {
 
   private paintOff(time: number) {
     const { ctx, canvas } = this;
-    ctx.fillStyle = "#05070b";
+    ctx.fillStyle = "#070604";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     const sheen = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     sheen.addColorStop(0, "rgba(255,255,255,0.035)");
@@ -204,7 +204,7 @@ class ScreenPainter {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     // a sleeping machine: one breathing dot
     const pulse = 0.5 + 0.5 * Math.sin(time * 1.6);
-    ctx.fillStyle = `rgba(61,139,253,${0.3 + pulse * 0.6})`;
+    ctx.fillStyle = `rgba(245,183,59,${0.3 + pulse * 0.6})`;
     ctx.beginPath();
     ctx.arc(canvas.width / 2, canvas.height - 40, 5 + pulse * 2, 0, Math.PI * 2);
     ctx.fill();
@@ -214,30 +214,30 @@ class ScreenPainter {
     const { ctx, canvas, lines } = this;
     const elapsed = (time - this.bootStart) * 1000;
     const shown = Math.min(lines.length, Math.floor(elapsed / BOOT_STEP_MS) + 1);
-    ctx.fillStyle = "#05070b";
+    ctx.fillStyle = "#070604";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.textBaseline = "alphabetic";
     ctx.textAlign = "left";
     ctx.font = MONO;
-    ctx.fillStyle = BLUE;
+    ctx.fillStyle = AMBER;
     ctx.fillText(`${site.name.toLowerCase()} ${site.system.toLowerCase()} v${site.version}`, 48, 58);
     ctx.font = MONO.replace("600", "500");
     for (let i = 0; i < shown; i++) {
       const last = i === shown - 1;
       const ready = i === lines.length - 1;
-      ctx.fillStyle = ready ? "#4ade80" : last ? "#e6e9ef" : "#8e98a8";
+      ctx.fillStyle = ready ? "#8fd16b" : last ? "#f1ebdf" : "#a89c86";
       ctx.fillText(`> ${lines[i]}`, 48, 104 + i * 30);
     }
     if (shown < lines.length && Math.floor(time * 2) % 2 === 0) {
-      ctx.fillStyle = "#e6e9ef";
+      ctx.fillStyle = "#f1ebdf";
       ctx.fillRect(48, 104 + shown * 30 - 20, 12, 24);
     }
     // progress
     ctx.fillStyle = "rgba(255,255,255,0.08)";
     ctx.fillRect(48, 392, canvas.width - 96, 6);
     const fill = ctx.createLinearGradient(48, 0, canvas.width - 48, 0);
-    fill.addColorStop(0, "#2563eb");
-    fill.addColorStop(1, TEAL);
+    fill.addColorStop(0, "#c98a12");
+    fill.addColorStop(1, ORANGE);
     ctx.fillStyle = fill;
     ctx.fillRect(48, 392, ((canvas.width - 96) * shown) / lines.length, 6);
   }
@@ -246,36 +246,36 @@ class ScreenPainter {
     const { ctx, canvas } = this;
     const w = canvas.width;
     const h = canvas.height;
-    ctx.fillStyle = "#0b1220";
+    ctx.fillStyle = "#17110a";
     ctx.fillRect(0, 0, w, h);
     const blue = ctx.createRadialGradient(720, 120, 10, 720, 120, 520);
-    blue.addColorStop(0, "rgba(61,139,253,0.45)");
-    blue.addColorStop(1, "rgba(61,139,253,0)");
+    blue.addColorStop(0, "rgba(245,183,59,0.45)");
+    blue.addColorStop(1, "rgba(245,183,59,0)");
     ctx.fillStyle = blue;
     ctx.fillRect(0, 0, w, h);
     const teal = ctx.createRadialGradient(180, 400, 10, 180, 400, 420);
-    teal.addColorStop(0, "rgba(45,212,191,0.22)");
-    teal.addColorStop(1, "rgba(45,212,191,0)");
+    teal.addColorStop(0, "rgba(232,116,59,0.22)");
+    teal.addColorStop(1, "rgba(232,116,59,0)");
     ctx.fillStyle = teal;
     ctx.fillRect(0, 0, w, h);
     // two diagonal ribbons
     ctx.save();
     ctx.translate(w * 0.62, h * 0.5);
     ctx.rotate(-0.55);
-    ctx.fillStyle = "rgba(61,139,253,0.08)";
+    ctx.fillStyle = "rgba(245,183,59,0.08)";
     ctx.fillRect(-900, -60, 1800, 90);
-    ctx.fillStyle = "rgba(45,212,191,0.06)";
+    ctx.fillStyle = "rgba(232,116,59,0.06)";
     ctx.fillRect(-900, 70, 1800, 40);
     ctx.restore();
     // top panel
-    ctx.fillStyle = "rgba(13,16,22,0.92)";
+    ctx.fillStyle = "rgba(14,12,9,0.92)";
     ctx.fillRect(0, 0, w, 26);
-    ctx.fillStyle = BLUE;
+    ctx.fillStyle = AMBER;
     ctx.beginPath();
     ctx.roundRect(10, 6, 14, 14, 3);
     ctx.fill();
     ctx.font = "500 13px 'JetBrains Mono', ui-monospace, monospace";
-    ctx.fillStyle = "#9aa3b2";
+    ctx.fillStyle = "#b3a893";
     const now = new Date();
     ctx.textAlign = "right";
     ctx.fillText(`${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`, w - 14, 18);
@@ -286,11 +286,11 @@ class ScreenPainter {
     items.slice(0, 6).forEach((name, i) => {
       const y = 48 + i * 60;
       const folder = name === "Home" || name === "projects";
-      ctx.fillStyle = folder ? BLUE : "#dfe5ee";
+      ctx.fillStyle = folder ? AMBER : "#f6efe0";
       ctx.beginPath();
       ctx.roundRect(folder ? 24 : 28, y, folder ? 34 : 26, folder ? 28 : 32, 4);
       ctx.fill();
-      ctx.fillStyle = "#e6e9ef";
+      ctx.fillStyle = "#f1ebdf";
       ctx.textAlign = "center";
       ctx.fillText(name, 41, y + 46);
       ctx.textAlign = "left";
@@ -357,7 +357,7 @@ class SidePainter {
     if (time - this.last < interval) return;
     this.last = time;
     const { ctx, canvas } = this;
-    ctx.fillStyle = mode === "off" ? "#05070b" : "#0b0e14";
+    ctx.fillStyle = mode === "off" ? "#070604" : "#0e0c09";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     if (mode === "monitor") this.paintMonitor();
     else if (mode === "log") this.paintLog();
@@ -366,10 +366,10 @@ class SidePainter {
 
   private header(title: string) {
     const { ctx, canvas } = this;
-    ctx.fillStyle = "#12151b";
+    ctx.fillStyle = "#110f0b";
     ctx.fillRect(0, 0, canvas.width, 24);
     ctx.font = "500 12px 'JetBrains Mono', ui-monospace, monospace";
-    ctx.fillStyle = "#9aa3b2";
+    ctx.fillStyle = "#b3a893";
     ctx.textAlign = "left";
     ctx.textBaseline = "alphabetic";
     ctx.fillText(title, 12, 16);
@@ -377,13 +377,13 @@ class SidePainter {
 
   private bar(label: string, y: number, load: number) {
     const { ctx } = this;
-    ctx.fillStyle = "#6b7483";
+    ctx.fillStyle = "#8a8068";
     ctx.fillText(label, 16, y + 9);
     ctx.fillStyle = "rgba(255,255,255,0.08)";
     ctx.fillRect(60, y, 320, 10);
-    ctx.fillStyle = load < 0.6 ? "#4ade80" : load < 0.85 ? "#facc15" : "#f87171";
+    ctx.fillStyle = load < 0.6 ? "#8fd16b" : load < 0.85 ? "#facc15" : "#f87171";
     ctx.fillRect(60, y, 320 * load, 10);
-    ctx.fillStyle = "#9aa3b2";
+    ctx.fillStyle = "#b3a893";
     ctx.fillText(`${Math.round(load * 100)}%`.padStart(4), 392, y + 9);
   }
 
@@ -397,10 +397,10 @@ class SidePainter {
     }
     this.bar("mem", 168, 0.42 + Math.sin(this.last * 0.1) * 0.03);
     this.bar("gpu", 188, 0.3 + this.loads[0] * 0.4);
-    ctx.fillStyle = "#6b7483";
+    ctx.fillStyle = "#8a8068";
     ctx.fillText("PID    CPU%   CMD", 16, 222);
     PROCESSES.slice(0, 3).forEach((cmd, i) => {
-      ctx.fillStyle = i === 0 ? "#e6e9ef" : "#9aa3b2";
+      ctx.fillStyle = i === 0 ? "#f1ebdf" : "#b3a893";
       const pid = String(1180 + i * 37).padEnd(6);
       const cpu = `${(this.loads[i] * 40).toFixed(1)}`.padStart(5);
       ctx.fillText(`${pid} ${cpu}   ${cmd}`, 16, 242 + i * 18);
@@ -418,9 +418,9 @@ class SidePainter {
     ctx.font = "500 12px 'JetBrains Mono', ui-monospace, monospace";
     this.log.forEach((line, i) => {
       const last = i === this.log.length - 1;
-      ctx.fillStyle = "#6b7483";
+      ctx.fillStyle = "#8a8068";
       ctx.fillText(line.stamp, 12, 46 + i * 20);
-      ctx.fillStyle = line.text.startsWith("✓") ? "#4ade80" : last ? "#e6e9ef" : "#9aa3b2";
+      ctx.fillStyle = line.text.startsWith("✓") ? "#8fd16b" : last ? "#f1ebdf" : "#b3a893";
       ctx.fillText(line.text, 84, 46 + i * 20);
     });
   }
@@ -482,8 +482,8 @@ function Interactive({ label, enabled, onClick, onHint, children }: InteractiveP
 function useDarkMaterials() {
   const mats = useMemo(
     () => ({
-      dark: new THREE.MeshStandardMaterial({ color: "#0c0f14", roughness: 0.5, metalness: 0.4 }),
-      housing: new THREE.MeshStandardMaterial({ color: "#171b22", roughness: 0.6, metalness: 0.3 }),
+      dark: new THREE.MeshStandardMaterial({ color: "#0d0b09", roughness: 0.5, metalness: 0.4 }),
+      housing: new THREE.MeshStandardMaterial({ color: "#1a1611", roughness: 0.6, metalness: 0.3 }),
     }),
     [],
   );
@@ -534,7 +534,7 @@ function CenterMonitor({ screen, stage, onHint, onPowerOn, onMonitor }: CenterMo
         <mesh position={[0, 0.772, 0.22]} material={dark}>
           <cylinderGeometry args={[0.22, 0.24, 0.012, 32]} />
         </mesh>
-        <pointLight ref={glow} position={[SCREEN.x, SCREEN.y, SCREEN.z + 0.45]} color="#9fc6ff" distance={2.6} decay={2} intensity={0.7} />
+        <pointLight ref={glow} position={[SCREEN.x, SCREEN.y, SCREEN.z + 0.45]} color="#ffd9a8" distance={2.6} decay={2} intensity={0.7} />
       </group>
     </Interactive>
   );
@@ -610,25 +610,25 @@ function Keyboard({ theme, interactive, onClick, onHint }: { theme: RgbTheme; in
         <group>
           <mesh position={[0, 0.784, 0.645]}>
             <boxGeometry args={[0.39, 0.02, 0.145]} />
-            <meshStandardMaterial color="#13161c" roughness={0.6} metalness={0.3} />
+            <meshStandardMaterial color="#15120e" roughness={0.6} metalness={0.3} />
           </mesh>
           <instancedMesh ref={keys} args={[undefined, undefined, count]}>
             <boxGeometry args={[0.02, 0.008, 0.02]} />
-            <meshStandardMaterial color="#262b33" roughness={0.7} />
+            <meshStandardMaterial color="#2a251d" roughness={0.7} />
           </instancedMesh>
         </group>
       </Interactive>
       <mesh position={[0, 0.7745, 0.645]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[0.42, 0.17]} />
-        <meshBasicMaterial ref={glowMat} color={BLUE} transparent opacity={0.55} toneMapped={false} />
+        <meshBasicMaterial ref={glowMat} color={AMBER} transparent opacity={0.55} toneMapped={false} />
       </mesh>
       <mesh position={[0.36, 0.79, 0.65]} rotation={[0, -0.25, 0]}>
         <boxGeometry args={[0.062, 0.034, 0.11]} />
-        <meshStandardMaterial color="#13161c" roughness={0.55} metalness={0.3} />
+        <meshStandardMaterial color="#15120e" roughness={0.55} metalness={0.3} />
       </mesh>
       <mesh position={[0.08, 0.767, 0.64]}>
         <boxGeometry args={[1.1, 0.005, 0.5]} />
-        <meshStandardMaterial color="#0f1217" roughness={1} />
+        <meshStandardMaterial color="#100d0a" roughness={1} />
       </mesh>
     </group>
   );
@@ -649,8 +649,8 @@ function Tower({ theme, stage, onPowerOn, onPowerOff, onCycleTheme, onHint }: To
   const inner = useRef<THREE.PointLight>(null);
   const button = useRef<THREE.MeshBasicMaterial>(null);
   const x = -1.72;
-  const metal = useMemo(() => new THREE.MeshStandardMaterial({ color: "#0e1116", roughness: 0.45, metalness: 0.5 }), []);
-  const glass = useMemo(() => new THREE.MeshStandardMaterial({ color: "#8fd3ff", roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.16 }), []);
+  const metal = useMemo(() => new THREE.MeshStandardMaterial({ color: "#100d0a", roughness: 0.45, metalness: 0.5 }), []);
+  const glass = useMemo(() => new THREE.MeshStandardMaterial({ color: "#ffd9a0", roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.16 }), []);
   useEffect(
     () => () => {
       metal.dispose();
@@ -669,7 +669,7 @@ function Tower({ theme, stage, onPowerOn, onPowerOff, onCycleTheme, onHint }: To
     }
     if (button.current) {
       const pulse = 0.5 + 0.5 * Math.sin(t * 1.8);
-      button.current.color.set(stage === "lock" ? BLUE : "#4ade80").multiplyScalar(0.55 + pulse * 0.45);
+      button.current.color.set(stage === "lock" ? AMBER : "#8fd16b").multiplyScalar(0.55 + pulse * 0.45);
     }
   });
   const atLock = stage === "lock";
@@ -692,18 +692,18 @@ function Tower({ theme, stage, onPowerOn, onPowerOff, onCycleTheme, onHint }: To
                 ref={(el) => {
                   fans.current[i] = el;
                 }}
-                color={BLUE}
+                color={AMBER}
                 toneMapped={false}
               />
             </mesh>
           ))}
         </group>
       </Interactive>
-      <pointLight ref={inner} position={[0.12, 0.3, -0.05]} color={BLUE} distance={1.4} decay={2} intensity={0.55} />
+      <pointLight ref={inner} position={[0.12, 0.3, -0.05]} color={AMBER} distance={1.4} decay={2} intensity={0.55} />
       <Interactive label={atLock ? "Power button: power on" : "Power button: shut down"} enabled={atLock || atDesk} onClick={atLock ? onPowerOn : onPowerOff} onHint={onHint}>
         <mesh position={[0.1, 0.526, 0.2]}>
           <cylinderGeometry args={[0.018, 0.018, 0.012, 20]} />
-          <meshBasicMaterial ref={button} color={BLUE} toneMapped={false} />
+          <meshBasicMaterial ref={button} color={AMBER} toneMapped={false} />
         </mesh>
       </Interactive>
     </group>
@@ -711,7 +711,7 @@ function Tower({ theme, stage, onPowerOn, onPowerOff, onCycleTheme, onHint }: To
 }
 
 function Lamp({ on, interactive, onToggle, onHint }: { on: boolean; interactive: boolean; onToggle: () => void; onHint: Dispatch<SetStateAction<string | null>> }) {
-  const metal = useMemo(() => new THREE.MeshStandardMaterial({ color: "#1a1e26", roughness: 0.4, metalness: 0.6 }), []);
+  const metal = useMemo(() => new THREE.MeshStandardMaterial({ color: "#1e1a14", roughness: 0.4, metalness: 0.6 }), []);
   useEffect(() => () => metal.dispose(), [metal]);
   return (
     <Interactive label={`Desk lamp: turn ${on ? "off" : "on"}`} enabled={interactive} onClick={onToggle} onHint={onHint}>
@@ -734,7 +734,7 @@ function Lamp({ on, interactive, onToggle, onHint }: { on: boolean; interactive:
             <meshBasicMaterial color={on ? "#ffe2b8" : "#2a2a2e"} toneMapped={false} />
           </mesh>
         </group>
-        <pointLight position={[0.3, 0.42, 0.02]} color="#ffcf99" distance={2.4} decay={2} intensity={on ? 1.5 : 0} />
+        <pointLight position={[0.3, 0.42, 0.02]} color="#ffb64a" distance={2.6} decay={2} intensity={on ? 2.2 : 0} />
       </group>
     </Interactive>
   );
@@ -808,7 +808,7 @@ function Plant({ interactive, onHint }: { interactive: boolean; onHint: Dispatch
 }
 
 function Speakers({ sound, interactive, onToggle, onHint }: { sound: boolean; interactive: boolean; onToggle: () => void; onHint: Dispatch<SetStateAction<string | null>> }) {
-  const plastic = useMemo(() => new THREE.MeshStandardMaterial({ color: "#13161c", roughness: 0.6, metalness: 0.2 }), []);
+  const plastic = useMemo(() => new THREE.MeshStandardMaterial({ color: "#15120e", roughness: 0.6, metalness: 0.2 }), []);
   useEffect(() => () => plastic.dispose(), [plastic]);
   return (
     <Interactive label={`Speakers: turn the room tone ${sound ? "off" : "on"}`} enabled={interactive} onClick={onToggle} onHint={onHint}>
@@ -824,7 +824,7 @@ function Speakers({ sound, interactive, onToggle, onHint }: { sound: boolean; in
             </mesh>
             <mesh position={[0, -0.06, 0.046]}>
               <boxGeometry args={[0.01, 0.01, 0.003]} />
-              <meshBasicMaterial color={sound ? "#4ade80" : "#2a3140"} toneMapped={false} />
+              <meshBasicMaterial color={sound ? AMBER : "#3a3128"} toneMapped={false} />
             </mesh>
           </group>
         ))}
@@ -834,9 +834,9 @@ function Speakers({ sound, interactive, onToggle, onHint }: { sound: boolean; in
 }
 
 function Room({ theme }: { theme: RgbTheme }) {
-  const metal = useMemo(() => new THREE.MeshStandardMaterial({ color: "#0e1116", roughness: 0.5, metalness: 0.5 }), []);
-  const wood = useMemo(() => new THREE.MeshStandardMaterial({ color: "#2a2320", roughness: 0.55, metalness: 0.05 }), []);
-  const plastic = useMemo(() => new THREE.MeshStandardMaterial({ color: "#13161c", roughness: 0.6, metalness: 0.2 }), []);
+  const metal = useMemo(() => new THREE.MeshStandardMaterial({ color: "#100d0a", roughness: 0.5, metalness: 0.5 }), []);
+  const wood = useMemo(() => new THREE.MeshStandardMaterial({ color: "#3a2a1e", roughness: 0.55, metalness: 0.05 }), []);
+  const plastic = useMemo(() => new THREE.MeshStandardMaterial({ color: "#15120e", roughness: 0.6, metalness: 0.2 }), []);
   useEffect(
     () => () => {
       metal.dispose();
@@ -859,11 +859,11 @@ function Room({ theme }: { theme: RgbTheme }) {
       {/* floor and back wall */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[14, 14]} />
-        <meshStandardMaterial color="#0b0e13" roughness={0.9} metalness={0.05} />
+        <meshStandardMaterial color="#0e0b08" roughness={0.9} metalness={0.05} />
       </mesh>
       <mesh position={[0, 1.8, -0.7]}>
         <boxGeometry args={[14, 3.8, 0.1]} />
-        <meshStandardMaterial color="#0f1319" roughness={1} />
+        <meshStandardMaterial color="#15110c" roughness={1} />
       </mesh>
       {/* desk: slab and two steel frame legs */}
       <mesh position={[0, 0.74, 0.3]} material={wood}>
@@ -885,10 +885,10 @@ function Room({ theme }: { theme: RgbTheme }) {
       {/* bias-light strip behind the monitors and the light it throws on the wall */}
       <mesh position={[0, 1.0, -0.05]}>
         <boxGeometry args={[1.9, 0.014, 0.014]} />
-        <meshBasicMaterial ref={strip} color={BLUE} toneMapped={false} />
+        <meshBasicMaterial ref={strip} color={AMBER} toneMapped={false} />
       </mesh>
-      <pointLight ref={stripLight} position={[0, 1.15, -0.3]} color={BLUE} distance={3.6} decay={2} intensity={2.2} />
-      <pointLight position={[-0.9, 1.6, -0.4]} color={TEAL} distance={2.6} decay={2} intensity={0.5} />
+      <pointLight ref={stripLight} position={[0, 1.15, -0.3]} color={AMBER} distance={3.6} decay={2} intensity={2.2} />
+      <pointLight position={[-0.9, 1.6, -0.4]} color={ORANGE} distance={2.6} decay={2} intensity={0.5} />
       {/* headphone stand to the right */}
       <group position={[1.08, 0.765, 0.5]}>
         <mesh position={[0, 0.005, 0]} material={metal}>
@@ -913,7 +913,7 @@ function Room({ theme }: { theme: RgbTheme }) {
       {[0, 1, 2, 3, 4].map((i) => (
         <mesh key={i} position={[1.25 + i * 0.12, 1.86, -0.62]}>
           <boxGeometry args={[0.07, 0.2 + (i % 3) * 0.03, 0.16]} />
-          <meshStandardMaterial color={["#1f3a5f", "#3b2d5a", "#2a2f36", "#1b4a4e", "#4a2f2f"][i]} roughness={0.9} />
+          <meshStandardMaterial color={["#5a3a2a", "#4a3a5a", "#2f2a24", "#5a4a1b", "#4a2f2f"][i]} roughness={0.9} />
         </mesh>
       ))}
     </group>
@@ -928,9 +928,9 @@ function useDustTexture() {
     canvas.width = canvas.height = size;
     const ctx = canvas.getContext("2d")!;
     const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-    g.addColorStop(0, "rgba(220,240,255,1)");
-    g.addColorStop(0.5, "rgba(220,240,255,0.35)");
-    g.addColorStop(1, "rgba(220,240,255,0)");
+    g.addColorStop(0, "rgba(255,230,184,1)");
+    g.addColorStop(0.5, "rgba(255,230,184,0.35)");
+    g.addColorStop(1, "rgba(255,230,184,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, size, size);
     const tex = new THREE.CanvasTexture(canvas);
@@ -977,7 +977,7 @@ function Dust({ count }: { count: number }) {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial map={tex} size={0.02} sizeAttenuation transparent opacity={0.45} depthWrite={false} color="#dff2ff" />
+      <pointsMaterial map={tex} size={0.02} sizeAttenuation transparent opacity={0.45} depthWrite={false} color="#ffe6b8" />
     </points>
   );
 }
@@ -988,7 +988,7 @@ export default function WorkstationScene({ stage, screen, reducedMotion, lowPowe
   const [visible, setVisible] = useState(true);
   const [ready, setReady] = useState(false);
   // Things on the desk that can be fiddled with.
-  const [theme, setTheme] = useState<RgbTheme>("spectrum");
+  const [theme, setTheme] = useState<RgbTheme>("amber");
   const [lamp, setLamp] = useState(true);
   const [coffee, setCoffee] = useState(3);
   const [sides, setSides] = useState<[SideMode, SideMode]>(["monitor", "log"]);
@@ -1037,8 +1037,8 @@ export default function WorkstationScene({ stage, screen, reducedMotion, lowPowe
       >
         <color attach="background" args={[VOID]} />
         <fog attach="fog" args={[VOID, 4.5, 12]} />
-        <hemisphereLight args={["#1a2535", "#05070a", 0.7]} />
-        <pointLight position={[1.6, 2.4, 1.9]} color="#9fb3c8" distance={6} decay={2} intensity={1.2} />
+        <hemisphereLight args={["#3a2a16", "#070608", 0.7]} />
+        <pointLight position={[1.6, 2.4, 1.9]} color="#ffd9a8" distance={6} decay={2} intensity={1.1} />
         <CameraRig stage={stage} reducedMotion={reducedMotion} onSettled={onSettled} />
         <Room theme={theme} />
         <CenterMonitor screen={screen} stage={stage} onHint={onHint} onPowerOn={onPowerOn} onMonitor={onMonitor} />

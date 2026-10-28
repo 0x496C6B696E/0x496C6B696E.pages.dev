@@ -3,6 +3,11 @@
     "host": "localhost:4173",
     "route": "/",
     "formFactor": "mobile",
+    "runs": [
+      99,
+      100,
+      100
+    ],
     "performance": 100,
     "accessibility": 100,
     "bestPractices": 100,
@@ -11,26 +16,36 @@
     "tbt": "90 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T20:46:21.767Z"
+    "fetchTime": "2026-10-28T21:02:15.547Z"
   },
   {
     "host": "localhost:4173",
     "route": "/",
     "formFactor": "desktop",
+    "runs": [
+      95,
+      97,
+      97
+    ],
     "performance": 97,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100,
     "lcp": "0.3 s",
-    "tbt": "110 ms",
+    "tbt": "100 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T20:46:33.865Z"
+    "fetchTime": "2026-10-28T21:02:40.593Z"
   },
   {
     "host": "localhost:4173",
     "route": "/about",
     "formFactor": "mobile",
+    "runs": [
+      79,
+      100,
+      100
+    ],
     "performance": 100,
     "accessibility": 100,
     "bestPractices": 100,
@@ -39,12 +54,17 @@
     "tbt": "40 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T20:46:46.173Z"
+    "fetchTime": "2026-10-28T21:03:20.162Z"
   },
   {
     "host": "localhost:4173",
     "route": "/files",
     "formFactor": "mobile",
+    "runs": [
+      100,
+      100,
+      100
+    ],
     "performance": 100,
     "accessibility": 100,
     "bestPractices": 100,
@@ -53,68 +73,74 @@
     "tbt": "40 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T20:46:58.599Z"
+    "fetchTime": "2026-10-28T21:04:09.598Z"
   },
   {
     "host": "localhost:4173",
     "route": "/projects",
     "formFactor": "mobile",
+    "runs": [
+      100,
+      100,
+      100
+    ],
     "performance": 100,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100,
     "lcp": "1.1 s",
-    "tbt": "40 ms",
+    "tbt": "60 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T20:47:10.991Z"
+    "fetchTime": "2026-10-28T21:04:47.150Z"
   },
   {
     "host": "localhost:4173",
     "route": "/skills",
     "formFactor": "mobile",
-    "performance": 100,
+    "runs": [
+      78,
+      80,
+      80
+    ],
+    "performance": 80,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100,
-    "lcp": "1.1 s",
-    "tbt": "50 ms",
+    "lcp": "5.4 s",
+    "tbt": "40 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T20:49:02.889Z"
+    "fetchTime": "2026-10-28T21:05:12.254Z"
   },
   {
     "host": "localhost:4173",
     "route": "/stack",
     "formFactor": "mobile",
-    "performance": 100,
+    "runs": [
+      80,
+      80,
+      100
+    ],
+    "performance": 80,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100,
-    "lcp": "1.1 s",
-    "tbt": "50 ms",
+    "lcp": "5.4 s",
+    "tbt": "40 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T20:47:36.682Z"
+    "fetchTime": "2026-10-28T21:06:15.498Z"
   },
   {
     "host": "localhost:4173",
     "route": "/stats",
     "formFactor": "mobile",
-    "performance": 100,
-    "accessibility": 100,
-    "bestPractices": 100,
-    "seo": 100,
-    "lcp": "1.1 s",
-    "tbt": "50 ms",
-    "cls": "0",
-    "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T20:47:49.322Z"
-  },
-  {
-    "host": "localhost:4173",
-    "route": "/contact",
-    "formFactor": "mobile",
+    "runs": [
+      97,
+      100,
+      100
+    ],
     "performance": 100,
     "accessibility": 100,
     "bestPractices": 100,
@@ -123,6 +149,25 @@
     "tbt": "40 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T20:48:02.136Z"
+    "fetchTime": "2026-10-28T21:06:40.769Z"
+  },
+  {
+    "host": "localhost:4173",
+    "route": "/contact",
+    "formFactor": "mobile",
+    "runs": [
+      80,
+      100,
+      100
+    ],
+    "performance": 100,
+    "accessibility": 100,
+    "bestPractices": 100,
+    "seo": 100,
+    "lcp": "1.1 s",
+    "tbt": "40 ms",
+    "cls": "0",
+    "lighthouse": "13.6.0",
+    "fetchTime": "2026-10-28T21:07:05.830Z"
   }
 ]

@@ -14,31 +14,31 @@ const PUBLIC = fileURLToPath(new URL("../public/", import.meta.url));
 const OG_HTML = `<!doctype html><html><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#0a0d12;color:#e6e9ef;font-family:Inter,system-ui,sans-serif}
-  .bg{position:absolute;inset:0;background:radial-gradient(55% 50% at 72% 30%,rgba(61,139,253,.38),transparent 70%),radial-gradient(45% 45% at 18% 85%,rgba(45,212,191,.2),transparent 70%),linear-gradient(160deg,#0a0f1a 0%,#0b1220 45%,#060a12 100%)}
-  .ribbons{position:absolute;inset:-20%;background:linear-gradient(115deg,transparent 44%,rgba(61,139,253,.09) 44%,rgba(61,139,253,.09) 50%,transparent 50%),linear-gradient(115deg,transparent 54%,rgba(45,212,191,.06) 54%,rgba(45,212,191,.06) 57%,transparent 57%)}
-  .panel{position:absolute;left:0;right:0;top:0;height:44px;background:rgba(13,16,22,.92);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:14px;padding:0 18px;font-size:16px;color:#e6e9ef}
-  .panel .sq{width:16px;height:16px;border-radius:4px;background:#3d8bfd}
+  html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#0b0a08;color:#f1ebdf;font-family:Inter,system-ui,sans-serif}
+  .bg{position:absolute;inset:0;background:radial-gradient(55% 50% at 72% 30%,rgba(245,183,59,.38),transparent 70%),radial-gradient(45% 45% at 18% 85%,rgba(232,116,59,.2),transparent 70%),linear-gradient(160deg,#120e08 0%,#17110a 45%,#0a0806 100%)}
+  .ribbons{position:absolute;inset:-20%;background:linear-gradient(115deg,transparent 44%,rgba(245,183,59,.09) 44%,rgba(245,183,59,.09) 50%,transparent 50%),linear-gradient(115deg,transparent 54%,rgba(232,116,59,.06) 54%,rgba(232,116,59,.06) 57%,transparent 57%)}
+  .panel{position:absolute;left:0;right:0;top:0;height:44px;background:rgba(14,12,9,.92);border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:14px;padding:0 18px;font-size:16px;color:#f1ebdf}
+  .panel .sq{width:16px;height:16px;border-radius:4px;background:#f5b73b}
   .panel .sep{width:1px;height:18px;background:rgba(255,255,255,.12)}
-  .panel .clock{margin-left:auto;font-family:'JetBrains Mono',monospace;color:#9aa3b2}
-  .icons{position:absolute;left:24px;top:70px;display:flex;flex-direction:column;gap:22px;font-size:13px;text-align:center;color:#e6e9ef;text-shadow:0 1px 2px #000}
+  .panel .clock{margin-left:auto;font-family:'JetBrains Mono',monospace;color:#b3a893}
+  .icons{position:absolute;left:24px;top:70px;display:flex;flex-direction:column;gap:22px;font-size:13px;text-align:center;color:#f1ebdf;text-shadow:0 1px 2px #000}
   .icons div{width:84px;display:flex;flex-direction:column;align-items:center;gap:8px}
-  .folder{width:44px;height:34px;border-radius:4px;background:linear-gradient(180deg,#6aaaff,#3d8bfd);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
-  .file{width:34px;height:42px;border-radius:3px;background:linear-gradient(180deg,#eef2f7,#cfd7e2);clip-path:polygon(0 0,68% 0,100% 24%,100% 100%,0 100%)}
-  .win{position:absolute;left:170px;top:92px;width:960px;height:470px;border-radius:10px;background:rgba(23,26,33,.985);border:1px solid rgba(255,255,255,.09);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 40px 90px -30px rgba(0,0,0,.95);overflow:hidden}
-  .bar{height:40px;background:#12151b;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:15px;color:#e6e9ef;font-weight:500;position:relative}
+  .folder{width:44px;height:34px;border-radius:4px;background:linear-gradient(180deg,#ffd36a,#f5b73b);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+  .file{width:34px;height:42px;border-radius:3px;background:linear-gradient(180deg,#f6efe0,#d8ccb3);clip-path:polygon(0 0,68% 0,100% 24%,100% 100%,0 100%)}
+  .win{position:absolute;left:170px;top:92px;width:960px;height:470px;border-radius:10px;background:rgba(23,20,15,.985);border:1px solid rgba(255,255,255,.09);box-shadow:0 0 0 1px rgba(0,0,0,.5),0 40px 90px -30px rgba(0,0,0,.95);overflow:hidden}
+  .bar{height:40px;background:#110f0b;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:15px;color:#f1ebdf;font-weight:500;position:relative}
   .bar .ctl{position:absolute;right:12px;display:flex;gap:6px}
   .bar .ctl span{width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,.06)}
   .bar .ctl span:last-child{background:#e5484d}
-  .path{height:36px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);font-family:'JetBrains Mono',monospace;font-size:14px;color:#9aa3b2}
+  .path{height:36px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);font-family:'JetBrains Mono',monospace;font-size:14px;color:#b3a893}
   .path span{padding:3px 10px;border-radius:4px;background:rgba(255,255,255,.05)}
-  .path span.cur{background:rgba(61,139,253,.2);color:#cfe3ff}
+  .path span.cur{background:rgba(245,183,59,.2);color:#ffe9b8}
   .body{padding:44px 56px;display:flex;flex-direction:column;align-items:flex-start}
-  h1{font-weight:700;font-size:92px;letter-spacing:-.03em;margin:0 0 10px;text-shadow:0 0 40px rgba(61,139,253,.3)}
-  .sub{font-size:24px;color:#3d8bfd;font-weight:600}
-  .tag{font-size:24px;color:#9aa3b2;margin-top:22px}
+  h1{font-weight:700;font-size:92px;letter-spacing:-.03em;margin:0 0 10px;text-shadow:0 0 40px rgba(245,183,59,.3)}
+  .sub{font-size:24px;color:#f5b73b;font-weight:600}
+  .tag{font-size:24px;color:#b3a893;margin-top:22px}
   .prompt{margin-top:34px;font-family:'JetBrains Mono',monospace;font-size:18px;line-height:1.5}
-  .g{color:#4ade80}.b{color:#3d8bfd;font-weight:600}.w{color:#e6e9ef;font-weight:600}
+  .g{color:#8fd16b}.b{color:#f5b73b;font-weight:600}.w{color:#f1ebdf;font-weight:600}
 </style></head><body>
 <div class="bg"></div><div class="ribbons"></div>
 <div class="panel"><span class="sq"></span><span class="sep"></span><span>profile.md — Text Editor</span><span class="clock">09:41</span></div>

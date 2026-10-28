@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import { Avatar } from "@/components/ui/Avatar";
 import { Mail } from "lucide-react";
 import { AppWindow } from "@/components/ui/AppWindow";
 import { TechIcon } from "@/components/ui/TechIcon";
@@ -46,7 +46,7 @@ export default function AboutPage() {
       <div className="grid gap-10 md:grid-cols-[15rem_1fr] md:gap-12">
         <aside className="flex flex-col items-start gap-5">
           <div className="relative size-36 rounded-md border border-accent/40 p-1 shadow-glow">
-            <Image src="/avatar.jpg" alt={`GitHub avatar of ${site.developer.handle}`} width={256} height={256} className="size-full rounded-sm object-cover" priority />
+            <Avatar size={144} priority className="size-full rounded-sm" />
           </div>
           <div>
             <p className="font-mono text-sm tracking-wider text-glow">{site.developer.handle}</p>

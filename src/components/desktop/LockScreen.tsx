@@ -2,6 +2,7 @@
 
 import { Power } from "lucide-react";
 import { site } from "@/config/site";
+import { Avatar } from "@/components/ui/Avatar";
 import { useExperience, type Mode } from "@/components/experience/ExperienceProvider";
 import { cn } from "@/lib/cn";
 
@@ -24,6 +25,7 @@ export function LockScreen({ onEnter, ready, leaving }: Props) {
       className={cn("safe-x safe-b pointer-events-none relative flex min-h-dvh flex-col items-center justify-center px-6 pt-16 pb-24 text-center", leaving && "fade-out")}
       aria-busy={leaving}
     >
+      <Avatar size={72} priority className="mb-5 size-[4.5rem] rounded-full border-2 border-accent/60 shadow-glow" />
       <p className="mb-6 text-xs font-medium text-accent">
         {site.system.toLowerCase()} v{site.version} · locked
       </p>

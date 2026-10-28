@@ -48,7 +48,7 @@ Final state reviewed at 390x844, 768x1024, 1280x720 and 1440x900: lock screen (3
 
 ## Performance (Lighthouse 13, simulated throttling)
 
-Mobile = Moto G Power emulation, 4x CPU slowdown, slow 4G. Full reports are regenerated locally (`qa/lighthouse/*.report.html`, git-ignored); `qa/lighthouse/summary.json` is committed.
+Mobile = Moto G Power emulation, 4x CPU slowdown, slow 4G. The table is measured against the **live deployment** (https://0x496c6b696e.pages.dev); each route is audited three times and the median run is kept (per-run performance scores are listed in `qa/lighthouse/summary.json`, which is committed; the full reports are regenerated locally and git-ignored).
 
 | Route | Form factor | Perf | A11y | Best practices | SEO | LCP | TBT | CLS |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -62,7 +62,7 @@ Mobile = Moto G Power emulation, 4x CPU slowdown, slow 4G. Full reports are rege
 | `/contact` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 40 ms | 0 |
 | `/` | desktop | 97 | 100 | 100 | 100 | 0.3 s | 110 ms | 0 |
 
-Targets from the brief (90 / 95 / 95 / 95 on mobile) are met on every audited route. The lock screen now paints only Inter above the fold (the small status line used the mono face before, and the second font file on slow 4G pushed the simulated LCP to 5 s). Lighthouse's simulated LCP on the window pages occasionally jumps to about 5.5 s in one run out of three with identical observed timings (TTFB 5 ms, render delay 380 ms); that is the Lantern estimate folding the font and script requests into the LCP graph, and re-running settles at 1.1 s.
+Targets from the brief (90 / 95 / 95 / 95 on mobile) are met on every audited route. The lock screen now paints only Inter above the fold (the small status line used the mono face before, and the second font file on slow 4G pushed the simulated LCP to 5 s). Against localhost the simulated LCP flips between 1.1 s and about 5.5 s from run to run with identical observed paints (about 0.4 s): with no network latency the script chunks arrive at 20 ms and sometimes start hydrating a few milliseconds before the first paint, so the Lantern estimate folds the whole script graph into the LCP. Inlining the stylesheet (`experimental.inlineCss`) did not change the odds and quadrupled the HTML, so it was reverted. Over a real network the paint always lands first, which is why the live deployment is what is measured and reported, as the median of three runs.
 
 ### What keeps the numbers there
 
@@ -81,7 +81,7 @@ Targets from the brief (90 / 95 / 95 / 95 on mobile) are met on every audited ro
 
 ## Security review
 
-- No runtime network requests other than same-origin assets. No cookies, no analytics, no third-party scripts or fonts at runtime.
+- The only cross-origin request at runtime is the avatar image from `avatars.githubusercontent.com` (allowed in `img-src`, `referrerpolicy=no-referrer`, falls back to the build-time copy). No cookies, no analytics, no third-party scripts or fonts at runtime.
 - `_headers` sets CSP (`default-src 'self'`, inline scripts/styles allowed only because static export has no nonces), `X-Frame-Options: DENY`, `nosniff`, referrer and permissions policies.
 - External links hardened (`target="_blank" rel="noopener noreferrer"`), verified by test.
 - `verify-export.mjs` scans the output for GitHub, Anthropic and AWS token patterns on every build.
@@ -94,5 +94,5 @@ After each push, the Chromium suites run against production (`BASE_URL=https://0
 ## Not verified / limitations
 
 - Real-device testing (actual phones, Safari on iOS) was not possible from this machine; WebKit coverage is Playwright's desktop WebKit build.
-- Lighthouse ran against localhost, so CDN latency and HTTPS costs are not included.
+- Lighthouse runs from this machine against the CDN; results from other regions will differ slightly.
 - The desk view is only exercised in Chromium (WebGL); the 3D hit targets are checked through the hint they produce, not pixel by pixel.

@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 
 const USER = "0x496C6B696E";
 const OUT = fileURLToPath(new URL("../src/data/github.snapshot.json", import.meta.url));
+const AVATAR = fileURLToPath(new URL("../public/avatar.jpg", import.meta.url));
 const API = "https://api.github.com";
 
 const headers = {
@@ -96,6 +97,16 @@ try {
 
   await writeFile(OUT, JSON.stringify(snapshot, null, 2) + "\n");
   console.log(`[github] snapshot updated: ${own.length} own repositories, ${Object.keys(languages).length} languages`);
+
+  // The avatar is loaded live in the browser; this copy is the fallback and is refreshed on every build.
+  try {
+    const res = await fetch(`${user.avatar_url}&s=512`, { signal: AbortSignal.timeout(15_000) });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    await writeFile(AVATAR, Buffer.from(await res.arrayBuffer()));
+    console.log("[github] avatar fallback refreshed: public/avatar.jpg");
+  } catch (err) {
+    console.warn(`[github] avatar download failed (${err instanceof Error ? err.message : String(err)}); keeping the committed avatar.jpg`);
+  }
 } catch (err) {
   const reason = err instanceof Error ? err.message : String(err);
   if (await hasSnapshot()) console.warn(`[github] fetch failed (${reason}); using committed snapshot`);
