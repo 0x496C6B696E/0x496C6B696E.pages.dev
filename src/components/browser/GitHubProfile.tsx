@@ -19,7 +19,7 @@ export function GitHubProfile() {
   const recent = recentRepos(8).filter((r) => !r.fork);
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[16rem_1fr] lg:gap-12">
+    <div className="grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-12">
       <aside className="flex flex-col gap-4">
         <Avatar size={256} priority className="size-40 rounded-full border border-edge lg:size-64" />
         <div>
