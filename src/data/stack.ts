@@ -3,9 +3,9 @@
  * `source` says where each item was observed. Icons are Simple Icons export names (CC0);
  * items without a matching icon fall back to a two-letter monogram in the UI.
  */
-export type ArmamentCategory = "weapons" | "spells" | "armor" | "runes";
+export type ToolCategory = "languages" | "frameworks" | "infra" | "tools";
 
-export interface ArmamentItem {
+export interface ToolItem {
   name: string;
   /** Simple Icons export name, e.g. "siPython". Omit for monogram fallback. */
   icon?: string;
@@ -13,20 +13,20 @@ export interface ArmamentItem {
   source: readonly string[];
 }
 
-export interface ArmamentGroup {
-  key: ArmamentCategory;
+export interface ToolGroup {
+  key: ToolCategory;
   title: string;
   subtitle: string;
   flavor: string;
-  items: readonly ArmamentItem[];
+  items: readonly ToolItem[];
 }
 
 const P = "profile README";
 const R = (name: string) => `repo: ${name}`;
 
-export const armament: readonly ArmamentGroup[] = [
+export const toolchain: readonly ToolGroup[] = [
   {
-    key: "weapons",
+    key: "languages",
     title: "Languages",
     subtitle: "Programming languages",
     flavor: "What the code is written in.",
@@ -43,7 +43,7 @@ export const armament: readonly ArmamentGroup[] = [
     ],
   },
   {
-    key: "spells",
+    key: "frameworks",
     title: "Frameworks",
     subtitle: "Frameworks & libraries",
     flavor: "What the code stands on.",
@@ -62,7 +62,7 @@ export const armament: readonly ArmamentGroup[] = [
     ],
   },
   {
-    key: "armor",
+    key: "infra",
     title: "Infrastructure",
     subtitle: "Infrastructure & DevOps",
     flavor: "What keeps it running at 3am.",
@@ -82,7 +82,7 @@ export const armament: readonly ArmamentGroup[] = [
     ],
   },
   {
-    key: "runes",
+    key: "tools",
     title: "Data & tools",
     subtitle: "Databases & developer tools",
     flavor: "Where state lives and how it gets edited.",

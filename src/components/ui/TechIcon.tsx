@@ -87,7 +87,7 @@ export function TechIcon({ icon, name, className }: { icon?: string; name: strin
   const si = icon ? TECH_ICONS[icon] : undefined;
   if (!si) {
     return (
-      <span className={cn("display grid place-items-center text-[0.7em] leading-none text-gold", className)} aria-hidden="true">
+      <span className={cn("display grid place-items-center text-[0.7em] leading-none text-accent", className)} aria-hidden="true">
         {monogram(name)}
       </span>
     );

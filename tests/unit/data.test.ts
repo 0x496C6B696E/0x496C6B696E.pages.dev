@@ -2,9 +2,9 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { destinationFor, destinations } from "@/config/site";
-import { quests, questRepoUrl } from "@/data/projects";
-import { armament } from "@/data/stack";
-import { attributes } from "@/data/skills";
+import { projects, projectRepoUrl } from "@/data/projects";
+import { toolchain } from "@/data/stack";
+import { capabilities } from "@/data/skills";
 import { github, languageShares, recentRepos } from "@/data/github";
 import { TECH_ICONS, monogram } from "@/components/ui/TechIcon";
 
@@ -23,16 +23,16 @@ describe("destinations", () => {
   });
 });
 
-describe("quests", () => {
+describe("projects", () => {
   it("have unique slugs that equal their repository names", () => {
-    expect(new Set(quests.map((q) => q.slug)).size).toBe(quests.length);
-    for (const q of quests) expect(q.slug).toBe(q.repo);
+    expect(new Set(projects.map((q) => q.slug)).size).toBe(projects.length);
+    for (const q of projects) expect(q.slug).toBe(q.repo);
   });
   it("link to the developer's own GitHub", () => {
-    for (const q of quests) expect(questRepoUrl(q)).toMatch(GH);
+    for (const q of projects) expect(projectRepoUrl(q)).toMatch(GH);
   });
   it("ship every referenced image with dimensions", () => {
-    for (const q of quests)
+    for (const q of projects)
       for (const img of q.images ?? []) {
         expect(existsSync(join(PUBLIC, img.src))).toBe(true);
         expect(img.width).toBeGreaterThan(0);
@@ -41,17 +41,17 @@ describe("quests", () => {
       }
   });
   it("contain no placeholder copy", () => {
-    const text = JSON.stringify(quests).toLowerCase();
+    const text = JSON.stringify(projects).toLowerCase();
     expect(text).not.toMatch(/lorem|todo|tbd|coming soon/);
   });
 });
 
-describe("armament", () => {
+describe("toolchain", () => {
   it("only references icons that are bundled", () => {
-    for (const group of armament) for (const item of group.items) if (item.icon) expect(TECH_ICONS[item.icon], `${item.name} -> ${item.icon}`).toBeDefined();
+    for (const group of toolchain) for (const item of group.items) if (item.icon) expect(TECH_ICONS[item.icon], `${item.name} -> ${item.icon}`).toBeDefined();
   });
   it("names every source", () => {
-    for (const group of armament) for (const item of group.items) expect(item.source.length).toBeGreaterThan(0);
+    for (const group of toolchain) for (const item of group.items) expect(item.source.length).toBeGreaterThan(0);
   });
   it("builds readable monograms", () => {
     expect(monogram("Django REST Framework")).toBe("DR");
@@ -60,9 +60,9 @@ describe("armament", () => {
   });
 });
 
-describe("attributes", () => {
+describe("capabilities", () => {
   it("keep levels inside 0..100 and evidence on GitHub", () => {
-    for (const a of attributes) {
+    for (const a of capabilities) {
       expect(a.level).toBeGreaterThanOrEqual(0);
       expect(a.level).toBeLessThanOrEqual(100);
       for (const e of a.evidence) expect(e.href).toMatch(GH);

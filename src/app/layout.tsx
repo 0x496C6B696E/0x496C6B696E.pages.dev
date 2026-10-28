@@ -4,13 +4,14 @@ import "./globals.css";
 import { site } from "@/config/site";
 import { ExperienceProvider } from "@/components/experience/ExperienceProvider";
 import { Backdrop } from "@/components/experience/Backdrop";
-import { Taskbar } from "@/components/hud/Taskbar";
+import { Dock } from "@/components/dock/Dock";
 import { Terminal } from "@/components/terminal/Terminal";
+import { GlobalKeys } from "@/components/experience/GlobalKeys";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const jetbrains = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "600"],
   variable: "--font-jetbrains",
   display: "swap",
 });
@@ -52,7 +53,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0c0f",
+  themeColor: "#0a0d12",
   colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
@@ -83,10 +84,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main" className="relative z-10">
             {children}
           </main>
-          <Taskbar />
+          <Dock />
           <Terminal />
+          <GlobalKeys />
         </ExperienceProvider>
-        <div className="crt" aria-hidden="true" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }} />
       </body>
     </html>

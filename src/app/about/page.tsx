@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Mail } from "lucide-react";
-import { Panel } from "@/components/ui/Panel";
+import { AppWindow } from "@/components/ui/AppWindow";
 import { TechIcon } from "@/components/ui/TechIcon";
-import { SigilDecoder } from "@/components/about/SigilDecoder";
+import { HandleDecoder } from "@/components/about/HandleDecoder";
 import { site } from "@/config/site";
 import { github, languageShares, totals } from "@/data/github";
-import { quests } from "@/data/projects";
+import { projects } from "@/data/projects";
 import { formatMonth, yearsBetween } from "@/lib/format";
 
 export const metadata: Metadata = {
@@ -36,20 +36,20 @@ export default function AboutPage() {
   const since = github.user?.createdAt ?? site.developer.since;
   const years = yearsBetween(since);
   const numbers: Array<{ value: string; label: string }> = [
-    { value: String(quests.length), label: "public projects" },
+    { value: String(projects.length), label: "public projects" },
     { value: String(languageShares(50).length), label: "languages across repos" },
     { value: years === 0 ? "<1" : String(years), label: years === 1 ? "year on GitHub" : "years on GitHub" },
     { value: String(totals.stars), label: totals.stars === 1 ? "star received" : "stars received" },
   ];
   return (
-    <Panel slug="about" title="Profile" lede="The operator of this machine: a backend and systems engineer who likes services that outlive their on-call shift.">
+    <AppWindow slug="about" title="Profile" lede="The operator of this machine: a backend and systems engineer who likes services that outlive their on-call shift.">
       <div className="grid gap-10 md:grid-cols-[15rem_1fr] md:gap-12">
         <aside className="flex flex-col items-start gap-5">
-          <div className="relative size-36 rounded-md border border-gold/40 p-1 shadow-ember">
+          <div className="relative size-36 rounded-md border border-accent/40 p-1 shadow-glow">
             <Image src="/avatar.jpg" alt={`GitHub avatar of ${site.developer.handle}`} width={256} height={256} className="size-full rounded-sm object-cover" priority />
           </div>
           <div>
-            <p className="font-mono text-sm tracking-wider text-flare">{site.developer.handle}</p>
+            <p className="font-mono text-sm tracking-wider text-glow">{site.developer.handle}</p>
             <p className="display mt-1 text-lg text-ink">{site.developer.title}</p>
             <p className="mt-2 text-sm text-ash">On GitHub since {formatMonth(since)}</p>
           </div>
@@ -84,10 +84,10 @@ export default function AboutPage() {
             <h2 id="readme" className="eyebrow mb-4">
               readme · in the developer&apos;s own words
             </h2>
-            <ul className="prose-bonfire grid gap-3">
+            <ul className="prose grid gap-3">
               {site.developer.creed.map((line) => (
                 <li key={line} className="flex gap-3">
-                  <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-gold shadow-[0_0_8px_rgb(255_180_84/0.9)]" aria-hidden="true" />
+                  <span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-accent shadow-[0_0_8px_rgb(94_225_255/0.8)]" aria-hidden="true" />
                   <span>{line}</span>
                 </li>
               ))}
@@ -115,7 +115,7 @@ export default function AboutPage() {
             <ol className="grid gap-3 sm:grid-cols-2">
               {method.map((m) => (
                 <li key={m.step} className="card flex gap-4 p-4">
-                  <span className="display text-2xl leading-none text-gold/70">{m.step}</span>
+                  <span className="display text-2xl leading-none text-accent/70">{m.step}</span>
                   <div>
                     <h3 className="display text-[0.95rem] text-ink">{m.title}</h3>
                     <p className="mt-1.5 text-sm text-ash">{m.text}</p>
@@ -125,9 +125,9 @@ export default function AboutPage() {
             </ol>
           </section>
 
-          <SigilDecoder handle={site.developer.handle} />
+          <HandleDecoder handle={site.developer.handle} />
         </div>
       </div>
-    </Panel>
+    </AppWindow>
   );
 }

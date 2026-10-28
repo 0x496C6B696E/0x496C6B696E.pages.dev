@@ -3,20 +3,20 @@
 import { useState } from "react";
 import { Tabs } from "@/components/ui/Tabs";
 import { TechIcon } from "@/components/ui/TechIcon";
-import { armament, type ArmamentCategory } from "@/data/stack";
+import { toolchain, type ToolCategory } from "@/data/stack";
 import { cn } from "@/lib/cn";
 
-const TABS = armament.map((g) => ({ id: g.key, label: g.title }));
+const TABS = toolchain.map((g) => ({ id: g.key, label: g.title }));
 
-export function Armory() {
-  const [category, setCategory] = useState<ArmamentCategory>("weapons");
-  const [selected, setSelected] = useState<string>(armament[0].items[0].name);
+export function ToolchainPanel() {
+  const [category, setCategory] = useState<ToolCategory>("languages");
+  const [selected, setSelected] = useState<string>(toolchain[0].items[0].name);
 
-  const group = armament.find((g) => g.key === category)!;
+  const group = toolchain.find((g) => g.key === category)!;
   const item = group.items.find((i) => i.name === selected) ?? group.items[0];
 
   const changeCategory = (id: string) => {
-    const next = armament.find((g) => g.key === id)!;
+    const next = toolchain.find((g) => g.key === id)!;
     setCategory(next.key);
     setSelected(next.items[0].name);
   };
@@ -26,7 +26,7 @@ export function Armory() {
       <div className="flex flex-col gap-2">
         <Tabs tabs={TABS} value={category} onChange={changeCategory} label="Toolchain categories" />
         <p className="text-sm text-ash">
-          <span className="text-gold">{group.subtitle}.</span> {group.flavor}
+          <span className="text-accent">{group.subtitle}.</span> {group.flavor}
         </p>
       </div>
 
@@ -44,10 +44,10 @@ export function Armory() {
                   aria-controls="armory-inspect"
                   className={cn(
                     "card card-interactive flex min-h-24 w-full flex-col items-center justify-center gap-2 p-3 text-center",
-                    active && "border-gold/60 shadow-ember",
+                    active && "border-accent/60 shadow-glow",
                   )}
                 >
-                  <span className={cn("grid size-9 place-items-center transition-colors", active ? "text-flare" : "text-ink/80")}>
+                  <span className={cn("grid size-9 place-items-center transition-colors", active ? "text-glow" : "text-ink/80")}>
                     <TechIcon icon={it.icon} name={it.name} className="size-7" />
                   </span>
                   <span className="text-[0.72rem] leading-tight text-ink">{it.name}</span>
@@ -61,12 +61,12 @@ export function Armory() {
         <aside id="armory-inspect" key={item.name} className="card rise-in flex flex-col gap-3 p-5 [animation-duration:0.3s] lg:sticky lg:top-24 lg:self-start" aria-live="polite">
           <p className="eyebrow">Inspect</p>
           <div className="flex items-center gap-3">
-            <span className="grid size-11 place-items-center rounded-sm border border-edge bg-abyss/60 text-flare">
+            <span className="grid size-11 place-items-center rounded-sm border border-edge bg-void/60 text-glow">
               <TechIcon icon={item.icon} name={item.name} className="size-6" />
             </span>
             <div>
               <h2 className="display text-lg text-ink">{item.name}</h2>
-              <p className="text-xs text-gold">
+              <p className="text-xs text-accent">
                 {group.title} · {group.subtitle}
               </p>
             </div>

@@ -9,7 +9,7 @@ export default function NotFound() {
     <section className="panel mx-auto mt-10 mb-24 w-[min(100%-1.5rem,40rem)]" aria-labelledby="nf-title">
       <div className="titlebar">
         <span>
-          <span className="text-flare">sh</span> <span className="text-dust">—</span> exit 404
+          <span className="text-glow">sh</span> <span className="text-dust">—</span> exit 404
         </span>
       </div>
       <div className="p-8 text-center md:p-12">

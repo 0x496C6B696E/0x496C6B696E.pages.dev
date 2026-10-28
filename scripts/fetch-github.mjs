@@ -8,7 +8,7 @@
  * - If GITHUB_TOKEN is set in the build environment it is sent as a bearer token. It is
  *   only ever read here, in Node, and never reaches the browser bundle.
  * - Any failure keeps the committed snapshot so a build never breaks on API trouble.
- * - Set BONFIREOS_SKIP_GITHUB=1 to skip the network entirely (tests, offline builds).
+ * - Set SKIP_GITHUB_SNAPSHOT=1 to skip the network entirely (tests, offline builds).
  */
 import { readFile, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -19,7 +19,7 @@ const API = "https://api.github.com";
 
 const headers = {
   Accept: "application/vnd.github+json",
-  "User-Agent": "bonfireos-build",
+  "User-Agent": "workstation-build",
   ...(process.env.GITHUB_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {}),
 };
 
@@ -44,8 +44,8 @@ async function writeEmpty(reason) {
   console.warn(`[github] ${reason}; wrote an empty snapshot so the build can continue`);
 }
 
-if (process.env.BONFIREOS_SKIP_GITHUB === "1") {
-  if (await hasSnapshot()) console.log("[github] skipped (BONFIREOS_SKIP_GITHUB=1); using committed snapshot");
+if (process.env.SKIP_GITHUB_SNAPSHOT === "1") {
+  if (await hasSnapshot()) console.log("[github] skipped (SKIP_GITHUB_SNAPSHOT=1); using committed snapshot");
   else await writeEmpty("skipped and no snapshot existed");
   process.exit(0);
 }

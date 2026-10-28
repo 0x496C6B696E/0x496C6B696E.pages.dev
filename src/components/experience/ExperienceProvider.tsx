@@ -1,11 +1,11 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 export type Mode = "immersive" | "explorer";
-/** Where the visitor is: the dark camp, the lit hub, or inside a destination panel. */
-export type Stage = "entry" | "hub" | "panel";
+/** Where the visitor is: the locked machine, the desktop, or inside an app window. */
+export type Stage = "lock" | "desktop" | "window";
 
 interface Experience {
   /** null until mounted (SSR renders a neutral state). */
@@ -21,15 +21,19 @@ interface Experience {
   mounted: boolean;
   terminalOpen: boolean;
   setTerminalOpen: (open: boolean) => void;
-  /** Procedural fire ambience; always starts off and is only enabled by a user gesture. */
+  /** Procedural room tone; always starts off and is only enabled by a user gesture. */
   sound: boolean;
   setSound: (on: boolean) => void;
+  /** Fired when something other than the lock-screen button asks to power on (the 3D tower button). */
+  requestPower: () => void;
+  /** Subscribe to power requests; returns the unsubscribe function. */
+  onPower: (listener: () => void) => () => void;
 }
 
 const ExperienceContext = createContext<Experience | null>(null);
 
-const MODE_KEY = "bonfireos:mode";
-const ENTERED_KEY = "bonfireos:entered";
+const MODE_KEY = "workstation:mode";
+const ENTERED_KEY = "workstation:entered";
 
 function readStorage(storage: Storage, key: string): string | null {
   try {
@@ -57,6 +61,7 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
   const [lowPower, setLowPower] = useState(false);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [sound, setSound] = useState(false);
+  const powerListeners = useRef(new Set<() => void>());
 
   // Capability detection must happen after hydration (window is needed and the server
   // cannot know the answer), so a one-time setState in an effect is the correct tool here.
@@ -71,7 +76,7 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
     const small = window.matchMedia("(max-width: 767px)").matches;
 
     const stored = readStorage(localStorage, MODE_KEY);
-    // Phones start in Explorer (CSS camp) to keep the first load light; the toggle still offers 3D.
+    // Phones start in Explorer (CSS wallpaper) to keep the first load light; the dock toggle offers 3D.
     const defaultMode: Mode = !motion && !saveData && !weak && !small ? "immersive" : "explorer";
 
     setReducedMotion(motion);
@@ -82,7 +87,7 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
   }, []);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  // Deep-linking into a destination counts as having entered the camp.
+  // Deep-linking into an app counts as having powered on.
   const deepLinked = pathname !== "/";
   useEffect(() => {
     if (deepLinked) writeStorage(sessionStorage, ENTERED_KEY, "1");
@@ -103,7 +108,17 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
     setModeState("explorer");
   }, []);
 
-  const stage: Stage = deepLinked ? "panel" : entered ? "hub" : "entry";
+  const requestPower = useCallback(() => {
+    for (const listener of powerListeners.current) listener();
+  }, []);
+  const onPower = useCallback((listener: () => void) => {
+    powerListeners.current.add(listener);
+    return () => {
+      powerListeners.current.delete(listener);
+    };
+  }, []);
+
+  const stage: Stage = deepLinked ? "window" : entered ? "desktop" : "lock";
   const effectiveEntered = entered || deepLinked;
 
   const value = useMemo<Experience>(
@@ -122,8 +137,10 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
       setTerminalOpen,
       sound,
       setSound,
+      requestPower,
+      onPower,
     }),
-    [mode, webgl, setMode, effectiveEntered, enter, stage, reducedMotion, disableWebgl, lowPower, mounted, terminalOpen, sound],
+    [mode, webgl, setMode, effectiveEntered, enter, stage, reducedMotion, disableWebgl, lowPower, mounted, terminalOpen, sound, requestPower, onPower],
   );
 
   return <ExperienceContext.Provider value={value}>{children}</ExperienceContext.Provider>;

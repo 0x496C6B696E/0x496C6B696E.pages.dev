@@ -1,5 +1,5 @@
-import { HubExperience } from "@/components/hub/HubExperience";
+import { Session } from "@/components/desktop/Session";
 
 export default function HomePage() {
-  return <HubExperience />;
+  return <Session />;
 }

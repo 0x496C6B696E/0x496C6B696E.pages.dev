@@ -3,9 +3,9 @@
  * Every fact here was read from github.com/0x496C6B696E on 2026-10-28.
  * Last-activity and archived state are joined at build time from github.snapshot.json.
  */
-export type QuestType = "Automation" | "Data Pipeline" | "Backend Service" | "Systems" | "Tooling" | "Creative";
+export type ProjectType = "Automation" | "Data Pipeline" | "Backend Service" | "Systems" | "Tooling" | "Creative";
 
-export interface QuestImage {
+export interface ProjectImage {
   src: string;
   alt: string;
   caption: string;
@@ -13,14 +13,14 @@ export interface QuestImage {
   height: number;
 }
 
-export interface Quest {
+export interface Project {
   /** URL slug and GitHub repository name (identical on purpose). */
   slug: string;
   /** Plain, descriptive title. */
   title: string;
   /** Repository name shown as the record name. */
   repo: string;
-  type: QuestType;
+  type: ProjectType;
   language: string;
   summary: string;
   description: string;
@@ -28,12 +28,12 @@ export interface Quest {
   highlights: readonly string[];
   license?: string;
   homepage?: string;
-  images?: readonly QuestImage[];
+  images?: readonly ProjectImage[];
 }
 
 const GH = "https://github.com/0x496C6B696E";
 
-export const quests: readonly Quest[] = [
+export const projects: readonly Project[] = [
   {
     slug: "ai-agent-gunluk-teknoloji-bulteni",
     title: "Daily Hacker News digest agent",
@@ -160,10 +160,10 @@ export const quests: readonly Quest[] = [
   },
 ] as const;
 
-export function questBySlug(slug: string): Quest | undefined {
-  return quests.find((q) => q.slug === slug);
+export function projectBySlug(slug: string): Project | undefined {
+  return projects.find((q) => q.slug === slug);
 }
 
-export function questRepoUrl(q: Quest): string {
+export function projectRepoUrl(q: Project): string {
   return `${GH}/${q.repo}`;
 }

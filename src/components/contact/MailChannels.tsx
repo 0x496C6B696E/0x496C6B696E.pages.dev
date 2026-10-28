@@ -31,7 +31,7 @@ export function MailChannels() {
   return (
     <div className="grid items-start gap-8 lg:grid-cols-[18rem_1fr]">
       <pre className="card overflow-x-auto p-5 font-mono text-[0.78rem] leading-7 text-ash" aria-label="Contact summary">
-        <span className="text-flare">$ cat mail.msg</span>
+        <span className="text-glow">$ cat mail.msg</span>
         {"\n"}channels   <span className="text-ink">2</span> (github, email)
         {"\n"}forms      <span className="text-ink">0</span>
         {"\n"}trackers   <span className="text-ink">0</span>
@@ -44,7 +44,7 @@ export function MailChannels() {
           <li className="card card-interactive flex flex-col gap-3 p-5">
             <p className="eyebrow">channel 01 · code</p>
             <h2 className="display flex items-center gap-2 text-lg text-ink">
-              <TechIcon icon="siGithub" name="GitHub" className="size-5 text-flare" />
+              <TechIcon icon="siGithub" name="GitHub" className="size-5 text-glow" />
               GitHub
             </h2>
             <p className="font-mono text-sm text-ash">{site.developer.handle}</p>
@@ -59,7 +59,7 @@ export function MailChannels() {
           <li className="card card-interactive flex flex-col gap-3 p-5">
             <p className="eyebrow">channel 02 · direct</p>
             <h2 className="display flex items-center gap-2 text-lg text-ink">
-              <TechIcon icon="siProton" name="Proton Mail" className="size-5 text-flare" />
+              <TechIcon icon="siProton" name="Proton Mail" className="size-5 text-glow" />
               Email
             </h2>
             <p className="font-mono text-sm break-all text-ash" data-testid="email">
@@ -72,7 +72,7 @@ export function MailChannels() {
                 Write
               </a>
               <button type="button" className="btn" onClick={copyAddress} aria-live="polite">
-                {copy === "copied" ? <Check className="size-3.5 text-flare" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
+                {copy === "copied" ? <Check className="size-3.5 text-glow" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
                 {copy === "copied" ? "Copied" : "Copy address"}
               </button>
             </div>

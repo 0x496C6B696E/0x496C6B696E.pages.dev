@@ -47,7 +47,7 @@ Nothing in the repository is secret. `src/data/github.snapshot.json` is committe
    | `NODE_VERSION` | `24` | matches the lockfile and `@types/node` |
    | `NEXT_PUBLIC_SITE_URL` | `https://<project>.pages.dev` (later your custom domain) | canonical URLs, Open Graph, sitemap, robots |
    | `GITHUB_TOKEN` | optional, a fine-grained token with no scopes | only raises the API rate limit for the build script; never shipped to the browser |
-   | `BONFIREOS_SKIP_GITHUB` | optional `1` | skip the API entirely and use the committed snapshot |
+   | `SKIP_GITHUB_SNAPSHOT` | optional `1` | skip the API entirely and use the committed snapshot |
 
 5. **Save and Deploy**. The first deployment takes about two minutes; the site is served over HTTPS at `https://<project>.pages.dev`.
 

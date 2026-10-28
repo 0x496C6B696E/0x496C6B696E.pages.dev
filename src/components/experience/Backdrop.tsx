@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 // The WebGL room is only ever downloaded when a visitor is actually going to see it.
 const WorkstationScene = dynamic(() => import("@/components/scene/WorkstationScene"), { ssr: false });
 
-/** If the renderer cannot be created (no WebGL, blocked GPU), fall back to the CSS room for good. */
+/** If the renderer cannot be created (no WebGL, blocked GPU), fall back to the CSS wallpaper for good. */
 class SceneBoundary extends Component<{ onFail: () => void; children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() {
@@ -24,7 +24,7 @@ class SceneBoundary extends Component<{ onFail: () => void; children: ReactNode 
 }
 
 export function Backdrop() {
-  const { mode, webgl, mounted, stage, reducedMotion, lowPower, disableWebgl } = useExperience();
+  const { mode, webgl, mounted, stage, reducedMotion, lowPower, disableWebgl, requestPower } = useExperience();
   const [idle, setIdle] = useState(false);
 
   // Let the first paint (wordmark, power button) land before pulling in three.js.
@@ -37,18 +37,21 @@ export function Backdrop() {
   const show3d = immersive && idle;
 
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden" aria-hidden="true" data-backdrop={immersive ? "3d" : "css"}>
-      <RoomFallback animated={mounted && !reducedMotion && !immersive} />
+    <div className="fixed inset-0 z-0 overflow-hidden" data-backdrop={immersive ? "3d" : "css"}>
+      <div aria-hidden="true" className="absolute inset-0">
+        <RoomFallback animated={mounted && !reducedMotion && !immersive} />
+      </div>
       {show3d && (
         <SceneBoundary onFail={disableWebgl}>
-          <WorkstationScene stage={stage} reducedMotion={reducedMotion} lowPower={lowPower} onContextLost={disableWebgl} />
+          <WorkstationScene stage={stage} reducedMotion={reducedMotion} lowPower={lowPower} onContextLost={disableWebgl} onPowerOn={requestPower} />
         </SceneBoundary>
       )}
-      <div className="vignette" />
+      <div className="vignette" aria-hidden="true" />
       <div
+        aria-hidden="true"
         className={cn(
-          "absolute inset-0 bg-abyss/75 transition-opacity duration-500 ease-[var(--ease-soft)]",
-          stage === "panel" ? "opacity-100" : "pointer-events-none opacity-0",
+          "absolute inset-0 bg-void/70 transition-opacity duration-500 ease-[var(--ease-soft)]",
+          stage === "window" ? "opacity-100" : "pointer-events-none opacity-0",
         )}
       />
     </div>

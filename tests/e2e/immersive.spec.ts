@@ -21,14 +21,14 @@ test.describe("immersive mode", () => {
     await page.screenshot({ path: `qa/screenshots/projects-immersive-${isMobile ? "pixel7" : "1280x720"}.jpg`, type: "jpeg", quality: 82 });
   });
 
-  test("the standby screen over the 3D room, then the boot log", async ({ page, isMobile }) => {
+  test("the lock screen over the 3D room, then the boot log", async ({ page, isMobile }) => {
     test.skip(isMobile, "desktop framing check");
-    await page.addInitScript(() => localStorage.setItem("bonfireos:mode", "immersive"));
+    await page.addInitScript(() => localStorage.setItem("workstation:mode", "immersive"));
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
     await expect(page.locator("[data-scene]")).toHaveAttribute("data-scene", "ready", { timeout: 15_000 });
     await page.waitForTimeout(2500);
-    await page.screenshot({ path: "qa/screenshots/standby-immersive-1440x900.jpg", type: "jpeg", quality: 82 });
+    await page.screenshot({ path: "qa/screenshots/lock-immersive-1440x900.jpg", type: "jpeg", quality: 82 });
     await page.getByTestId("enter").click();
     // the boot log runs with real counts, then the desktop appears
     await expect(page.getByTestId("boot")).toBeVisible({ timeout: 3_000 });
@@ -37,7 +37,7 @@ test.describe("immersive mode", () => {
     await expect(page.getByRole("navigation", { name: "Destinations" })).toBeVisible({ timeout: 10_000 });
     await page.waitForTimeout(3000);
     await page.screenshot({ path: "qa/screenshots/desktop-immersive-1440x900.jpg", type: "jpeg", quality: 82 });
-    await page.getByRole("link", { name: /^telemetry/i }).hover();
+    await page.getByRole("navigation", { name: "Destinations" }).getByRole("link", { name: /^telemetry/i }).hover();
     await page.waitForTimeout(400);
     await page.screenshot({ path: "qa/screenshots/desktop-immersive-hover-1440x900.jpg", type: "jpeg", quality: 82 });
   });

@@ -2,33 +2,7 @@
 
 Date: 2026-10-28 · Build: Next.js 16.4.3 static export (`out/`) · Machine: Windows 11, Node 24.21
 
-## Round 3: re-theme to the workstation (2026-10-28, evening)
-
-The owner asked for the dark-fantasy camp to become a computer-themed experience. Routes, data files, the static pipeline and the test harness stayed; the presentation layer and all copy were replaced: a 3D room (desk, CRT with a canvas-drawn screen, keyboard, tower, racks, lamp, dust), a standby screen with POWER ON, a BIOS-style boot log, a desktop with six files, window chrome with a title bar and status line, a bottom taskbar with path and clock, and a shell prompt `0x496c6b696e@workstation:~$`.
-
-| Check | Result |
-| --- | --- |
-| TypeScript, ESLint (React Compiler rules) | pass |
-| Vitest | 24 passed in 3 files (terminal parser, boot log, data, formatting) |
-| Playwright, 4 projects | **183 passed**, 0 failed, 30 skipped by design |
-| Lighthouse mobile `/`, `/about`, `/skills`, `/projects`, `/stack`, `/stats` | 100 / 100 / 100 / 100 each (TBT 40 to 80 ms, CLS 0) |
-| Lighthouse mobile `/contact` | 96 / 100 / 100 / 100 (LCP 2.2 s: the mono summary block is the largest paint) |
-| Lighthouse desktop `/` | 98 / 100 / 100 / 100 |
-
-Visual QA findings in this round and their fixes:
-
-| Finding | Fix |
-| --- | --- |
-| The whole monitor rendered as a bright orange block: the bezel box's front face sat 5 mm in front of the glass plane, hiding the screen texture, and the amber glow light overexposed the beige plastic. | Glass moved to the frontmost z, bezel and body pushed back, light intensity 2.2 -> 0.7, darker plastics. |
-| Behind the desktop and windows the typed shell log on the 3D screen competed with the real UI. | The screen painter has two modes: typed log at standby, dim phosphor grid once the machine is on. |
-| Dust particles close to the camera rendered as grey squares over the UI. | Round sprite texture and the dust kept to the lamp side of the desk, away from the camera path. |
-| The fixed taskbar covered a window's status line when scrolled to the bottom (clicks landed on the taskbar). | Padding below the window instead of a collapsible margin, plus `scroll-padding-bottom`. |
-| On phones in Explorer mode the CSS monitor was a small box behind the icons. | Under 768 px the CSS glass fills the viewport and the desk/racks are hidden. |
-| Icon-only links (window close, taskbar close) failed the link-name check. | The check reads the accessible name (`aria-label` or text). |
-
-Reviewed at 390x844, 768x1024, 1280x720 and 1440x900: standby, boot, desktop (Immersive and Explorer), Profile, Projects, a project window, Toolchain, Telemetry, Mail. Screenshots in `qa/screenshots/`.
-
-Everything below was executed against the **exported** site served by `scripts/serve-out.mjs` (Cloudflare-like static serving), not the dev server.
+Everything below was executed against the **exported** site served by `scripts/serve-out.mjs` (Cloudflare-like static serving), not the dev server, and then re-run against the live deployment.
 
 ## Automated checks
 
@@ -36,40 +10,39 @@ Everything below was executed against the **exported** site served by `scripts/s
 | --- | --- | --- |
 | TypeScript strict | `npm run typecheck` | pass |
 | ESLint (next/core-web-vitals, typescript, React Compiler rules) | `npm run lint` | pass, 0 warnings |
-| Unit tests (Vitest) | `npm test` | 17 passed in 2 files |
+| Unit tests (Vitest) | `npm test` | 24 passed in 3 files (data integrity, formatting, terminal parser, boot log) |
 | Production build + export verification | `npm run build` | 17 routes, 21 required files present, no placeholder text, no secrets |
-| End-to-end (Playwright 1.64) | `npm run test:e2e` | **186 passed**, 0 failed, 30 skipped by design (WebGL and viewport sweeps run in Chromium only) across Chromium, Firefox, WebKit and Pixel 7 emulation |
+| End-to-end (Playwright 1.64) | `npm run test:e2e` | **183 passed**, 0 failed, 30 skipped by design (WebGL and viewport sweeps run in Chromium only) across Chromium, Firefox, WebKit and Pixel 7 emulation |
 
 ### What the e2e suite covers
 
-- Entry screen -> ENTER -> hub; Skip -> Explorer mode remembered across reload.
-- Every destination opens from the hub, shows its title, and Escape returns to the bonfire.
-- Keyboard: Tab/arrow roving focus between waystones, Enter travels, panel footer prev/next, tab lists with arrow keys, skip link.
-- Deep links render real data (`/projects/CreateOS` -> repository link, breadcrumb).
-- Armory inspection, character sheet tabs, contact page has only verified channels and no form.
+- Lock screen -> POWER ON -> boot log -> desktop; Skip boot -> Explorer mode remembered across reload.
+- Every file opens from the desktop, shows its title, and Escape closes the window back to the desktop.
+- Keyboard: Tab/arrow roving focus between desktop icons, Enter opens, window status line prev/next, tab lists with arrow keys, skip link.
+- Deep links render real data (`/projects/CreateOS` -> repository link, breadcrumb path).
+- Terminal end to end: backtick opens, `ls`, `cd toolchain`, `open scanner`, Escape closes without leaving the page; dock toggles for terminal and sound.
+- Toolchain inspection, capability tabs, mail page has only verified channels and no form.
 - 404 page for unknown paths with the correct HTTP status.
 - Console errors, page errors and failed requests on all 13 routes: none.
-- Every internal link resolves 200; every external link opens in a new tab with `rel="noopener"`; no nameless links or buttons; no `<img>` without `alt`.
+- Every internal link resolves 200; every external link opens in a new tab with `rel="noopener"`; every link and button has an accessible name; no `<img>` without `alt`.
 - One `<main id="main">` and one `<h1>` per page; sitemap lists every route; robots and `_headers` exported.
 - No horizontal overflow at 320, 375, 390, 768, 1024, 1440, 1920 px wide, plus 844x390 landscape and 390x1400 tall, on all routes.
-- Touch targets on the hub are at least 44 px tall at 375 px.
-- Immersive mode: canvas mounts, scene reports ready, survives navigation into a panel, toggle switches to CSS scene and back, reduced motion skips the kindling.
+- Touch targets on the desktop are at least 44 px tall at 375 px.
+- Immersive mode: canvas mounts, scene reports ready, survives navigation into a window, dock toggle switches to the CSS wallpaper and back, reduced motion skips the boot.
 
 ## Visual QA loop
 
-Screenshots live in `qa/screenshots/` (about 30 JPEGs at device scale 1, regenerated by `npm run qa:shots` plus the Chromium immersive tests). Each round: capture -> inspect -> fix code -> capture again.
+Screenshots live in `qa/screenshots/` (about 30 JPEGs at device scale 1, regenerated by `npm run qa:shots` plus the Chromium immersive tests). Each round: capture -> inspect -> fix code -> capture again. Findings from the final round on the modern workstation theme:
 
-| Round | Finding | Fix |
-| --- | --- | --- |
-| 1 | Segment-prefetch files 404ed on every client navigation (Windows-only export file naming). | `scripts/normalize-export.mjs` flattens the nested files post-build. |
-| 1 | Fire core was a large pale blob hiding the logs; ruins read as flat black bars. | Core radius 0.25 -> 0.13, lighter stone material, hemisphere + faint directional light. |
-| 1 | On the entry screen the fire sat directly behind the ENTER button. | Entry camera looks higher so the fire sits in the lower third under the button. |
-| 2 | Repository name in the dossier fact list broke mid-word (`AI-Driven-Crawling-I / ngestion`). | `overflow-wrap: anywhere` instead of `break-all`. |
-| 2 | HUD mode toggle and Return link had incomplete accessible names on phones (visible text hidden under `sm`). | Constant `aria-label`s; visible text is decorative. |
-| 3 | Lighthouse: Armory `<li>` orphaned because the list carried `role="tabpanel"`. | Tabpanel wrapper div around a plain `<ul>`. |
-| 3 | Panel fade-in via JS hid server-rendered text until hydration (LCP 10.9 s on throttled mobile). | CSS `panel-in` animation; entry screen no longer starts invisible. |
+| Finding | Fix |
+| --- | --- |
+| Window pages scored 76 on mobile with a simulated LCP of 6.8 s although the observed LCP was 0.8 s: the window entrance faded text in from `opacity: 0`, which Chrome does not count as an LCP candidate, so Lighthouse fell back to a pessimistic estimate. | The window entrance animates transform only; text is a valid LCP candidate from first paint. |
+| Escape sometimes did nothing in WebKit right after a client-side navigation: the per-window key listener attached a frame too late. | Escape handling moved to a persistent `GlobalKeys` component in the layout. |
+| On phones the dock overflowed (ten items) and hid the mode toggle. | The six app shortcuts are hidden below `sm`; the desktop grid and window status line cover navigation there. |
+| Desktop icon and dock link for the same app shared a name, which made unscoped locators ambiguous. | Tests scope to the Destinations navigation. |
+| The 3D panel repeated the wordmark that the HTML lock screen already shows. | The panel keeps only the wallpaper and a breathing dot. |
 
-Final state reviewed at 390x844, 768x1024 and 1440x900 for hub (Explorer and Immersive), entry, about, skills, projects, dossier, stack, stats, contact: aligned, no clipping, readable contrast, consistent corner ornaments, no layering issues.
+Final state reviewed at 390x844, 768x1024, 1280x720 and 1440x900: lock screen (3D room and CSS wallpaper), boot, desktop (Immersive and Explorer), Profile, Capabilities, Projects, a project window, Toolchain, Telemetry, Mail. Aligned, no clipping, readable contrast, consistent glass chrome, dock never covers content.
 
 ## Performance (Lighthouse 13, simulated throttling)
 
@@ -77,35 +50,30 @@ Mobile = Moto G Power emulation, 4x CPU slowdown, slow 4G. Full reports are rege
 
 | Route | Form factor | Perf | A11y | Best practices | SEO | LCP | TBT | CLS |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `/` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 80 ms | 0 |
-| `/about` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 40 ms | 0.001 |
-| `/skills` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 50 ms | 0.001 |
-| `/projects` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 50 ms | 0.001 |
-| `/projects/CreateOS` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 40 ms | 0.001 |
-| `/stack` | mobile | 100 | 100 | 100 | 100 | 1.3 s | 50 ms | 0.001 |
-| `/stats` | mobile | 100 | 100 | 100 | 100 | 1.3 s | 80 ms | 0.001 |
-| `/contact` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 90 ms | 0.001 |
-| `/` | desktop | 100 | 100 | 100 | 100 | 0.3 s | 0 ms | 0 |
-| `/projects` | desktop | 100 | 100 | 100 | 100 | 0.3 s | 0 ms | 0.001 |
+| `/` (lock screen) | mobile | 96 | 100 | 100 | 100 | 2.2 s | 90 ms | 0 |
+| `/about` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 40 ms | 0.007 |
+| `/skills` | mobile | 100 | 100 | 100 | 100 | 1.3 s | 40 ms | 0.007 |
+| `/projects` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 40 ms | 0.007 |
+| `/stack` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 40 ms | 0.007 |
+| `/stats` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 50 ms | 0.007 |
+| `/contact` | mobile | 100 | 100 | 100 | 100 | 1.1 s | 40 ms | 0.007 |
+| `/` | desktop | 97 | 100 | 100 | 100 | 0.3 s | 100 ms | 0 |
 
-Targets from the brief (90 / 95 / 95 / 95 on mobile) are met on every audited route.
+Targets from the brief (90 / 95 / 95 / 95 on mobile) are met on every audited route. The lock screen's 2.2 s LCP is the large Inter heading re-painting when the web font arrives (`font-display: swap`); the fallback paints at 1.1 s.
 
-### What moved the numbers
+### What keeps the numbers there
 
-1. **WebGL capability probe removed** (TBT 1.3 to 1.8 s -> 40 to 90 ms). Creating a throwaway WebGL context on mount cost a 1.6 s long task under throttling. The scene now reports failure through an error boundary instead.
-2. **Phones default to Explorer mode**, so three.js (about 244 KB gzipped) is never on the first-load path on small screens. The HUD toggle opts in and the choice is remembered.
-3. **CSS instead of a JS animation library** for panel/hub entrances: server-rendered text paints before hydration (LCP 10.9 s -> 1.1 s on panel pages) and about 47 KB gzipped of JavaScript left the bundle.
-
-### Bundle on a content page (mobile, gzip transfer)
-
-About 490 to 550 KB of JavaScript transfer is reported by Lighthouse, of which ~39 KB is the `nomodule` polyfill chunk that modern browsers download but never execute. Three.js and the scene (~244 KB) load only in Immersive mode on desktop.
+1. Phones default to Explorer mode, so three.js (about 240 KB gzipped) is never on the first-load path on small screens; the dock toggle opts in and the choice is remembered.
+2. No WebGL capability probe at start-up; the scene reports failure through an error boundary instead.
+3. CSS-only UI motion, no animation library; window entrances never start from `opacity: 0`.
+4. The 3D room drops to a 4 to 8 fps demand loop while a window is open.
 
 ## Accessibility notes
 
-- Contrast: all text tokens on panel surfaces are >= 4.5:1 except `dust` (hints), which is kept at 12 px+ and never used for essential information.
-- Focus is always visible (2 px gold outline). Tab order follows the visual order; hub supports arrow keys.
-- All motion is CSS and collapses under `prefers-reduced-motion`; the cinematic transition is skippable and absent in Explorer mode.
-- Screen-reader users get the destination's plain label next to its fantasy name, `sr-only` "Previous/Next destination" prefixes, and live regions for the inspect card and copied-address state.
+- Contrast: all text tokens on window surfaces are >= 4.5:1 except `dust` (hints), which is kept at 12 px+ and never used for essential information.
+- Focus is always visible (2 px cyan outline). Tab order follows the visual order; the desktop supports arrow keys.
+- All motion is CSS and collapses under `prefers-reduced-motion`; the boot sequence is skippable and absent in Explorer mode.
+- Screen-reader users get the app's plain label next to its name, `sr-only` "Previous/Next destination" prefixes, live regions for the inspect card and copied-address state, and `aria-current` on the dock.
 - WebKit note: Safari does not move keyboard focus onto links by default; the skip link test focuses it directly there and asserts the behaviour.
 
 ## Security review
@@ -116,46 +84,11 @@ About 490 to 550 KB of JavaScript transfer is reported by Lighthouse, of which ~
 - `verify-export.mjs` scans the output for GitHub, Anthropic and AWS token patterns on every build.
 - Dependencies: `npm audit` reported 0 vulnerabilities at install time.
 
-## Round 2: world-anchored hub, kindling log, terminal, ambience (2026-10-28)
+## Live deployment check (https://0x496c6b696e.pages.dev)
 
-After reviewing the reference portfolio the camp gained standing stones that carry the navigation links, a camera dolly toward the chosen stone, a boot-log transition with real counts, a command terminal, a procedural fire ambience toggle, ash, a moon, a textured ground, more ruins, an attribute radar and denser About content. New checks: terminal commands end to end (backtick, `ls`, `warp`, `open`, Escape), HUD toggles, kindling log visibility, six projected waystone transforms, hover screenshot. Unit tests for the terminal parser and the kindling line generator.
-
-| Check | Result |
-| --- | --- |
-| TypeScript, ESLint (React Compiler rules) | pass |
-| Vitest | 23 passed in 3 files |
-| Playwright, 4 projects | **183 passed**, 0 failed, 30 skipped by design |
-| Lighthouse mobile `/`, `/about`, `/skills` | 99 / 100 / 100 / 100 · 100 / 100 / 100 / 100 · 99 / 100 / 100 / 100 (TBT 40 to 90 ms) |
-| Lighthouse desktop `/` | 99 / 100 / 100 / 100 |
-
-Visual QA findings in this round and their fixes:
-
-| Finding | Fix |
-| --- | --- |
-| Anchored waystones all rendered at the top-left corner: the entrance keyframe animation (`transform: none`, fill `both`) overrode the inline projected transform. | Entrance animation moved from the positioned wrapper to the link inside it. |
-| The HUD bar (full-width gradient) swallowed clicks on far waystones that sat under it. | HUD is `pointer-events: none`; only its controls catch pointer events. |
-| Links never became "stable" because the camera breathed continuously, and near stones crowded the screen edges or overlapped each other at 1024 to 1440 px. | Breathing drift limited to the entry camp; anchors quantised to half pixels and published only on change; ring turned into an ellipse (deeper far side), far plaques above the stone, near plaques at the foot; the near-centre stone is short so it never hides the flames. |
-| Hydration races in WebKit/Firefox/mobile (Escape or backtick pressed before React attached listeners). | Tests wait for a client-only HUD control before pressing keys. |
-| Six parallel software-WebGL browsers starved each other and produced spurious timeouts. | Playwright workers capped at 6 locally. |
-
-## Live deployment check (2026-10-28, https://bonfireos.pages.dev)
-
-After the owner connected the repository to Cloudflare Pages, the same checks ran against the production URL (`BASE_URL=https://bonfireos.pages.dev npm run test:e2e`).
-
-| Check | Result |
-| --- | --- |
-| Playwright, Chromium + Pixel 7 projects | 97 passed, 0 failed |
-| Security headers applied by Cloudflare from `_headers` | CSP, `X-Frame-Options: DENY`, `nosniff`, referrer and permissions policies all present on `/` |
-| Segment prefetch files | served correctly (Linux build; the Windows normalisation step is not needed there) |
-
-| Route | Form factor | Perf | A11y | Best practices | SEO | LCP | TBT | TTFB |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `/` | mobile | 99 | 100 | 100 | 100 | 0.9 s | 120 ms | 30 ms |
-| `/projects` | mobile | 99 | 100 | 100 | 100 | 0.9 s | 120 ms | 20 ms |
-| `/skills` | mobile | 100 | 100 | 100 | 100 | 0.9 s | 70 ms | 40 ms |
-| `/` | desktop | 99 | 100 | 100 | 100 | 0.3 s | 10 ms | |
+After each push, the Chromium suites run against production (`BASE_URL=https://0x496c6b696e.pages.dev npm run test:e2e`); Cloudflare applies `_headers` as real response headers (CSP, `X-Frame-Options: DENY`, `nosniff`, referrer and permissions policies verified on `/`). Results of the latest live run are recorded in the commit that deployed them.
 
 ## Not verified / limitations
 
 - Real-device testing (actual phones, Safari on iOS) was not possible from this machine; WebKit coverage is Playwright's desktop WebKit build.
-- Firefox and WebKit projects ran against the local export only; the live run covered Chromium and mobile Chromium.
+- Lighthouse ran against localhost, so CDN latency and HTTPS costs are not included.

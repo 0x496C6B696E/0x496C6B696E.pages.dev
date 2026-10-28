@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ExternalLink } from "lucide-react";
-import { Panel } from "@/components/ui/Panel";
+import { AppWindow } from "@/components/ui/AppWindow";
 import { TechIcon } from "@/components/ui/TechIcon";
 import { site } from "@/config/site";
 import { github, languageShares, recentRepos, totals } from "@/data/github";
@@ -20,7 +20,7 @@ export default function StatsPage() {
 
   if (!user) {
     return (
-      <Panel slug="stats" title="Telemetry" lede="Public GitHub numbers, captured when the site was built.">
+      <AppWindow slug="stats" title="Telemetry" lede="Public GitHub numbers, captured when the site was built.">
         <div className="card p-6">
           <h2 className="display text-xl text-ink">github.log is empty</h2>
           <p className="mt-2 text-sm text-ash">The GitHub API could not be reached during this build, so no statistics are shown rather than showing stale or invented ones.</p>
@@ -29,7 +29,7 @@ export default function StatsPage() {
             Open the GitHub profile
           </a>
         </div>
-      </Panel>
+      </AppWindow>
     );
   }
 
@@ -42,7 +42,7 @@ export default function StatsPage() {
   ];
 
   return (
-    <Panel slug="stats" title="Telemetry" lede="Public GitHub numbers, captured when the site was built. Nothing here is estimated." wide>
+    <AppWindow slug="stats" title="Telemetry" lede="Public GitHub numbers, captured when the site was built. Nothing here is estimated." wide>
       <p className="mb-6 font-mono text-xs text-dust">
         snapshot {snapshotDate} · public GitHub API · no authentication, no tracking, no live requests from your browser
       </p>
@@ -54,7 +54,7 @@ export default function StatsPage() {
         <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {cards.map((c) => (
             <li key={c.label} className="card flex flex-col gap-1 p-4 sm:p-5">
-              <p className="font-mono text-[0.65rem] tracking-[0.14em] text-gold uppercase">{c.label}</p>
+              <p className="font-mono text-[0.65rem] tracking-[0.14em] text-accent uppercase">{c.label}</p>
               <p className="display text-glow text-2xl text-ink sm:text-3xl">{c.value}</p>
               <p className="text-xs text-ash">{c.note}</p>
             </li>
@@ -95,7 +95,7 @@ export default function StatsPage() {
             {recent.map((r) => (
               <li key={r.name} className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
                 <div className="flex items-baseline justify-between gap-3">
-                  <a href={r.htmlUrl} target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-flare underline decoration-gold/30 underline-offset-4 hover:decoration-gold">
+                  <a href={r.htmlUrl} target="_blank" rel="noopener noreferrer" className="font-mono text-sm text-glow underline decoration-accent/30 underline-offset-4 hover:decoration-accent">
                     {r.name}
                   </a>
                   <time dateTime={r.pushedAt} className="shrink-0 font-mono text-xs text-ash">
@@ -120,6 +120,6 @@ export default function StatsPage() {
           <ExternalLink className="size-3" aria-hidden="true" />
         </a>
       </div>
-    </Panel>
+    </AppWindow>
   );
 }

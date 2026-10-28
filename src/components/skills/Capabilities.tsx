@@ -3,16 +3,16 @@
 import { useEffect, useState } from "react";
 import { ExternalLink, Info } from "lucide-react";
 import { Tabs } from "@/components/ui/Tabs";
-import { AttributeRadar } from "./AttributeRadar";
-import { attributes, creed } from "@/data/skills";
+import { CapabilityRadar } from "./CapabilityRadar";
+import { capabilities, creed } from "@/data/skills";
 
 const TABS = [
-  { id: "attributes", label: "Capabilities" },
+  { id: "capabilities", label: "Capabilities" },
   { id: "creed", label: "Creed" },
 ] as const;
 
-export function CharacterSheet() {
-  const [tab, setTab] = useState<string>("attributes");
+export function Capabilities() {
+  const [tab, setTab] = useState<string>("capabilities");
   const [grown, setGrown] = useState(false);
 
   // Bars grow from zero after mount; CSS handles the easing and reduced motion.
@@ -26,14 +26,14 @@ export function CharacterSheet() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <Tabs tabs={TABS} value={tab} onChange={setTab} label="Capability sections" />
         <p className="flex items-start gap-2 text-xs text-ash sm:max-w-sm">
-          <Info className="mt-0.5 size-3.5 shrink-0 text-gold" aria-hidden="true" />
+          <Info className="mt-0.5 size-3.5 shrink-0 text-accent" aria-hidden="true" />
           Levels are a self-assessment, not certifications or benchmarks. Evidence links point to public repositories.
         </p>
       </div>
 
-      <div role="tabpanel" id="panel-attributes" aria-labelledby="tab-attributes" hidden={tab !== "attributes"} className="grid gap-4 lg:grid-cols-2">
+      <div role="tabpanel" id="panel-capabilities" aria-labelledby="tab-capabilities" hidden={tab !== "capabilities"} className="grid gap-4 lg:grid-cols-2">
         <div className="lg:col-span-2 lg:grid lg:grid-cols-[22rem_1fr] lg:gap-4">
-          <AttributeRadar />
+          <CapabilityRadar />
           <div className="card mt-4 flex flex-col justify-center gap-3 p-5 lg:mt-0">
             <h2 className="display text-lg text-ink">How to read this</h2>
             <p className="text-sm text-ash">
@@ -43,13 +43,13 @@ export function CharacterSheet() {
             <p className="text-sm text-ash">Every card below links to a public repository where that capability was actually exercised.</p>
           </div>
         </div>
-        {attributes.map((a) => (
+        {capabilities.map((a) => (
           <article key={a.key} className="card p-5">
             <header className="flex items-baseline justify-between gap-4">
               <h2 className="display text-lg text-ink">
-                {a.name} <span className="font-mono text-xs font-normal text-gold">· {a.meaning}</span>
+                {a.name} <span className="font-mono text-xs font-normal text-accent">· {a.meaning}</span>
               </h2>
-              <span className="font-mono text-sm text-flare" aria-label={`Level ${a.level} of 100`}>
+              <span className="font-mono text-sm text-glow" aria-label={`Level ${a.level} of 100`}>
                 {a.level}
                 <span className="text-dust">/100</span>
               </span>
@@ -68,7 +68,7 @@ export function CharacterSheet() {
             <ul className="mt-3 flex flex-col gap-1" aria-label={`Evidence for ${a.name}`}>
               {a.evidence.map((e) => (
                 <li key={e.href + e.label}>
-                  <a href={e.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-flare underline decoration-gold/40 underline-offset-4 hover:decoration-gold">
+                  <a href={e.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs text-glow underline decoration-accent/40 underline-offset-4 hover:decoration-accent">
                     {e.label}
                     <ExternalLink className="size-3" aria-hidden="true" />
                     <span className="sr-only">(opens GitHub in a new tab)</span>

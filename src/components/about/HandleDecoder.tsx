@@ -4,15 +4,15 @@ import { useState } from "react";
 import { cn } from "@/lib/cn";
 
 /** Splits a 0x-prefixed hex handle into byte pairs and their ASCII letters. */
-export function decodeSigil(handle: string): Array<{ hex: string; char: string }> {
+export function decodeHandle(handle: string): Array<{ hex: string; char: string }> {
   const hex = handle.replace(/^0x/i, "");
   const pairs = hex.match(/.{2}/g) ?? [];
   return pairs.map((pair) => ({ hex: pair.toUpperCase(), char: String.fromCharCode(parseInt(pair, 16)) }));
 }
 
-export function SigilDecoder({ handle }: { handle: string }) {
+export function HandleDecoder({ handle }: { handle: string }) {
   const [revealed, setRevealed] = useState(false);
-  const bytes = decodeSigil(handle);
+  const bytes = decodeHandle(handle);
 
   return (
     <section aria-labelledby="sigil" className="card p-5">
@@ -26,7 +26,7 @@ export function SigilDecoder({ handle }: { handle: string }) {
           <span key={i} className="flex flex-col items-center gap-1">
             <span
               className={cn(
-                "display text-xl text-flare transition-[opacity,transform] duration-300 ease-(--ease-soft)",
+                "display text-xl text-glow transition-[opacity,transform] duration-300 ease-(--ease-soft)",
                 revealed ? "translate-y-0 opacity-100" : "translate-y-1.5 opacity-0",
               )}
               style={{ transitionDelay: revealed ? `${i * 80}ms` : "0ms" }}
@@ -34,7 +34,7 @@ export function SigilDecoder({ handle }: { handle: string }) {
             >
               {b.char}
             </span>
-            <span className="rounded-sm border border-edge bg-abyss/60 px-2 py-1 text-sm text-ink">{b.hex}</span>
+            <span className="rounded-sm border border-edge bg-void/60 px-2 py-1 text-sm text-ink">{b.hex}</span>
           </span>
         ))}
       </div>

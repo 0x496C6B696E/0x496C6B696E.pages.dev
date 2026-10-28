@@ -1,26 +1,24 @@
 # TODO / implementation state
 
-Last updated: 2026-10-28 (evening). All ten phases of the brief have been executed, and the site was then re-themed from a dark-fantasy camp to a workstation at the owner's request. This file tracks what is done, what was deliberately left out, and where a resumed session should start.
+Last updated: 2026-10-28. The site is complete and live. This file tracks what is done, what was deliberately left out, and where a resumed session should start.
 
 ## Done
 
-- [x] Phase 1 Discovery: public profile, README assets, 7 repositories inspected; facts recorded in `src/data`
-- [x] Phase 2 Architecture: Next.js 16 static export, routes per destination, build-time GitHub snapshot (see ARCHITECTURE.md)
-- [x] Phase 3 Design system: tokens, type, window/card/icon/button primitives (DESIGN_SYSTEM.md)
-- [x] Phase 4 Entry: standby screen, POWER ON, skippable BIOS boot log with real counts, Explorer shortcut, reduced-motion path, CSS fallback room
-- [x] Phase 5 Hub: desktop with six files, arrow-key roving focus, Esc closes windows
-- [x] Phase 6 Content: Profile, Capabilities (+ radar), Projects (+6 windows), Toolchain, Telemetry, Mail, 404
-- [x] Phase 7 Polish: procedural 3D room (desk, CRT with canvas-drawn screen, keyboard, tower, racks, lamp, dust, camera dolly into the screen), window chrome, taskbar, OG image, icons
-- [x] Phase 8 QA: 24 unit tests, Playwright checks across Chromium/Firefox/WebKit/Pixel 7, screenshot sweep at 9 viewports (QA_REPORT.md)
-- [x] Phase 9 Optimisation: three.js lazy + demand loop behind windows, phones default to Explorer, no WebGL probe, no animation library
-- [x] Phase 10 Deployment: `out/` verified by script, `_headers`, sitemap/robots, live on Cloudflare Pages at 0x496c6b696e.pages.dev
+- [x] Discovery: public profile and 7 repositories inspected; facts recorded in `src/data`
+- [x] Architecture: Next.js 16 static export, routes per app, build-time GitHub snapshot (see ARCHITECTURE.md)
+- [x] Design system: tokens, type, window/card/icon/dock/button primitives (DESIGN_SYSTEM.md)
+- [x] Entry: lock screen, POWER ON (screen button and the 3D tower button), skippable boot log with real counts, Explorer shortcut, reduced-motion path, CSS wallpaper fallback
+- [x] Desktop: six files, arrow-key roving focus, floating dock available everywhere, Esc closes windows
+- [x] Content: Profile, Capabilities (+ radar), Projects (+6 windows), Toolchain, Telemetry, Mail, 404
+- [x] 3D room: desk, ultrawide with canvas-drawn panel, instanced keyboard with RGB underglow, glass tower with lit fans, speakers, headphone stand, plant, bias lighting, dust, camera dolly into the screen
 - [x] Extras: terminal (`ls`, `cd`, `open`, `stats`, `mode`), Web Audio room tone behind an opt-in toggle
-- [x] Re-theme (2026-10-28): bonfire camp -> workstation. Routes, data, tests and pipeline unchanged; presentation and copy replaced.
+- [x] QA: unit and Playwright suites across Chromium/Firefox/WebKit/Pixel 7, screenshot sweep at 9 viewports, Lighthouse (QA_REPORT.md)
+- [x] Optimisation: three.js lazy + demand loop behind windows, phones default to Explorer, no WebGL probe, no animation library
+- [x] Deployment: `out/` verified by script, `_headers`, sitemap/robots, live on Cloudflare Pages at 0x496c6b696e.pages.dev
 
 ## Deliberately not done
 
 - **GitHub Actions CI**: excluded at the owner's request. `npm run verify` is the local equivalent; Cloudflare Pages builds on push.
-- **Deployment Chronicle / Hidden Runes** (optional extras in the original brief): skipped; the terminal was the one extra that earned its keep.
 - **Contribution graph and GitHub achievements**: need authenticated GraphQL; omitted rather than approximated.
 - **Contact form**: no backend exists, so `mailto:` and GitHub are the only channels (by design).
 - **PWA manifest / offline**: not requested.
@@ -31,8 +29,8 @@ Last updated: 2026-10-28 (evening). All ten phases of the brief have been execut
 - Static export cannot use CSP nonces, so `script-src` includes `'unsafe-inline'` (see DEPLOYMENT.md).
 - `scripts/normalize-export.mjs` exists only because Next.js 16.4 writes segment-prefetch files into nested folders on Windows. Delete it when upstream fixes the separator handling.
 - Capability levels are a self-assessment and are labelled as such in the UI.
-- The `0x496C6B696E` profile repository is listed as a project because it is real public work; remove it from `src/data/projects.ts` if that feels redundant now that the README is plain text.
-- The package name and the local folder are still `bonfireos`; harmless, rename if it bothers you.
+- The `0x496C6B696E` profile repository is listed as a project because it is real public work; remove it from `src/data/projects.ts` if that feels redundant.
+- The local working folder is still named after the project's first codename; the repository, package and site are not.
 
 ## Resume checkpoint
 
@@ -45,4 +43,5 @@ Nothing is half-finished. If you are picking this up:
 ## Ideas for later (not commitments)
 
 - Per-project OG images generated by `scripts/make-assets.mjs`.
-- A "top" command in the terminal that prints the language bars.
+- A `top` command in the terminal that prints the language bars.
+- A second monitor in the 3D room showing the project list.

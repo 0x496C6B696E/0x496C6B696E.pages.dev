@@ -3,7 +3,7 @@
  * Levels are adapted from the developer's own former profile HUD, NOT certifications or
  * benchmarks. The UI says so explicitly.
  */
-export interface Attribute {
+export interface Capability {
   key: string;
   /** Discipline name. */
   name: string;
@@ -18,7 +18,7 @@ export interface Attribute {
 
 const GH = "https://github.com/0x496C6B696E";
 
-export const attributes: readonly Attribute[] = [
+export const capabilities: readonly Capability[] = [
   {
     key: "reliability",
     name: "Reliability",

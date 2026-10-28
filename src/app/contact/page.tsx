@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Panel } from "@/components/ui/Panel";
+import { AppWindow } from "@/components/ui/AppWindow";
 import { MailChannels } from "@/components/contact/MailChannels";
 
 export const metadata: Metadata = {
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <Panel slug="contact" title="Mail" lede="Two verified channels. Pick one.">
+    <AppWindow slug="contact" title="Mail" lede="Two verified channels. Pick one.">
       <MailChannels />
-    </Panel>
+    </AppWindow>
   );
 }

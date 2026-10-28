@@ -2,14 +2,14 @@ import { expect, test } from "@playwright/test";
 import { destinations, site } from "../../src/config/site";
 import { explorerVisitor } from "./helpers";
 
-test("the standby screen powers on into the desktop", async ({ page }) => {
+test("the lock screen powers on into the desktop", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1, name: site.name })).toBeVisible();
   const enter = page.getByTestId("enter");
   await expect(enter).toBeEnabled();
   await enter.click();
   await expect(page.getByRole("navigation", { name: "Destinations" })).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByRole("link", { name: /projects/i })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Destinations" }).getByRole("link", { name: /^projects/i })).toBeVisible();
 });
 
 test("skipping the boot lands in explorer mode immediately", async ({ page }) => {

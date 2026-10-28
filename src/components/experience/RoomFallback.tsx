@@ -1,15 +1,14 @@
 /**
- * CSS-only room: the base layer under the WebGL scene and the whole scene when WebGL is
- * unavailable, reduced motion is requested, or Explorer mode is on. One glowing CRT on a desk,
- * two racks of blinking lights. Static markup, so server and client render identically.
+ * CSS-only backdrop: a modern wallpaper (two slow colour blobs over a faint grid). It is the
+ * base layer under the WebGL room and the whole backdrop when WebGL is unavailable, reduced
+ * motion is requested, or Explorer mode is on. Static markup, so server and client match.
  */
 export function RoomFallback({ animated }: { animated: boolean }) {
   return (
-    <div className="room-scene" data-animated={animated ? "true" : "false"}>
-      <div className="rack" style={{ left: "6%" }} />
-      <div className="rack" style={{ left: "15%" }} />
-      <div className="screen" />
-      <div className="desk" />
+    <div className="wallpaper" data-animated={animated ? "true" : "false"}>
+      <div className="blob blob-a" />
+      <div className="blob blob-b" />
+      <div className="grid" />
     </div>
   );
 }

@@ -3,49 +3,49 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, Star } from "lucide-react";
-import { Panel } from "@/components/ui/Panel";
+import { AppWindow } from "@/components/ui/AppWindow";
 import { TechIcon } from "@/components/ui/TechIcon";
-import { questBySlug, questRepoUrl, quests } from "@/data/projects";
+import { projectBySlug, projectRepoUrl, projects } from "@/data/projects";
 import { repoByName } from "@/data/github";
 import { formatDate } from "@/lib/format";
 
 export function generateStaticParams() {
-  return quests.map((q) => ({ slug: q.slug }));
+  return projects.map((q) => ({ slug: q.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/projects/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const quest = questBySlug(slug);
-  if (!quest) return {};
+  const project = projectBySlug(slug);
+  if (!project) return {};
   return {
-    title: `${quest.title} · ${quest.repo}`,
-    description: quest.summary,
-    alternates: { canonical: `/projects/${quest.slug}` },
-    openGraph: { title: quest.title, description: quest.summary },
+    title: `${project.title} · ${project.repo}`,
+    description: project.summary,
+    alternates: { canonical: `/projects/${project.slug}` },
+    openGraph: { title: project.title, description: project.summary },
   };
 }
 
-export default async function QuestPage({ params }: PageProps<"/projects/[slug]">) {
+export default async function ProjectPage({ params }: PageProps<"/projects/[slug]">) {
   const { slug } = await params;
-  const quest = questBySlug(slug);
-  if (!quest) notFound();
-  const repo = repoByName(quest.repo);
-  const repoUrl = questRepoUrl(quest);
+  const project = projectBySlug(slug);
+  if (!project) notFound();
+  const repo = repoByName(project.repo);
+  const repoUrl = projectRepoUrl(project);
 
   const facts: Array<[string, string]> = [
-    ["Repository", quest.repo],
-    ["Type", quest.type],
-    ["Language", quest.language],
+    ["Repository", project.repo],
+    ["Type", project.type],
+    ["Language", project.language],
   ];
-  if (quest.license ?? repo?.license) facts.push(["Licence", quest.license ?? repo!.license!]);
+  if (project.license ?? repo?.license) facts.push(["Licence", project.license ?? repo!.license!]);
   if (repo) {
     facts.push(["Last push", formatDate(repo.pushedAt)]);
     facts.push(["Status", repo.archived ? "Archived" : "Active"]);
   }
 
   return (
-    <Panel slug="projects" title={quest.title} lede={quest.summary} wide>
-      <Link href="/projects" className="mb-6 inline-flex min-h-11 items-center gap-2 font-mono text-sm text-ash transition-colors hover:text-flare">
+    <AppWindow slug="projects" title={project.title} lede={project.summary} wide>
+      <Link href="/projects" className="mb-6 inline-flex min-h-11 items-center gap-2 font-mono text-sm text-ash transition-colors hover:text-glow">
         <ArrowLeft className="size-4" aria-hidden="true" />
         cd ..
         <span className="sr-only">back to projects</span>
@@ -57,8 +57,8 @@ export default async function QuestPage({ params }: PageProps<"/projects/[slug]"
             <h2 id="overview" className="eyebrow mb-3">
               Overview
             </h2>
-            <div className="prose-bonfire text-[0.98rem]">
-              <p>{quest.description}</p>
+            <div className="prose text-[0.98rem]">
+              <p>{project.description}</p>
             </div>
           </section>
 
@@ -67,22 +67,22 @@ export default async function QuestPage({ params }: PageProps<"/projects/[slug]"
               Highlights
             </h2>
             <ul className="grid gap-2.5">
-              {quest.highlights.map((h) => (
+              {project.highlights.map((h) => (
                 <li key={h} className="flex gap-3 text-sm text-ink/90">
-                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-gold" aria-hidden="true" />
+                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
                   {h}
                 </li>
               ))}
             </ul>
           </section>
 
-          {quest.images && quest.images.length > 0 && (
+          {project.images && project.images.length > 0 && (
             <section aria-labelledby="figures">
               <h2 id="figures" className="eyebrow mb-3">
                 Figures
               </h2>
               <div className="grid gap-4 sm:grid-cols-2">
-                {quest.images.map((img) => (
+                {project.images.map((img) => (
                   <figure key={img.src} className="card overflow-hidden">
                     <Image src={img.src} alt={img.alt} width={img.width} height={img.height} className="h-auto w-full bg-ink" sizes="(min-width: 1024px) 420px, 100vw" />
                     <figcaption className="p-3 text-xs text-ash">{img.caption}</figcaption>
@@ -97,15 +97,15 @@ export default async function QuestPage({ params }: PageProps<"/projects/[slug]"
           <dl className="card grid grid-cols-[auto_1fr] gap-x-4 gap-y-2.5 p-5 text-sm">
             {facts.map(([k, v]) => (
               <div key={k} className="contents">
-                <dt className="font-mono text-xs tracking-wider text-gold uppercase">{k}</dt>
+                <dt className="font-mono text-xs tracking-wider text-accent uppercase">{k}</dt>
                 <dd className={k === "Repository" ? "font-mono text-xs break-words text-ink [overflow-wrap:anywhere]" : "text-ink"}>{v}</dd>
               </div>
             ))}
             {repo && repo.stars > 0 && (
               <div className="contents">
-                <dt className="font-mono text-xs tracking-wider text-gold uppercase">Stars</dt>
+                <dt className="font-mono text-xs tracking-wider text-accent uppercase">Stars</dt>
                 <dd className="inline-flex items-center gap-1 text-ink">
-                  <Star className="size-3.5 text-flare" aria-hidden="true" />
+                  <Star className="size-3.5 text-glow" aria-hidden="true" />
                   {repo.stars}
                 </dd>
               </div>
@@ -117,7 +117,7 @@ export default async function QuestPage({ params }: PageProps<"/projects/[slug]"
               Built with
             </h2>
             <ul className="flex flex-wrap gap-1.5">
-              {quest.tech.map((t) => (
+              {project.tech.map((t) => (
                 <li key={t} className="tag">
                   {t}
                 </li>
@@ -131,8 +131,8 @@ export default async function QuestPage({ params }: PageProps<"/projects/[slug]"
               View on GitHub
               <span className="sr-only">(opens in a new tab)</span>
             </a>
-            {(quest.homepage ?? repo?.homepage) && (
-              <a href={quest.homepage ?? repo!.homepage!} target="_blank" rel="noopener noreferrer" className="btn">
+            {(project.homepage ?? repo?.homepage) && (
+              <a href={project.homepage ?? repo!.homepage!} target="_blank" rel="noopener noreferrer" className="btn">
                 <ExternalLink className="size-4" aria-hidden="true" />
                 Live demo
                 <span className="sr-only">(opens in a new tab)</span>
@@ -141,6 +141,6 @@ export default async function QuestPage({ params }: PageProps<"/projects/[slug]"
           </div>
         </aside>
       </div>
-    </Panel>
+    </AppWindow>
   );
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatDate, formatMonth, formatNumber, yearsBetween } from "@/lib/format";
-import { decodeSigil } from "@/components/about/SigilDecoder";
+import { decodeHandle } from "@/components/about/HandleDecoder";
 
 describe("format", () => {
   it("formats dates and months", () => {
@@ -19,9 +19,9 @@ describe("format", () => {
   });
 });
 
-describe("decodeSigil", () => {
+describe("decodeHandle", () => {
   it("decodes the handle to its ASCII letters", () => {
-    const bytes = decodeSigil("0x496C6B696E");
+    const bytes = decodeHandle("0x496C6B696E");
     expect(bytes.map((b) => b.char).join("")).toBe("Ilkin");
     expect(bytes[0].hex).toBe("49");
   });

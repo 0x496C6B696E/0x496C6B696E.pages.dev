@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { Panel } from "@/components/ui/Panel";
-import { CharacterSheet } from "@/components/skills/CharacterSheet";
+import { AppWindow } from "@/components/ui/AppWindow";
+import { Capabilities } from "@/components/skills/Capabilities";
 
 export const metadata: Metadata = {
   title: "Capabilities · Skills",
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function SkillsPage() {
   return (
-    <Panel slug="skills" title="Capabilities" lede="Seven disciplines, each with a self-assessed level and a link to the public work that exercised it.">
-      <CharacterSheet />
-    </Panel>
+    <AppWindow slug="skills" title="Capabilities" lede="Seven disciplines, each with a self-assessed level and a link to the public work that exercised it.">
+      <Capabilities />
+    </AppWindow>
   );
 }

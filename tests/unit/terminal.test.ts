@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { runCommand, PROMPT } from "@/lib/terminal";
-import { bootLines } from "@/components/hub/BootSequence";
-import { quests } from "@/data/projects";
+import { bootLines } from "@/components/desktop/BootSequence";
+import { projects } from "@/data/projects";
 import { destinations } from "@/config/site";
 
 const ctx = { pathname: "/", mode: "explorer" as const };
@@ -16,7 +16,7 @@ describe("terminal", () => {
   });
   it("opens files by slug, file name, label or title", () => {
     expect(runCommand("cd projects", ctx).navigate).toBe("/projects");
-    expect(runCommand("cd about.txt", ctx).navigate).toBe("/about");
+    expect(runCommand("cd profile.md", ctx).navigate).toBe("/about");
     expect(runCommand("cd Tech Stack", ctx).navigate).toBe("/stack");
     expect(runCommand("cd toolchain", ctx).navigate).toBe("/stack");
     expect(runCommand("cd github.log", ctx).navigate).toBe("/stats");
@@ -25,7 +25,7 @@ describe("terminal", () => {
     expect(runCommand("cd ..", ctx).navigate).toBe("/");
   });
   it("opens projects by number, name prefix or title word", () => {
-    expect(runCommand("open 4", ctx).navigate).toBe(`/projects/${quests[3].slug}`);
+    expect(runCommand("open 4", ctx).navigate).toBe(`/projects/${projects[3].slug}`);
     expect(runCommand("open createos", ctx).navigate).toBe("/projects/CreateOS");
     expect(runCommand("open scanner", ctx).navigate).toBe("/projects/portscanner");
     expect(runCommand("open 99", ctx).navigate).toBeUndefined();
@@ -45,8 +45,8 @@ describe("terminal", () => {
 describe("boot sequence", () => {
   it("reports real counts from the data files", () => {
     const lines = bootLines();
-    expect(lines.some((l) => l.includes(`${quests.length} projects`))).toBe(true);
+    expect(lines.some((l) => l.includes(`${projects.length} repositories`))).toBe(true);
     expect(lines.some((l) => l.includes(`${destinations.length} files`))).toBe(true);
-    expect(lines.at(-1)).toMatch(/boot complete/);
+    expect(lines.at(-1)).toMatch(/ready/);
   });
 });

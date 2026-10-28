@@ -42,7 +42,7 @@ test.describe("no horizontal overflow at any viewport", () => {
     });
   }
 
-  test("standby screen @shots", async ({ page }) => {
+  test("lock screen @shots", async ({ page }) => {
     for (const vp of [
       { w: 390, h: 844 },
       { w: 1440, h: 900 },
@@ -51,7 +51,7 @@ test.describe("no horizontal overflow at any viewport", () => {
       await page.goto("/");
       await expect(page.getByTestId("enter")).toBeVisible();
       expect(await horizontalOverflow(page)).toBeLessThanOrEqual(0);
-      await page.screenshot({ path: `qa/screenshots/standby-${vp.w}x${vp.h}.jpg`, type: "jpeg", quality: 82 });
+      await page.screenshot({ path: `qa/screenshots/lock-${vp.w}x${vp.h}.jpg`, type: "jpeg", quality: 82 });
     }
   });
 });

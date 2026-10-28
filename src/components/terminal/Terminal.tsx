@@ -16,7 +16,7 @@ const WELCOME: Line[] = [{ kind: "out", text: `${site.name} ${site.system.toLowe
 
 /**
  * A shell over the same typed data the windows use. Opens with the backtick key or the
- * taskbar button; Escape closes it (and does not bubble to the window's Escape handler).
+ * dock button; Escape closes it (and does not bubble to the window's Escape handler).
  */
 export function Terminal() {
   const { terminalOpen, setTerminalOpen, mode, setMode } = useExperience();
@@ -84,25 +84,27 @@ export function Terminal() {
     <section
       aria-label="Terminal"
       data-keeps-escape
-      className="panel fixed inset-x-2 bottom-14 z-30 mx-auto flex max-h-[min(60dvh,28rem)] w-[min(100%-1rem,56rem)] flex-col font-mono text-[0.8rem] text-ink shadow-ember sm:inset-x-4 sm:bottom-16"
+      className="panel fixed inset-x-2 bottom-20 z-30 mx-auto flex max-h-[min(60dvh,28rem)] w-[min(100%-1rem,56rem)] flex-col font-mono text-[0.8rem] text-ink shadow-glow sm:inset-x-4 sm:bottom-24"
     >
       <header className="titlebar">
-        <span>
-          <span className="text-flare">sh</span> <span className="text-dust">—</span> {PROMPT}
+        <span className="flex items-center gap-3">
+          <button type="button" className="winclose" onClick={() => setTerminalOpen(false)} aria-label="Close terminal">
+            <X className="size-4" aria-hidden="true" />
+          </button>
+          <span>
+            <span className="text-glow">sh</span> <span className="text-dust">—</span> {PROMPT}
+          </span>
         </span>
-        <button type="button" className="btn btn-ghost btn-sm" onClick={() => setTerminalOpen(false)} aria-label="Close terminal">
-          <X className="size-3.5" aria-hidden="true" />
-        </button>
       </header>
       <div ref={log} role="log" aria-live="polite" className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-4 py-3 leading-6">
         {lines.map((line, i) => (
-          <div key={i} className={line.kind === "in" ? "text-flare" : "whitespace-pre-wrap text-ash"}>
+          <div key={i} className={line.kind === "in" ? "text-glow" : "whitespace-pre-wrap text-ash"}>
             {line.kind === "in" ? `${PROMPT} ${line.text}` : line.text}
           </div>
         ))}
       </div>
-      <form onSubmit={submit} className="flex items-center gap-2 border-t border-edge px-4 py-2">
-        <label htmlFor="terminal-input" className="shrink-0 text-gold">
+      <form onSubmit={submit} className="flex items-center gap-2 border-t border-white/5 px-4 py-2">
+        <label htmlFor="terminal-input" className="shrink-0 text-accent">
           {PROMPT}
         </label>
         <input

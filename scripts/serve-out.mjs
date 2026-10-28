@@ -62,4 +62,4 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => console.log(`BonfireOS static export served at http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`Static export served at http://localhost:${PORT}`));

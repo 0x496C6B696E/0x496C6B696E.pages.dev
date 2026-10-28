@@ -1,20 +1,20 @@
-import { attributes } from "@/data/skills";
+import { capabilities } from "@/data/skills";
 
 const SIZE = 320;
 const CENTER = SIZE / 2;
 const RADIUS = 112;
 
 function point(index: number, value: number): [number, number] {
-  const angle = -Math.PI / 2 + (index / attributes.length) * Math.PI * 2;
+  const angle = -Math.PI / 2 + (index / capabilities.length) * Math.PI * 2;
   const r = (value / 100) * RADIUS;
   return [CENTER + Math.cos(angle) * r, CENTER + Math.sin(angle) * r];
 }
 
 /** Seven-axis radar of the thematic levels. Pure SVG, server-rendered. */
-export function AttributeRadar() {
+export function CapabilityRadar() {
   const rings = [25, 50, 75, 100];
-  const shape = attributes.map((a, i) => point(i, a.level).join(",")).join(" ");
-  const summary = attributes.map((a) => `${a.meaning} ${a.level}`).join(", ");
+  const shape = capabilities.map((a, i) => point(i, a.level).join(",")).join(" ");
+  const summary = capabilities.map((a) => `${a.meaning} ${a.level}`).join(", ");
 
   return (
     <figure className="card flex flex-col items-center gap-2 p-4">
@@ -26,18 +26,18 @@ export function AttributeRadar() {
           </radialGradient>
         </defs>
         {rings.map((r) => (
-          <polygon key={r} points={attributes.map((_, i) => point(i, r).join(",")).join(" ")} fill="none" stroke="#ffb454" strokeOpacity={r === 100 ? 0.45 : 0.16} strokeWidth="1" />
+          <polygon key={r} points={capabilities.map((_, i) => point(i, r).join(",")).join(" ")} fill="none" stroke="#ffb454" strokeOpacity={r === 100 ? 0.45 : 0.16} strokeWidth="1" />
         ))}
-        {attributes.map((_, i) => {
+        {capabilities.map((_, i) => {
           const [x, y] = point(i, 100);
           return <line key={i} x1={CENTER} y1={CENTER} x2={x} y2={y} stroke="#ffb454" strokeOpacity="0.14" />;
         })}
         <polygon points={shape} fill="url(#radar-fill)" stroke="#ffd79a" strokeWidth="1.5" strokeLinejoin="round" />
-        {attributes.map((a, i) => {
+        {capabilities.map((a, i) => {
           const [x, y] = point(i, a.level);
           return <circle key={a.key} cx={x} cy={y} r="3" fill="#ffd79a" />;
         })}
-        {attributes.map((a, i) => {
+        {capabilities.map((a, i) => {
           const [x, y] = point(i, 124);
           const anchor = Math.abs(x - CENTER) < 6 ? "middle" : x > CENTER ? "start" : "end";
           return (

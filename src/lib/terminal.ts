@@ -3,7 +3,7 @@
  * Pure function so it can be unit tested; the component handles history and navigation.
  */
 import { destinations, site, type DestinationSlug } from "@/config/site";
-import { quests } from "@/data/projects";
+import { projects } from "@/data/projects";
 import { github, totals } from "@/data/github";
 import { formatDate, formatMonth } from "@/lib/format";
 import type { Mode } from "@/components/experience/ExperienceProvider";
@@ -54,8 +54,8 @@ function findDestination(query: string): DestinationSlug | undefined {
 function findQuest(query: string) {
   const q = query.toLowerCase();
   const index = Number.parseInt(q, 10);
-  if (!Number.isNaN(index) && index >= 1 && index <= quests.length) return quests[index - 1];
-  return quests.find((x) => x.slug.toLowerCase() === q || x.repo.toLowerCase() === q) ?? quests.find((x) => x.slug.toLowerCase().startsWith(q) || x.title.toLowerCase().includes(q));
+  if (!Number.isNaN(index) && index >= 1 && index <= projects.length) return projects[index - 1];
+  return projects.find((x) => x.slug.toLowerCase() === q || x.repo.toLowerCase() === q) ?? projects.find((x) => x.slug.toLowerCase().startsWith(q) || x.title.toLowerCase().includes(q));
 }
 
 export function runCommand(input: string, ctx: TerminalContext): TerminalResult {
@@ -87,13 +87,13 @@ export function runCommand(input: string, ctx: TerminalContext): TerminalResult 
     }
     case "projects":
     case "repos":
-      return { lines: quests.map((q, i) => `${String(i + 1).padStart(2)}  ${q.repo.padEnd(36)} ${q.title}`) };
+      return { lines: projects.map((q, i) => `${String(i + 1).padStart(2)}  ${q.repo.padEnd(36)} ${q.title}`) };
     case "open":
     case "cat": {
       if (!arg) return { lines: ["open what? try: projects"] };
-      const quest = findQuest(arg);
-      if (!quest) return { lines: [`no project matches "${arg}". try: projects`] };
-      return { lines: [`opening ${quest.repo}`], navigate: `/projects/${quest.slug}` };
+      const project = findQuest(arg);
+      if (!project) return { lines: [`no project matches "${arg}". try: projects`] };
+      return { lines: [`opening ${project.repo}`], navigate: `/projects/${project.slug}` };
     }
     case "whoami":
       return { lines: [site.developer.handle, site.developer.title, site.developer.github] };

@@ -3,29 +3,29 @@
     "host": "localhost:4173",
     "route": "/",
     "formFactor": "desktop",
-    "performance": 98,
+    "performance": 97,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100,
-    "lcp": "0.5 s",
-    "tbt": "60 ms",
+    "lcp": "0.3 s",
+    "tbt": "100 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T16:23:16.661Z"
+    "fetchTime": "2026-10-28T16:53:51.724Z"
   },
   {
     "host": "localhost:4173",
     "route": "/",
     "formFactor": "mobile",
-    "performance": 100,
+    "performance": 96,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100,
-    "lcp": "1.1 s",
-    "tbt": "80 ms",
+    "lcp": "2.2 s",
+    "tbt": "90 ms",
     "cls": "0",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T16:21:50.539Z"
+    "fetchTime": "2026-10-28T16:52:23.885Z"
   },
   {
     "host": "localhost:4173",
@@ -37,23 +37,23 @@
     "seo": 100,
     "lcp": "1.1 s",
     "tbt": "40 ms",
-    "cls": "0",
+    "cls": "0.007",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T16:22:02.568Z"
+    "fetchTime": "2026-10-28T16:52:36.087Z"
   },
   {
     "host": "localhost:4173",
     "route": "/contact",
     "formFactor": "mobile",
-    "performance": 96,
+    "performance": 100,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100,
-    "lcp": "2.2 s",
+    "lcp": "1.1 s",
     "tbt": "40 ms",
-    "cls": "0",
+    "cls": "0.007",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T16:23:04.473Z"
+    "fetchTime": "2026-10-28T16:53:39.279Z"
   },
   {
     "host": "localhost:4173",
@@ -64,10 +64,10 @@
     "bestPractices": 100,
     "seo": 100,
     "lcp": "1.1 s",
-    "tbt": "60 ms",
-    "cls": "0",
+    "tbt": "40 ms",
+    "cls": "0.007",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T16:22:27.748Z"
+    "fetchTime": "2026-10-28T16:53:01.497Z"
   },
   {
     "host": "localhost:4173",
@@ -77,11 +77,11 @@
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100,
-    "lcp": "1.1 s",
+    "lcp": "1.3 s",
     "tbt": "40 ms",
-    "cls": "0",
+    "cls": "0.007",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T16:22:15.160Z"
+    "fetchTime": "2026-10-28T16:52:48.647Z"
   },
   {
     "host": "localhost:4173",
@@ -93,9 +93,9 @@
     "seo": 100,
     "lcp": "1.1 s",
     "tbt": "40 ms",
-    "cls": "0",
+    "cls": "0.007",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T16:22:39.821Z"
+    "fetchTime": "2026-10-28T16:53:14.120Z"
   },
   {
     "host": "localhost:4173",
@@ -106,9 +106,9 @@
     "bestPractices": 100,
     "seo": 100,
     "lcp": "1.1 s",
-    "tbt": "40 ms",
-    "cls": "0",
+    "tbt": "50 ms",
+    "cls": "0.007",
     "lighthouse": "13.6.0",
-    "fetchTime": "2026-10-28T16:22:52.118Z"
+    "fetchTime": "2026-10-28T16:53:26.654Z"
   }
 ]
